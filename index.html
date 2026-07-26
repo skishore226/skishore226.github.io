@@ -298,6 +298,25 @@
     font-weight: 500;
   }
 
+  a.concept-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    cursor: pointer;
+  }
+
+  a.concept-link:hover h3 { color: var(--accent); }
+
+  .card-arrow {
+    margin-top: 0.5rem;
+    font-size: 1.4rem;
+    color: var(--accent);
+    font-weight: 600;
+    transition: transform 0.2s;
+  }
+
+  a.concept-link:hover .card-arrow { transform: translateX(6px); }
+
   .coming-soon-note {
     text-align: center;
     margin-top: 2.5rem;
@@ -436,48 +455,30 @@
 
 <!-- PROJECTS -->
 <section id="projects" class="projects-section">
-  <div class="section-label">Projects</div>
-  <h2>Work in progress</h2>
+  <div class="section-label">Projects by Concept</div>
+  <h2>Explore my work</h2>
+  <p style="color: var(--text-light); font-size: 1.05rem; line-height: 1.7; margin-bottom: 2rem;">
+    Each concept area below contains hands-on PM projects — specs, prototypes, research, and more — that demonstrate how I apply what I'm learning.
+  </p>
   <div class="projects-grid">
 
-    <div class="project-card">
-      <div class="card-type">Sample — App Concept</div>
-      <h3>AI Feature Prioritization Tool</h3>
-      <p>A lightweight app that helps PM teams evaluate and rank potential AI features using an impact-effort framework.</p>
+    <a href="cognitive-computing.html" class="project-card concept-link">
+      <div class="card-type">Concept Area</div>
+      <h3>Cognitive Computing</h3>
+      <p>How machines perceive, learn, and reason — and how a PM scopes products around those capabilities.</p>
       <div class="card-tags">
-        <span class="card-tag">Product Strategy</span>
-        <span class="card-tag">AI</span>
-        <span class="card-tag">Prototype</span>
+        <span class="card-tag">Perception</span>
+        <span class="card-tag">Reasoning</span>
+        <span class="card-tag">Human-AI Decisions</span>
       </div>
-    </div>
-
-    <div class="project-card">
-      <div class="card-type">Sample — Spec Document</div>
-      <h3>PRD: Intelligent Onboarding Flow</h3>
-      <p>A product requirements document for an AI-powered onboarding experience that adapts to user behavior in real time.</p>
-      <div class="card-tags">
-        <span class="card-tag">PRD</span>
-        <span class="card-tag">UX</span>
-        <span class="card-tag">Personalization</span>
-      </div>
-    </div>
-
-    <div class="project-card">
-      <div class="card-type">Sample — Research</div>
-      <h3>User Attitudes Toward AI Recommendations</h3>
-      <p>A user research study exploring how people perceive and trust AI-generated recommendations in everyday apps.</p>
-      <div class="card-tags">
-        <span class="card-tag">User Research</span>
-        <span class="card-tag">Trust</span>
-        <span class="card-tag">AI Ethics</span>
-      </div>
-    </div>
+      <div class="card-arrow">→</div>
+    </a>
 
   </div>
 
   <div class="coming-soon-note">
-    🚧 These are sample projects to show the kinds of work that will live here.<br>
-    <span>Real projects are on the way</span> — check back soon!
+    More concept areas are on the way — including Intro to AI, Generative AI, Prompt Engineering, and more.<br>
+    <span>Check back soon!</span>
   </div>
 </section>
 
