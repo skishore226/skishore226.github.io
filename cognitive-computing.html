@@ -5,240 +5,151 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cognitive Computing — Sam Kishore</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #F8F6F1;
-    --bg-alt: #EFECE4;
-    --text: #2B2D42;
-    --text-light: #5A5D7A;
-    --accent: #457B9D;
-    --accent-light: #A8DADC;
-    --warm: #E9C46A;
-    --warm-dark: #D4A035;
-    --dark: #264653;
-    --white: #FFFFFF;
-    --radius: 12px;
+    --bg: #F8F6F1; --bg-alt: #EFECE4; --text: #2B2D42; --text-light: #5A5D7A;
+    --accent: #457B9D; --accent-light: #A8DADC; --warm: #E9C46A; --dark: #264653;
+    --white: #FFFFFF; --radius: 12px; --green: #15803D; --green-soft: #EAF6EE;
+    --red: #B91C1C; --red-soft: #FBEAEA; --amber: #B45309; --amber-soft: #FDF3E7;
+    --steel: #1E5A8E; --steel-soft: #E8F0F7; --line: #DCE3E9; --ink: #16232F;
+    --mono: 'IBM Plex Mono', monospace; --sans: 'Source Sans 3', -apple-system, sans-serif;
+    --serif: 'DM Serif Display', serif;
   }
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
+  body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.65; font-weight: 400; }
 
-  body {
-    font-family: 'Source Sans 3', -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    font-weight: 400;
-  }
-
-  /* ── NAV ── */
-  nav {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 100;
-    padding: 1rem 2rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(248, 246, 241, 0.9);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(43, 45, 66, 0.06);
-  }
-
-  nav .logo {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.25rem;
-    color: var(--dark);
-    text-decoration: none;
-  }
-
+  /* NAV */
+  nav { position: fixed; top: 0; width: 100%; z-index: 100; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; background: rgba(248,246,241,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(43,45,66,0.06); }
+  nav .logo { font-family: var(--serif); font-size: 1.25rem; color: var(--dark); text-decoration: none; }
   nav .nav-links { display: flex; gap: 2rem; list-style: none; }
-
-  nav .nav-links a {
-    text-decoration: none;
-    color: var(--text-light);
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: color 0.2s;
-  }
-
+  nav .nav-links a { text-decoration: none; color: var(--text-light); font-size: 0.95rem; font-weight: 500; transition: color 0.2s; }
   nav .nav-links a:hover { color: var(--accent); }
 
-  /* ── PAGE HEADER ── */
-  .page-header {
-    padding: 8rem 2rem 3rem;
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .breadcrumb {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    margin-bottom: 1.5rem;
-  }
-
-  .breadcrumb a {
-    color: var(--accent);
-    text-decoration: none;
-  }
-
+  /* PAGE HEADER */
+  .page-header { padding: 8rem 2rem 3rem; max-width: 900px; margin: 0 auto; }
+  .breadcrumb { font-size: 0.9rem; color: var(--text-light); margin-bottom: 1.5rem; }
+  .breadcrumb a { color: var(--accent); text-decoration: none; }
   .breadcrumb a:hover { text-decoration: underline; }
+  .breadcrumb span { margin: 0 0.5rem; }
+  .page-header h1 { font-family: var(--serif); font-size: clamp(2.2rem,5vw,3rem); color: var(--dark); line-height: 1.2; margin-bottom: 1rem; }
+  .page-header .intro { font-size: 1.1rem; color: var(--text-light); max-width: 650px; line-height: 1.7; }
 
-  .breadcrumb span { margin: 0 0.5rem; color: var(--text-light); }
+  /* SECTIONS */
+  .content { max-width: 900px; margin: 0 auto; padding: 0 2rem; }
+  .part { margin-bottom: 4rem; }
+  .part-label { font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); font-weight: 500; margin-bottom: 0.4rem; }
+  .part h2 { font-family: var(--serif); font-size: 1.75rem; color: var(--dark); margin-bottom: 1.25rem; }
+  .part h3 { font-family: var(--serif); font-size: 1.3rem; color: var(--dark); margin: 1.75rem 0 0.75rem; }
+  .part p { font-size: 1.02rem; color: var(--text); line-height: 1.75; margin-bottom: 1rem; }
+  .part .emphasis { font-weight: 600; color: var(--dark); }
 
-  .page-header h1 {
-    font-family: 'DM Serif Display', serif;
-    font-size: clamp(2.2rem, 5vw, 3rem);
-    color: var(--dark);
-    line-height: 1.2;
-    margin-bottom: 1rem;
-  }
+  /* CONCEPT FLOW */
+  .concept-flow { display: flex; gap: 0; align-items: stretch; margin: 2rem 0; flex-wrap: wrap; justify-content: center; }
+  .concept-card { flex: 1; min-width: 200px; max-width: 280px; background: var(--white); border-radius: var(--radius); padding: 1.75rem 1.25rem; text-align: center; border: 1px solid rgba(43,45,66,0.08); }
+  .concept-card .icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+  .concept-card h4 { font-family: var(--serif); font-size: 1.15rem; color: var(--dark); margin-bottom: 0.5rem; }
+  .concept-card p { font-size: 0.92rem; color: var(--text-light); line-height: 1.55; }
+  .flow-arrow { display: flex; align-items: center; padding: 0 0.5rem; font-size: 1.5rem; color: var(--accent); font-weight: 700; }
+  @media (max-width: 700px) { .flow-arrow { display: none; } .concept-card { max-width: 100%; } }
 
-  .page-header .intro {
-    font-size: 1.1rem;
-    color: var(--text-light);
-    max-width: 650px;
-    line-height: 1.7;
-  }
+  /* KEY POINT CALLOUT */
+  .callout { background: var(--white); border-left: 4px solid var(--accent); border-radius: 0 var(--radius) var(--radius) 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+  .callout.warn { border-left-color: var(--amber); background: var(--amber-soft); }
+  .callout.green { border-left-color: var(--green); background: var(--green-soft); }
+  .callout b { color: var(--dark); }
+  .callout p { margin-bottom: 0.25rem; }
 
-  .concept-tags {
-    margin-top: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
+  /* PROCESS FLOW EMBED */
+  .flow-embed { margin: 2rem 0; background: var(--white); border: 1px solid rgba(43,45,66,0.08); border-radius: var(--radius); overflow: hidden; }
+  .flow-embed .flow-title { padding: 1rem 1.25rem; border-bottom: 1px solid var(--line); font-family: var(--serif); font-size: 1rem; color: var(--dark); }
+  .flow-scroll { overflow-x: auto; padding: 8px 4px 16px; }
+  .flow-scroll::-webkit-scrollbar { height: 6px; }
+  .flow-scroll::-webkit-scrollbar-thumb { background: #B4B2A9; border-radius: 3px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; padding: 8px 16px 12px; font-size: 12px; color: #888780; }
+  .legend-item { display: flex; align-items: center; gap: 6px; }
 
-  .concept-tag {
-    display: inline-block;
-    padding: 0.35rem 0.9rem;
-    background: var(--white);
-    border: 1px solid rgba(43, 45, 66, 0.1);
-    border-radius: 20px;
-    font-size: 0.85rem;
-    color: var(--text);
-    font-weight: 500;
-  }
+  /* SVG styles for swimlanes */
+  .lane-label { font-family: -apple-system, sans-serif; font-size: 11px; font-weight: 500; fill: #888780; }
+  .flow-embed .title { font-family: -apple-system, sans-serif; font-size: 11px; font-weight: 500; }
+  .flow-embed .sub { font-family: -apple-system, sans-serif; font-size: 10px; font-weight: 400; }
+  .decision-text { font-family: -apple-system, sans-serif; font-size: 10px; fill: #2C2C2A; }
+  .arrow-line { stroke: #888780; stroke-width: 0.5; }
+  .arrow-label { font-family: -apple-system, sans-serif; font-size: 10px; fill: #888780; }
+  .lane-line { stroke: #D3D1C7; stroke-width: 0.5; }
+  .lane-alt { fill: #f8f7f4; opacity: 0.5; }
+  .diamond { fill: #fff; stroke: #B4B2A9; stroke-width: 0.5; }
+  .subprocess-line { stroke-width: 0.5; }
+  .s-purple rect { fill: #EEEDFE; stroke: #AFA9EC; stroke-width: 0.5; } .s-purple .title { fill: #3C3489; } .s-purple .sub { fill: #534AB7; }
+  .s-teal rect { fill: #E1F5EE; stroke: #5DCAA5; stroke-width: 0.5; } .s-teal .title { fill: #085041; } .s-teal .sub { fill: #0F6E56; }
+  .s-blue rect { fill: #E6F1FB; stroke: #85B7EB; stroke-width: 0.5; } .s-blue .title { fill: #0C447C; } .s-blue .sub { fill: #185FA5; } .s-blue line.subprocess-line { stroke: #85B7EB; }
+  .s-green rect { fill: #EAF3DE; stroke: #97C459; stroke-width: 0.5; } .s-green .title { fill: #27500A; } .s-green .sub { fill: #3B6D11; }
+  .s-amber rect { fill: #FAEEDA; stroke: #FAC775; stroke-width: 0.5; } .s-amber .title { fill: #633806; } .s-amber .sub { fill: #854F0B; }
+  .s-pink rect { fill: #FBEAF0; stroke: #ED93B1; stroke-width: 0.5; } .s-pink .title { fill: #72243E; } .s-pink .sub { fill: #993556; }
+  .s-gray rect { fill: #F1EFE8; stroke: #B4B2A9; stroke-width: 0.5; } .s-gray .title { fill: #444441; } .s-gray .sub { fill: #5F5E5A; }
+  .s-red rect { fill: #FCEBEB; stroke: #F09595; stroke-width: 0.5; } .s-red .title { fill: #791F1F; }
 
-  /* ── DELIVERABLES ── */
-  .deliverables {
-    padding: 2rem 2rem 5rem;
-    max-width: 900px;
-    margin: 0 auto;
-  }
+  /* STEP WALKTHROUGH */
+  .step { margin-bottom: 1.5rem; }
+  .step .step-head { display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.3rem; }
+  .step .step-num { font-family: var(--mono); font-size: 0.75rem; color: var(--accent); background: var(--steel-soft); padding: 2px 8px; border-radius: 4px; }
+  .step h4 { font-size: 1rem; font-weight: 600; color: var(--dark); }
+  .step p { font-size: 0.95rem; }
 
-  .section-label {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: var(--accent);
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
+  /* USER STORIES */
+  .story-group { margin-bottom: 2rem; }
+  .story-group h4 { font-family: var(--serif); font-size: 1.1rem; color: var(--accent); margin-bottom: 0.75rem; }
+  .story { background: var(--white); border: 1px solid rgba(43,45,66,0.08); border-radius: 8px; padding: 0.85rem 1.1rem; margin-bottom: 0.6rem; font-size: 0.93rem; line-height: 1.6; }
+  .story b { font-family: var(--mono); font-weight: 500; font-size: 0.8rem; color: var(--accent); }
 
-  .deliverables h2 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.75rem;
-    color: var(--dark);
-    margin-bottom: 1.5rem;
-  }
+  /* APP PREVIEW */
+  .app-preview { background: var(--ink); border-radius: var(--radius); overflow: hidden; margin: 1.5rem 0; }
+  .app-bar { background: var(--ink); padding: 0.7rem 1rem; display: flex; align-items: center; gap: 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .app-bar .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .app-bar .dot.r { background: #FF5F57; } .app-bar .dot.y { background: #FEBC2E; } .app-bar .dot.g { background: #28C840; }
+  .app-bar span { font-family: var(--mono); font-size: 11px; color: #9FB2C2; margin-left: 0.5rem; }
+  .app-screen { padding: 1.25rem; }
+  .app-stage { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
+  .app-stage .as-label { font-family: var(--mono); font-size: 10px; color: var(--accent-light); text-transform: uppercase; letter-spacing: 0.08em; }
+  .app-stage h5 { color: #fff; font-size: 14px; margin: 2px 0 8px; }
+  .app-table { width: 100%; border-collapse: collapse; font-size: 12px; color: #D3D1C7; }
+  .app-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #9FB2C2; padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .app-table td { padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .app-table .val { font-family: var(--mono); font-size: 11.5px; color: var(--accent-light); }
+  .app-badge { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .app-badge.pass { background: rgba(21,128,61,0.2); color: #86EFAC; }
+  .app-badge.block { background: rgba(185,28,28,0.2); color: #FCA5A5; }
+  .app-badge.perf { background: rgba(21,128,61,0.2); color: #86EFAC; }
+  .app-badge.def { background: rgba(185,28,28,0.2); color: #FCA5A5; }
+  .app-badge.rest { background: rgba(180,83,9,0.2); color: #FDE68A; }
+  .app-rating { display: flex; align-items: center; gap: 1rem; margin: 0.5rem 0; }
+  .app-rating .num { font-family: var(--mono); font-size: 28px; color: var(--accent-light); width: 52px; height: 52px; border: 2px solid var(--accent-light); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .app-rating .info { color: #D3D1C7; font-size: 12px; }
+  .app-rating .info strong { color: #fff; font-size: 13px; }
+  .app-evidence { border-left: 3px solid var(--accent-light); padding: 6px 10px; margin: 6px 0; font-size: 12px; color: #D3D1C7; background: rgba(255,255,255,0.04); border-radius: 0 4px 4px 0; }
+  .app-evidence strong { color: #fff; }
+  .app-decision { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 1rem; color: #D3D1C7; font-size: 12px; }
+  .app-decision strong { color: #fff; }
+  .prec-mini { display: inline-block; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 6px 10px; margin: 3px; font-size: 11px; color: #D3D1C7; }
+  .prec-mini strong { color: #fff; font-size: 12px; }
 
-  .deliverable-card {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 2rem;
-    box-shadow: 0 2px 16px rgba(38, 70, 83, 0.05);
-    margin-bottom: 1.25rem;
-    transition: all 0.3s ease;
-    border-left: 4px solid var(--accent);
-  }
+  .cta-btn { display: inline-block; padding: 0.85rem 2rem; background: var(--accent); color: var(--white); border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1rem; transition: background 0.2s; margin-top: 1rem; }
+  .cta-btn:hover { background: var(--dark); }
 
-  .deliverable-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(38, 70, 83, 0.1);
-  }
+  /* BOTTOM LINE BOX */
+  .bottom-line { background: var(--dark); color: #fff; border-radius: var(--radius); padding: 2rem; margin: 2rem 0; }
+  .bottom-line h3 { font-family: var(--serif); color: var(--warm); margin-bottom: 1rem; }
+  .bottom-line ol { margin-left: 1.25rem; font-size: 1rem; line-height: 1.8; }
+  .bottom-line li { margin-bottom: 0.5rem; }
 
-  .deliverable-card .card-type {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
+  footer { text-align: center; padding: 2rem; font-size: 0.85rem; color: var(--text-light); border-top: 1px solid rgba(43,45,66,0.08); margin-top: 3rem; }
 
-  .deliverable-card h3 {
-    font-family: 'DM Serif Display', serif;
-    font-size: 1.25rem;
-    color: var(--dark);
-    margin-bottom: 0.5rem;
-  }
-
-  .deliverable-card p {
-    font-size: 0.95rem;
-    color: var(--text-light);
-    line-height: 1.6;
-  }
-
-  .card-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-    margin-top: 1rem;
-  }
-
-  .card-tag {
-    font-size: 0.78rem;
-    padding: 0.25rem 0.65rem;
-    background: var(--bg);
-    border-radius: 6px;
-    color: var(--text-light);
-    font-weight: 500;
-  }
-
-  .empty-state {
-    text-align: center;
-    padding: 3rem 2rem;
-    border: 2px dashed rgba(69, 123, 157, 0.25);
-    border-radius: var(--radius);
-    color: var(--text-light);
-    font-size: 1rem;
-    line-height: 1.7;
-  }
-
-  .empty-state span {
-    color: var(--accent);
-    font-weight: 600;
-  }
-
-  /* ── FOOTER ── */
-  footer {
-    text-align: center;
-    padding: 2rem;
-    font-size: 0.85rem;
-    color: var(--text-light);
-    border-top: 1px solid rgba(43, 45, 66, 0.08);
-  }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 768px) {
-    nav { padding: 1rem; }
-    nav .nav-links { gap: 1.25rem; }
-    .page-header { padding: 7rem 1.5rem 2rem; }
-    .deliverables { padding: 2rem 1.5rem 4rem; }
-  }
-
-  @media (max-width: 480px) {
-    nav .nav-links { gap: 0.75rem; }
-    nav .nav-links a { font-size: 0.85rem; }
-    .page-header h1 { font-size: 2rem; }
-  }
+  @media (max-width: 768px) { nav { padding: 1rem; } .page-header { padding: 7rem 1.5rem 2rem; } .content { padding: 0 1.5rem; } }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <a href="index.html" class="logo">Sam Kishore</a>
   <ul class="nav-links">
@@ -248,55 +159,329 @@
   </ul>
 </nav>
 
-<!-- PAGE HEADER -->
 <div class="page-header">
-  <div class="breadcrumb">
-    <a href="index.html">Home</a>
-    <span>›</span>
-    Cognitive Computing
-  </div>
+  <div class="breadcrumb"><a href="index.html">Home</a><span>›</span>Cognitive Computing</div>
   <h1>Cognitive Computing</h1>
-  <p class="intro">
-    Cognitive computing systems mimic human thought — perceiving data, learning patterns, and reasoning toward decisions. The projects below explore how a product manager would scope and build products that leverage these capabilities responsibly.
-  </p>
-  <div class="concept-tags">
-    <span class="concept-tag">Perception</span>
-    <span class="concept-tag">Learning</span>
-    <span class="concept-tag">Reasoning</span>
-    <span class="concept-tag">Augmented Intelligence</span>
-    <span class="concept-tag">Human-AI Decision-Making</span>
+  <p class="intro">From concept to working prototype — this project walks through how a product manager would discover, document, and build an AI-augmented underwriting tool grounded in cognitive computing principles.</p>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════════════ PART 1 ═══════════════════════ -->
+<div class="part" id="part1">
+<div class="part-label">Part 1</div>
+<h2>What is Cognitive Computing?</h2>
+
+<p>Imagine you're running a business with thousands of customer transactions hitting your desk every day. You have a team of experienced analysts and managers. They observe what's happening, apply their knowledge, make judgment calls, and decide what to do. The business runs on human cognition — the mental process of perceiving, learning, and reasoning. Let's break that down.</p>
+
+<div class="concept-flow">
+  <div class="concept-card">
+    <div class="icon">👁️</div>
+    <h4>Perception</h4>
+    <p>Gathering raw information from the world before anything useful can happen.</p>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="concept-card">
+    <div class="icon">🧠</div>
+    <h4>Learning</h4>
+    <p>Recognizing patterns from repeated exposure to data over time.</p>
+  </div>
+  <div class="flow-arrow">→</div>
+  <div class="concept-card">
+    <div class="icon">⚖️</div>
+    <h4>Reasoning</h4>
+    <p>Weighing evidence and arriving at a defensible conclusion.</p>
   </div>
 </div>
 
-<!-- DELIVERABLES -->
-<div class="deliverables">
-  <div class="section-label">Deliverables</div>
-  <h2>Projects in this area</h2>
+<h3>Perception</h3>
+<p>When an analyst reads a document, listens to a customer, or reviews a transaction slip, they're doing the most fundamental part of the job: gathering raw information from the world around them.</p>
+<div class="callout"><p><b>But here is the key:</b> Nothing useful happens if this step is broken. For instance, if the analyst is only reading half the forms, or missing verbal customer complaints, no amount of smart analysis later will fix that. It all starts with information intake.</p></div>
 
-  <!-- Deliverable cards will go here as projects are completed -->
-  <!-- Example of what a completed card looks like:
-  <div class="deliverable-card">
-    <div class="card-type">Product Requirements Document</div>
-    <h3>AI-Augmented Fraud Review Tool</h3>
-    <p>A PRD for an internal fintech tool that surfaces AI fraud predictions to human analysts — designed around augmented intelligence principles and cognitive bias mitigation.</p>
-    <div class="card-tags">
-      <span class="card-tag">PRD</span>
-      <span class="card-tag">Augmented Intelligence</span>
-      <span class="card-tag">Cognitive Bias</span>
-      <span class="card-tag">B2B Internal</span>
-    </div>
-  </div>
-  -->
+<h3>Learning</h3>
+<p>Now hand that analyst's notes to someone senior — someone who has reviewed thousands of transactions over the years. Over time, they've started recognizing patterns: "this type of transaction always precedes fraud," or "customers who ask this question usually need X." They might not be able to articulate every rule they follow, but their instincts are sharp. That expertise isn't magic — it's accumulated pattern recognition built from repeated exposure to data.</p>
 
-  <div class="empty-state">
-    🚧 Projects for this concept area are currently in progress.<br>
-    <span>The first deliverable — a PRD for an AI-Augmented Fraud Review Tool — is underway.</span>
-  </div>
+<h3>Reasoning</h3>
+<p>The senior analyst then brings their findings to a manager, who weighs the evidence and makes a call: approve the transaction, flag it for review, escalate the complaint, or some other decision. This is reasoning — taking what was perceived and learned and arriving at a defensible conclusion. It's where information becomes a decision.</p>
+
+<h3>So what is Cognitive Computing?</h3>
+<p>This three-part process — perceive, learn, reason — is exactly what cognitive computing replicates. Cognitive computing is a branch of AI that mimics these human thought processes to create intelligent machines. But unlike traditional tools that simply execute commands, cognitive systems are designed to grasp user needs, anticipate questions, and proactively deliver insights. They don't just do what you tell them — they think alongside you.</p>
 </div>
 
-<footer>
-  &copy; 2026 Sam Kishore. Built with curiosity.
-</footer>
+<!-- ═══════════════════════ PART 2 ═══════════════════════ -->
+<div class="part" id="part2">
+<div class="part-label">Part 2</div>
+<h2>A Real-World Workflow: Commercial Loan Underwriting</h2>
 
+<div class="callout">
+<p><b>Why start with the workflow?</b></p>
+<p>Before we build anything, engineer anything, or design anything, we need to understand what the people who will use this technology actually do every day. This is discovery work — and it's one of the most important instincts a product manager can have.</p>
+<p>In the real world, this means sitting down with the end users inside a bank — loan officers, underwriters, credit committee members — and mapping out their process step by step. Not how the system works. How <i>they</i> work.</p>
+<p>This matters because one of the most common failures in digital transformation projects — whether the technology is a CRM, a cloud platform, or an AI tool — is that the technology gets built without being properly integrated into real-world workflows. Teams ship features that look great in a demo but break the way people actually do their jobs. The result is software that gets worked around instead of worked with.</p>
+<p>So before we talk about cognitive computing as a solution, let's do the discovery. Below is the current-state process flow for commercial loan underwriting — the kind of artifact a product manager would produce after spending time with the people who live this process every day.</p>
+</div>
+
+<h3>Primary Process Flow</h3>
+<p>This diagram displays the high-level workflow at most commercial lending institutions. Processes and procedures vary from bank to bank, but this represents what is broadly common across the lenders I consulted with during my time in technology consulting.</p>
+
+<div class="flow-embed">
+<div class="flow-title">Commercial Loan Underwriting — Primary Process Flow</div>
+<div class="flow-scroll">
+<svg width="1520" viewBox="0 0 1520 530" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="a1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect x="100" y="30" width="1420" height="80" class="lane-alt"/><rect x="100" y="200" width="1420" height="90" class="lane-alt"/><rect x="100" y="380" width="1420" height="70" class="lane-alt"/>
+<line x1="100" y1="30" x2="1520" y2="30" class="lane-line"/><line x1="100" y1="110" x2="1520" y2="110" class="lane-line"/><line x1="100" y1="200" x2="1520" y2="200" class="lane-line"/><line x1="100" y1="290" x2="1520" y2="290" class="lane-line"/><line x1="100" y1="380" x2="1520" y2="380" class="lane-line"/><line x1="100" y1="450" x2="1520" y2="450" class="lane-line"/><line x1="100" y1="530" x2="1520" y2="530" class="lane-line"/><line x1="100" y1="30" x2="100" y2="530" class="lane-line"/>
+<text class="lane-label" x="12" y="74">Borrower</text><text class="lane-label" x="12" y="150">Loan officer /</text><text class="lane-label" x="12" y="164">relationship mgr</text><text class="lane-label" x="12" y="249">Underwriter</text><text class="lane-label" x="12" y="339">Credit committee</text><text class="lane-label" x="12" y="419">Legal / closing</text><text class="lane-label" x="12" y="494">Portfolio mgmt</text>
+<g class="s-purple"><rect x="130" y="50" width="120" height="40" rx="18"/><text class="title" x="190" y="70" text-anchor="middle" dominant-baseline="central">Borrower inquiry</text></g>
+<line x1="190" y1="90" x2="190" y2="138" class="arrow-line" marker-end="url(#a1)"/>
+<g class="s-teal"><rect x="130" y="140" width="120" height="40" rx="4"/><text class="title" x="190" y="153" text-anchor="middle" dominant-baseline="central">Qualifying</text><text class="sub" x="190" y="169" text-anchor="middle" dominant-baseline="central">conversation</text></g>
+<path d="M250 160 L280 160 L280 70 L310 70" fill="none" class="arrow-line" marker-end="url(#a1)"/>
+<g class="s-purple"><rect x="312" y="50" width="130" height="40" rx="4"/><text class="title" x="377" y="63" text-anchor="middle" dominant-baseline="central">Submit application</text><text class="sub" x="377" y="79" text-anchor="middle" dominant-baseline="central">& documents</text></g>
+<line x1="377" y1="90" x2="377" y2="138" class="arrow-line" marker-end="url(#a1)"/>
+<g class="s-teal"><rect x="312" y="140" width="130" height="40" rx="4"/><text class="title" x="377" y="153" text-anchor="middle" dominant-baseline="central">Track & confirm</text><text class="sub" x="377" y="169" text-anchor="middle" dominant-baseline="central">loan package</text></g>
+<line x1="442" y1="160" x2="498" y2="160" class="arrow-line" marker-end="url(#a1)"/>
+<g class="s-teal"><rect x="500" y="140" width="130" height="40" rx="4"/><text class="title" x="565" y="153" text-anchor="middle" dominant-baseline="central">Preliminary review</text><text class="sub" x="565" y="169" text-anchor="middle" dominant-baseline="central">& deal structuring</text></g>
+<line x1="630" y1="160" x2="686" y2="160" class="arrow-line" marker-end="url(#a1)"/>
+<polygon points="720,128 752,160 720,192 688,160" class="diamond"/><text class="decision-text" x="720" y="156" text-anchor="middle" dominant-baseline="central">Fits</text><text class="decision-text" x="720" y="168" text-anchor="middle" dominant-baseline="central">criteria?</text>
+<line x1="720" y1="192" x2="720" y2="225" class="arrow-line" marker-end="url(#a1)"/><g class="s-red"><rect x="680" y="227" width="80" height="30" rx="4"/><text class="title" x="720" y="242" text-anchor="middle" dominant-baseline="central">Decline</text></g><text class="arrow-label" x="730" y="218">No</text>
+<line x1="752" y1="160" x2="818" y2="160" class="arrow-line"/><text class="arrow-label" x="770" y="152">Yes</text><path d="M818 160 L818 245 L848 245" fill="none" class="arrow-line" marker-end="url(#a1)"/>
+<g class="s-blue"><rect x="850" y="222" width="150" height="46" rx="4"/><line x1="862" y1="222" x2="862" y2="268" class="subprocess-line"/><line x1="988" y1="222" x2="988" y2="268" class="subprocess-line"/><text class="title" x="925" y="237" text-anchor="middle" dominant-baseline="central">Underwriting</text><text class="sub" x="925" y="255" text-anchor="middle" dominant-baseline="central">See detailed sub-process</text></g>
+<line x1="925" y1="268" x2="925" y2="315" class="arrow-line" marker-end="url(#a1)"/>
+<g class="s-green"><rect x="860" y="317" width="130" height="40" rx="4"/><text class="title" x="925" y="330" text-anchor="middle" dominant-baseline="central">Credit committee</text><text class="sub" x="925" y="346" text-anchor="middle" dominant-baseline="central">review</text></g>
+<line x1="990" y1="337" x2="1046" y2="337" class="arrow-line" marker-end="url(#a1)"/>
+<polygon points="1080,305 1112,337 1080,369 1048,337" class="diamond"/><text class="decision-text" x="1080" y="334" text-anchor="middle" dominant-baseline="central">Approved</text><text class="decision-text" x="1080" y="346" text-anchor="middle" dominant-baseline="central">?</text>
+<line x1="1080" y1="369" x2="1080" y2="398" class="arrow-line" marker-end="url(#a1)"/><g class="s-red"><rect x="1035" y="400" width="90" height="30" rx="4"/><text class="title" x="1080" y="415" text-anchor="middle" dominant-baseline="central">Decline / rework</text></g><text class="arrow-label" x="1090" y="390">No</text>
+<line x1="1112" y1="337" x2="1168" y2="337" class="arrow-line"/><text class="arrow-label" x="1130" y="329">Yes</text><path d="M1168 337 L1168 160 L1198 160" fill="none" class="arrow-line" marker-end="url(#a1)"/>
+<g class="s-amber"><rect x="1200" y="140" width="120" height="40" rx="4"/><text class="title" x="1260" y="153" text-anchor="middle" dominant-baseline="central">Issue commitment</text><text class="sub" x="1260" y="169" text-anchor="middle" dominant-baseline="central">letter</text></g>
+<line x1="1260" y1="140" x2="1260" y2="92" class="arrow-line" marker-end="url(#a1)"/>
+<g class="s-amber"><rect x="1200" y="50" width="120" height="40" rx="4"/><text class="title" x="1260" y="63" text-anchor="middle" dominant-baseline="central">Review, negotiate</text><text class="sub" x="1260" y="79" text-anchor="middle" dominant-baseline="central">& sign</text></g>
+<path d="M1320 70 L1380 70 L1380 415 L1398 415" fill="none" class="arrow-line" marker-end="url(#a1)"/>
+<g class="s-pink"><rect x="1400" y="395" width="100" height="40" rx="4"/><text class="title" x="1450" y="408" text-anchor="middle" dominant-baseline="central">Closing &</text><text class="sub" x="1450" y="424" text-anchor="middle" dominant-baseline="central">documentation</text></g>
+<line x1="1450" y1="435" x2="1450" y2="468" class="arrow-line" marker-end="url(#a1)"/>
+<g class="s-gray"><rect x="1390" y="470" width="120" height="40" rx="18"/><text class="title" x="1450" y="483" text-anchor="middle" dominant-baseline="central">Ongoing</text><text class="sub" x="1450" y="499" text-anchor="middle" dominant-baseline="central">monitoring</text></g>
+</svg>
+</div>
+<div class="legend"><div class="legend-item"><div style="width:20px;height:14px;border-radius:7px;border:1px solid #D3D1C7"></div> Start / end</div><div class="legend-item"><div style="width:20px;height:14px;border-radius:3px;border:1px solid #D3D1C7"></div> Process step</div><div class="legend-item"><div style="width:14px;height:14px;transform:rotate(45deg);border:1px solid #B4B2A9"></div> Decision point</div></div>
+</div>
+
+<h3>Step-by-Step Walkthrough</h3>
+
+<div class="step"><div class="step-head"><span class="step-num">1</span><h4>Borrower Inquiry & Initial Conversation</h4></div><p>A commercial customer reaches out to the lending institution to finance a capital project. A relationship manager has a high-level qualifying conversation to understand how much they're looking to borrow, the purpose, and the general financial profile of the business. It's essentially lead qualification — the RM determines whether there's enough fit to move forward.</p></div>
+
+<div class="step"><div class="step-head"><span class="step-num">2</span><h4>Application Intake & Document Collection</h4></div><p>The borrower decides to proceed, and the bank sends a loan application with a checklist of required documents: financial statements, tax returns, bank statements, business plans, proof of collateral, guarantees, and more. In practice, this phase takes at least two to three weeks — the data is unstructured and arrives in pieces. The RM tracks what's been received, follows up on what's missing, and confirms the package is complete enough to move forward.</p></div>
+
+<div class="step"><div class="step-head"><span class="step-num">3</span><h4>Preliminary Review & Deal Structuring</h4></div><p>A loan officer or credit analyst checks whether the deal aligns with the bank's lending criteria — industry, borrower type, geography, loan size. Many institutions have restrictions that apply case by case, so a borrower with decent credit might still be declined because of a policy restriction. If the deal falls outside policy, it's declined early. If it fits, the loan officer begins structuring terms: loan amount, interest rate, repayment schedule, and collateral requirements.</p></div>
+
+<div class="step"><div class="step-head"><span class="step-num">4</span><h4>Underwriting (Subprocess)</h4></div><p>This is the most cognitively intensive step. The underwriter takes the full document package and conducts a detailed analysis: financial health, cash flow, debt, credit history, plus broader context like the loan's purpose, the industry, and market conditions. They synthesize all of it into a written assessment with a risk rating and recommendation. The underwriter can only recommend — they cannot approve. We'll break this subprocess down in detail below.</p></div>
+
+<div class="step"><div class="step-head"><span class="step-num">5</span><h4>Credit Committee Review & Decision</h4></div><p>The underwriter's assessment goes to a senior credit officer or formal committee. Whether it's a single approver or a full committee depends on the deal size. The committee reviews the analysis, asks questions, and can approve, send it back for restructuring, or decline.</p></div>
+
+<div class="step"><div class="step-head"><span class="step-num">6</span><h4>Loan Approval & Commitment Letter</h4></div><p>Once approved, the institution sends a commitment letter to the borrower outlining final terms and conditions. The borrower reviews it, may negotiate, and signs.</p></div>
+
+<div class="step"><div class="step-head"><span class="step-num">7</span><h4>Closing & Documentation</h4></div><p>Legal documents are drafted — loan agreements, personal guarantees, UCC filings. Both parties execute the documents, funds are disbursed, and the loan is booked onto the institution's portfolio.</p></div>
+
+<div class="step"><div class="step-head"><span class="step-num">8</span><h4>Portfolio Management</h4></div><p>After funding, the institution monitors the borrower's performance over the life of the loan: periodic financial reviews, compliance checks against covenants, collateral monitoring, and risk re-rating if the borrower's situation changes. A borrower who was healthy at closing might later show signs of distress, requiring restructuring or workout.</p></div>
+
+<h3>Underwriting Sub-Process — Detailed Breakdown</h3>
+
+<div class="flow-embed">
+<div class="flow-title">Underwriting Sub-Process — Internal Workflow</div>
+<div class="flow-scroll">
+<svg width="1420" viewBox="0 0 1420 380" xmlns="http://www.w3.org/2000/svg">
+<defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker></defs>
+<rect x="100" y="30" width="1320" height="90" class="lane-alt"/><rect x="100" y="210" width="1320" height="90" class="lane-alt"/>
+<line x1="100" y1="30" x2="1420" y2="30" class="lane-line"/><line x1="100" y1="120" x2="1420" y2="120" class="lane-line"/><line x1="100" y1="210" x2="1420" y2="210" class="lane-line"/><line x1="100" y1="300" x2="1420" y2="300" class="lane-line"/><line x1="100" y1="370" x2="1420" y2="370" class="lane-line"/><line x1="100" y1="30" x2="100" y2="370" class="lane-line"/>
+<text class="lane-label" x="12" y="72">Loan officer /</text><text class="lane-label" x="12" y="86">relationship mgr</text><text class="lane-label" x="12" y="170">Underwriter</text><text class="lane-label" x="12" y="260">Underwriter</text><text class="lane-label" x="12" y="274">(cont.)</text><text class="lane-label" x="12" y="340">Credit committee</text>
+<g class="s-teal"><rect x="130" y="55" width="130" height="40" rx="4"/><text class="title" x="195" y="68" text-anchor="middle" dominant-baseline="central">Hand off loan</text><text class="sub" x="195" y="84" text-anchor="middle" dominant-baseline="central">package to UW</text></g>
+<line x1="195" y1="95" x2="195" y2="138" class="arrow-line" marker-end="url(#a2)"/>
+<g class="s-blue"><rect x="130" y="140" width="140" height="40" rx="4"/><text class="title" x="200" y="153" text-anchor="middle" dominant-baseline="central">Organize docs into</text><text class="sub" x="200" y="169" text-anchor="middle" dominant-baseline="central">reviewable package</text></g>
+<line x1="270" y1="160" x2="318" y2="160" class="arrow-line" marker-end="url(#a2)"/>
+<g class="s-blue"><rect x="320" y="140" width="140" height="40" rx="4"/><text class="title" x="390" y="153" text-anchor="middle" dominant-baseline="central">Extract financial</text><text class="sub" x="390" y="169" text-anchor="middle" dominant-baseline="central">data points</text></g>
+<line x1="460" y1="160" x2="516" y2="160" class="arrow-line" marker-end="url(#a2)"/>
+<polygon points="550,128 582,160 550,192 518,160" class="diamond"/><text class="decision-text" x="550" y="156" text-anchor="middle" dominant-baseline="central">Info</text><text class="decision-text" x="550" y="168" text-anchor="middle" dominant-baseline="central">complete?</text>
+<line x1="550" y1="128" x2="550" y2="97" class="arrow-line" marker-end="url(#a2)"/><g class="s-teal"><rect x="490" y="55" width="120" height="40" rx="4"/><text class="title" x="550" y="68" text-anchor="middle" dominant-baseline="central">Request more</text><text class="sub" x="550" y="84" text-anchor="middle" dominant-baseline="central">info from borrower</text></g><text class="arrow-label" x="558" y="118">No</text>
+<line x1="582" y1="160" x2="638" y2="160" class="arrow-line" marker-end="url(#a2)"/><text class="arrow-label" x="596" y="152">Yes</text>
+<g class="s-blue"><rect x="640" y="140" width="140" height="40" rx="4"/><text class="title" x="710" y="153" text-anchor="middle" dominant-baseline="central">Assess financial</text><text class="sub" x="710" y="169" text-anchor="middle" dominant-baseline="central">health & cash flow</text></g>
+<path d="M710 180 L710 200 L710 228" fill="none" class="arrow-line" marker-end="url(#a2)"/>
+<g class="s-blue"><rect x="640" y="230" width="140" height="40" rx="4"/><text class="title" x="710" y="243" text-anchor="middle" dominant-baseline="central">Evaluate risk factors</text><text class="sub" x="710" y="259" text-anchor="middle" dominant-baseline="central">Industry, market, mgmt</text></g>
+<line x1="780" y1="250" x2="838" y2="250" class="arrow-line" marker-end="url(#a2)"/>
+<g class="s-blue"><rect x="840" y="230" width="120" height="40" rx="4"/><text class="title" x="900" y="243" text-anchor="middle" dominant-baseline="central">Assign risk</text><text class="sub" x="900" y="259" text-anchor="middle" dominant-baseline="central">rating</text></g>
+<line x1="960" y1="250" x2="1018" y2="250" class="arrow-line" marker-end="url(#a2)"/>
+<g class="s-blue"><rect x="1020" y="230" width="150" height="40" rx="4"/><text class="title" x="1095" y="243" text-anchor="middle" dominant-baseline="central">Produce written</text><text class="sub" x="1095" y="259" text-anchor="middle" dominant-baseline="central">assessment & recommendation</text></g>
+<line x1="1095" y1="270" x2="1095" y2="318" class="arrow-line" marker-end="url(#a2)"/>
+<g class="s-green"><rect x="1030" y="320" width="130" height="40" rx="4"/><text class="title" x="1095" y="333" text-anchor="middle" dominant-baseline="central">Submit to credit</text><text class="sub" x="1095" y="349" text-anchor="middle" dominant-baseline="central">committee</text></g>
+</svg>
+</div>
+<div class="legend"><div class="legend-item"><div style="width:20px;height:14px;border-radius:3px;border:1px solid #D3D1C7"></div> Process step</div><div class="legend-item"><div style="width:14px;height:14px;transform:rotate(45deg);border:1px solid #B4B2A9"></div> Decision point</div></div>
+</div>
+
+<div class="step"><div class="step-head"><span class="step-num">4.1</span><h4>Hand off loan package to UW</h4></div><p>The loan officer formally hands off the complete loan package to the underwriter. This is the transition point into the underwriting subprocess.</p></div>
+<div class="step"><div class="step-head"><span class="step-num">4.2</span><h4>Organize docs into reviewable package</h4></div><p>The underwriter takes all borrower-submitted documents and organizes them into a single reviewable package. Everything arrives in different formats and at different levels of completeness.</p></div>
+<div class="step"><div class="step-head"><span class="step-num">4.3</span><h4>Extract financial data points</h4></div><p>The underwriter pulls relevant financial data from across documents: revenue, expenses, cash flow, debt obligations, credit scores, collateral values. Much of this work is translation — pulling meaning from unstructured materials.</p></div>
+<div class="step"><div class="step-head"><span class="step-num">4.4</span><h4>Information completeness check</h4></div><p>The underwriter checks whether the extracted information is sufficient. If key data is missing — gaps in financials, incomplete collateral, missing credit history — the process loops back to collect what's needed.</p></div>
+<div class="step"><div class="step-head"><span class="step-num">4.5</span><h4>Assess financial health & cash flow</h4></div><p>The underwriter analyzes whether the borrower can repay the loan: cash flow vs. debt service, performance trajectory, consistency across documents. This requires interpreting data in context, not just reading it.</p></div>
+<div class="step"><div class="step-head"><span class="step-num">4.6</span><h4>Evaluate risk factors</h4></div><p>Beyond the financials: industry stability, market conditions, loan purpose, management track record. The underwriter weighs variables that interact differently from deal to deal.</p></div>
+<div class="step"><div class="step-head"><span class="step-num">4.7</span><h4>Assign risk rating</h4></div><p>The analysis is translated into a standardized risk rating. The rating must be defensible — traceable to evidence in the loan file, not a gut feeling.</p></div>
+<div class="step"><div class="step-head"><span class="step-num">4.8</span><h4>Produce written assessment & recommendation</h4></div><p>The underwriter documents everything: findings, considerations, and recommendation. This serves as the audit trail for the credit committee and institutional record.</p></div>
+<div class="step"><div class="step-head"><span class="step-num">4.9</span><h4>Submit to credit committee</h4></div><p>The completed assessment and risk rating are submitted for review and final decision — the handoff back into step 5 of the main workflow.</p></div>
+</div>
+
+<!-- ═══════════════════════ PART 3 ═══════════════════════ -->
+<div class="part" id="part3">
+<div class="part-label">Part 3</div>
+<h2>The Pen and Paper Test: Why Cognitive Computing Fits Underwriting</h2>
+
+<p>Now that we've mapped the workflow, we need to ask: why is cognitive computing specifically a good fit for underwriting? To answer that, we apply what I call the <span class="emphasis">pen and paper test</span> — strip away the technology entirely and explain why the core concepts apply using plain language.</p>
+
+<h3>The Core Problem</h3>
+<p>Imagine a mid-market lending institution with hundreds of loan applications coming through the door, each accompanied by a pile of documents. A team of experienced underwriters reviews all this information, applies their knowledge, makes judgment calls, and arrives at decisions. The institution runs on their cognition.</p>
+<p>But this doesn't scale. Underwriters are slow, expensive, and inconsistent at volume. When loan volume increases, quality and turnaround time slip. Applications sit in queues, borrowers go to competitors, and junior analysts brought on to help don't have the experience to make consistent decisions. The question becomes: can we replicate that underwriter's cognitive process — perception, learning, and reasoning — at scale?</p>
+
+<h3>Perception — Is the Right Information Being Collected?</h3>
+<p>Perception in underwriting is the act of reviewing the loan package. The underwriter sits down with financial statements, tax returns, bank statements, credit reports, business plans, collateral documentation — all unstructured, arriving in different formats, at different levels of completeness.</p>
+<div class="callout warn"><p><b>The pen and paper check:</b> If the underwriter is working with an incomplete package — missing collateral data, gaps in credit history, incomplete financials — no amount of analysis downstream will fix that. There may also be alternative data sources that could strengthen the analysis but haven't been identified. Clean, complete data at intake is the foundation.</p></div>
+
+<h3>Learning — Do We Have Enough Historical Data to Learn From?</h3>
+<p>A senior underwriter who has reviewed thousands of deals has developed pattern recognition that isn't in any policy manual. They recognize financial signatures that signal strength or trouble — signals that become visible only when you've seen enough deals.</p>
+<div class="callout warn"><p><b>The pen and paper check:</b> A junior underwriter won't spot what a veteran sees — and the same is true for any system. If the historical data is thin, biased, or poorly recorded, the learning will produce bad instincts. Past confidence is not the same as past accuracy. Historical decisions must be validated against actual loan outcomes. Much of this expertise lives in people's heads and has never been captured in structured form.</p></div>
+
+<h3>Reasoning — Do We Know What a Good Decision Looks Like?</h3>
+<p>Reasoning is where the underwriter makes the call — synthesizing everything into a defensible decision. A borrower with a high debt ratio but strong cash flow in a stable industry might be a better risk than a borrower with clean numbers in a volatile sector with no management track record.</p>
+<div class="callout warn"><p><b>The pen and paper check:</b> If ten underwriters aren't sharing consistent criteria for what constitutes an approvable borrower, even perfect data and perfect pattern recognition will produce inconsistent outcomes. The reasoning process is only as good as the logic behind it.</p></div>
+
+<div class="bottom-line">
+<h3>Three Questions Before Building Anything</h3>
+<ol>
+<li><strong>Are we collecting the right information?</strong> Is the loan package intake process complete? Have we identified all data sources, including alternative sources and institutional knowledge trapped in people's heads?</li>
+<li><strong>Do we have a solid, honest track record to learn from?</strong> Is the historical data reliable? Has it been validated against actual loan performance?</li>
+<li><strong>Do we know what a good decision looks like?</strong> Are the decision criteria well-defined, consistent across underwriters, and agreed upon institutionally?</li>
+</ol>
+</div>
+</div>
+
+<!-- ═══════════════════════ PART 4 ═══════════════════════ -->
+<div class="part" id="part4">
+<div class="part-label">Part 4</div>
+<h2>Business Requirements as User Stories</h2>
+
+<p>Based on the discovery and pen-and-paper analysis above, the following user stories define what the future system must do — written from the underwriter's perspective, technology-agnostic, and organized by cognitive computing concept.</p>
+
+<div class="story-group">
+<h4>Perception</h4>
+<div class="story"><b>P1</b> — As an underwriter, I need the system to ingest and process all borrower-submitted documents regardless of file format, so that I don't have to manually convert or reformat documents before I can begin my review.</div>
+<div class="story"><b>P2</b> — As an underwriter, I need all submitted documents consolidated into a single, organized, reviewable package, so that I can assess all relevant borrower information side by side without switching between disconnected files and systems.</div>
+<div class="story"><b>P3</b> — As an underwriter, I need the system to extract key financial data points from across all submitted documents, so that I don't have to manually locate and transcribe figures from unstructured materials that don't share a common format.</div>
+<div class="story"><b>P4</b> — As an underwriter, I need the system to identify when required information is missing or incomplete from the loan package, flag specifically what is absent, and prevent the analysis from proceeding until a completeness threshold is met, so that I never begin an assessment built on an incomplete foundation.</div>
+<div class="story"><b>P5</b> — As an underwriter, I need the system to incorporate approved alternative data sources beyond the borrower's submitted documents, so that I can strengthen my analysis with information the borrower may not have provided but that the institution has identified as relevant.</div>
+</div>
+
+<div class="story-group">
+<h4>Learning</h4>
+<div class="story"><b>L1</b> — As an underwriter, I need the system to identify patterns across historical loan data that correlate with actual loan performance outcomes, so that I can benefit from the institution's collective experience rather than relying only on my own.</div>
+<div class="story"><b>L2</b> — As an underwriter, I need the system to surface relevant historical deals with similar borrower profiles, industries, or financial characteristics, so that I can reference how comparable deals actually performed when making my assessment.</div>
+<div class="story"><b>L3</b> — As an underwriter, I need the system to learn only from historical decisions that have been validated against actual loan outcomes, so that the system's pattern recognition is built on proven good decisions rather than inherited bias.</div>
+<div class="story"><b>L4</b> — As an underwriter, I need the system to capture and incorporate pattern recognition, risk indicators, and judgment criteria from experienced underwriters, so that expertise is available to the entire team.</div>
+<div class="story"><b>L5</b> — As an underwriter, I need the system to detect when a new application falls outside the range of what has been historically encountered and flag it as a case with limited precedent, so that I'm not presented with a false pattern match on a deal the system doesn't actually have experience with.</div>
+</div>
+
+<div class="story-group">
+<h4>Reasoning</h4>
+<div class="story"><b>R1</b> — As an underwriter, I need the system to synthesize extracted data, historical patterns, and broader risk factors into a preliminary risk assessment that weighs multiple interacting variables, so that I receive a holistic starting point for my review rather than having to manually piece together each dimension independently.</div>
+<div class="story"><b>R2</b> — As an underwriter, I need the system to generate a risk rating recommendation based on the institution's standardized scale with a clear justification that is traceable back to specific evidence in the loan file, so that I can see exactly what data points, patterns, and factors led to the conclusion and verify the reasoning before putting my name on it.</div>
+<div class="story"><b>R5</b> — As an underwriter, I need the system to apply decision criteria that are consistent, institutionally agreed upon, and documented, so that the same deal produces the same assessment regardless of when or by whom it is initiated.</div>
+<div class="story"><b>R6</b> — As an underwriter, I need the system to support the generation of a written assessment and recommendation document, so that I have an audit trail for the credit committee and regulatory review.</div>
+<div class="story"><b>R7</b> — As an underwriter, I need the final decision authority to remain with me and/or the credit committee, so that the system recommends but never approves, declines, or commits the institution to any action without human sign-off.</div>
+</div>
+</div>
+
+<!-- ═══════════════════════ PART 5 ═══════════════════════ -->
+<div class="part" id="part5">
+<div class="part-label">Part 5</div>
+<h2>The Working Prototype</h2>
+
+<p>To validate these requirements, I built a working AI-powered prototype called the <span class="emphasis">Meridian Commercial Bank Underwriting Workbench</span>. The application uses real-time AI analysis (not mocked data) to walk each loan through the three stages of cognitive computing, with the underwriter holding final decision authority at every step.</p>
+
+<p>Below is a walkthrough of each stage in action. Every feature maps directly to a user story from Part 4.</p>
+
+<h3>Stage 1: Perception — Document Intake & Extraction</h3>
+<p>The system reads the full loan package, extracts key financial data points into a structured table with source attribution, and runs a completeness check. If required documents are missing, analysis is blocked until the gap is resolved.</p>
+
+<div class="app-preview">
+<div class="app-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span>Meridian Commercial Bank — AI-Augmented Underwriting Workbench</span></div>
+<div class="app-screen">
+<div class="app-stage">
+  <div class="as-label">Stage 1 — Perception</div>
+  <h5>Extracted Financial Data (P3)</h5>
+  <table class="app-table">
+    <tr><th>Data point</th><th>Value</th><th>Source</th></tr>
+    <tr><td>FY2025 Collections</td><td class="val">$1.41M</td><td>CPA-prepared financial statements</td></tr>
+    <tr><td>Seller Discretionary Earnings</td><td class="val">$481K</td><td>CPA-prepared financial statements</td></tr>
+    <tr><td>Post-Acquisition DSCR</td><td class="val">1.85x</td><td>Underwriter calculation</td></tr>
+    <tr><td>Purchase Price</td><td class="val">$980K</td><td>Purchase agreement</td></tr>
+    <tr><td>Buyer Equity Injection</td><td class="val">$130K (13%)</td><td>Application</td></tr>
+    <tr><td>Buyer Credit Scores</td><td class="val">748 / 761</td><td>Credit reports</td></tr>
+    <tr><td>Recurring Revenue %</td><td class="val">34%</td><td>Financial statements (hygiene)</td></tr>
+  </table>
+  <div style="margin-top:10px"><span class="app-badge pass">✓ Completeness gate: PASSED</span></div>
+</div>
+</div>
+</div>
+
+<h3>Stage 2: Learning — Historical Pattern Matching</h3>
+<p>The system compares the current deal against an outcome-validated historical portfolio, surfacing similar precedents with their real performance outcomes and flagging limited precedent when applicable.</p>
+
+<div class="app-preview">
+<div class="app-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span>Meridian Commercial Bank — AI-Augmented Underwriting Workbench</span></div>
+<div class="app-screen">
+<div class="app-stage">
+  <div class="as-label">Stage 2 — Learning</div>
+  <h5>Comparable Historical Deals (L2, L3)</h5>
+  <div>
+    <div class="prec-mini"><strong>Prairie Dental Group</strong><br>$790K · DSCR 1.9x · 2022 <span class="app-badge perf">performed</span></div>
+    <div class="prec-mini"><strong>Hill Country Ortho</strong><br>$1.1M · DSCR 1.7x · 2021 <span class="app-badge perf">performed</span></div>
+    <div class="prec-mini"><strong>Mission Family Dental</strong><br>$640K · DSCR 1.45x · 2020 <span class="app-badge perf">performed</span></div>
+  </div>
+  <div class="app-evidence" style="margin-top:10px"><strong>Pattern:</strong> Dental/healthcare acquisitions with seller transition periods ≥ 3 months and DSCR ≥ 1.5x have a strong performance record in this portfolio.</div>
+</div>
+</div>
+</div>
+
+<h3>Stage 3: Reasoning — Risk Synthesis</h3>
+<p>The system synthesizes all extracted data, historical patterns, and institutional criteria into a preliminary risk assessment. Every conclusion is traceable to specific evidence — no black boxes.</p>
+
+<div class="app-preview">
+<div class="app-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span>Meridian Commercial Bank — AI-Augmented Underwriting Workbench</span></div>
+<div class="app-screen">
+<div class="app-stage">
+  <div class="as-label">Stage 3 — Reasoning</div>
+  <h5>Preliminary Risk Assessment (R1, R2)</h5>
+  <div class="app-rating">
+    <div class="num">3</div>
+    <div class="info"><strong>Acceptable — Strong Credit</strong><br>Well-supported acquisition with strong recurring revenue, experienced buyers, and consistent historical precedent.</div>
+  </div>
+  <div class="app-evidence"><strong>DSCR comfortably exceeds minimum threshold</strong><br>1.85x post-acquisition vs. 1.25x institutional minimum — per criteria R5</div>
+  <div class="app-evidence"><strong>Strong historical precedent for this deal type</strong><br>3 comparable dental acquisitions in portfolio, all performed — requirements L1, L2</div>
+  <div class="app-evidence"><strong>Buyer liquidity is a watch item</strong><br>$45K combined post-injection vs. ~$35K quarterly debt service — flagged per institutional criteria</div>
+</div>
+<div class="app-stage">
+  <div class="as-label">Final — Underwriter Decision (R7)</div>
+  <div class="app-decision">
+    <strong>The system recommends. You decide.</strong><br>
+    The underwriter reviews the AI assessment, records their independent decision and rationale, and routes the file to the credit committee. The system never approves — it augments.
+  </div>
+</div>
+</div>
+</div>
+
+<div style="text-align:center;margin:2.5rem 0">
+  <a href="underwriting-workbench.html" class="cta-btn">Try the live prototype →</a>
+  <p style="font-size:0.85rem;color:var(--text-light);margin-top:0.75rem">The prototype uses real-time AI analysis. All borrowers and financials are fictional.</p>
+</div>
+
+</div>
+
+</div><!-- end .content -->
+
+<footer>&copy; 2026 Sam Kishore. Built with curiosity.</footer>
 </body>
 </html>
