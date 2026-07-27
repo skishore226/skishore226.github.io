@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meridian Commercial Bank — AI-Augmented Underwriting Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #16232F;
+    --ink-soft: #3E5062;
+    --paper: #F7F9FA;
+    --panel: #FFFFFF;
+    --line: #DCE3E9;
+    --steel: #1E5A8E;
+    --steel-soft: #E8F0F7;
+    --amber: #B45309;
+    --amber-soft: #FDF3E7;
+    --green: #15803D;
+    --green-soft: #EAF6EE;
+    --red: #B91C1C;
+    --red-soft: #FBEAEA;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', -apple-system, sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--sans); background: var(--paper); color: var(--ink); font-size: 14px; line-height: 1.55; }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: #fff;
+    padding: 0.9rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  header .brand { display: flex; align-items: center; gap: 0.75rem; }
+  header .brand .mark {
+    width: 30px; height: 30px; border-radius: 6px;
+    background: var(--steel);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 15px;
+  }
+  header .brand h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.01em; }
+  header .brand .sub { font-size: 11.5px; color: #9FB2C2; }
+  .proto-badge {
+    font-size: 11px; font-family: var(--mono);
+    background: rgba(255,255,255,0.12);
+    padding: 4px 10px; border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── LAYOUT ── */
+  .app { display: grid; grid-template-columns: 290px 1fr; min-height: calc(100vh - 58px); }
+  @media (max-width: 900px) { .app { grid-template-columns: 1fr; } }
+
+  /* ── SIDEBAR ── */
+  aside {
+    background: var(--panel);
+    border-right: 1px solid var(--line);
+    padding: 1.25rem;
+  }
+  aside .label {
+    font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ink-soft); font-weight: 600; margin-bottom: 0.6rem;
+  }
+  .case-card {
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 0.85rem; margin-bottom: 0.6rem; cursor: pointer;
+    transition: all 0.15s; background: var(--panel);
+  }
+  .case-card:hover { border-color: var(--steel); }
+  .case-card.active { border-color: var(--steel); background: var(--steel-soft); }
+  .case-card .name { font-weight: 600; font-size: 13.5px; }
+  .case-card .meta { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .case-card .amt { font-family: var(--mono); font-size: 12px; color: var(--steel); margin-top: 4px; }
+
+  .pipeline { margin-top: 1.5rem; }
+  .pipe-step {
+    display: flex; align-items: flex-start; gap: 0.65rem;
+    padding: 0.55rem 0;
+  }
+  .pipe-dot {
+    width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid var(--line); background: var(--panel);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 600; color: var(--ink-soft);
+    margin-top: 1px;
+  }
+  .pipe-step.done .pipe-dot { background: var(--green); border-color: var(--green); color: #fff; }
+  .pipe-step.current .pipe-dot { border-color: var(--steel); color: var(--steel); }
+  .pipe-step.blocked .pipe-dot { background: var(--red); border-color: var(--red); color: #fff; }
+  .pipe-step .pt { font-weight: 600; font-size: 13px; }
+  .pipe-step .ps { font-size: 11.5px; color: var(--ink-soft); }
+  .pipe-connector { width: 2px; height: 14px; background: var(--line); margin-left: 10px; }
+
+  .stories-toggle {
+    margin-top: 1.5rem; font-size: 12px; color: var(--steel);
+    cursor: pointer; text-decoration: underline; background: none; border: none;
+    font-family: var(--sans);
+  }
+
+  /* ── MAIN ── */
+  main { padding: 1.5rem; max-width: 980px; }
+  .stage {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; margin-bottom: 1.25rem; overflow: hidden;
+  }
+  .stage-head {
+    padding: 1rem 1.25rem; border-bottom: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.75rem;
+  }
+  .stage-head .t { display: flex; align-items: center; gap: 0.7rem; }
+  .stage-num {
+    font-family: var(--mono); font-size: 11px; color: var(--steel);
+    background: var(--steel-soft); padding: 3px 8px; border-radius: 4px;
+    font-weight: 500;
+  }
+  .stage-head h2 { font-size: 15.5px; font-weight: 600; }
+  .stage-head .concept { font-size: 12px; color: var(--ink-soft); }
+  .story-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+  .chip {
+    font-family: var(--mono); font-size: 10px; padding: 2px 6px;
+    background: var(--paper); border: 1px solid var(--line);
+    border-radius: 3px; color: var(--ink-soft); cursor: help;
+  }
+  .stage-body { padding: 1.25rem; }
+
+  .btn {
+    font-family: var(--sans); font-size: 13.5px; font-weight: 600;
+    padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer;
+    border: none; transition: all 0.15s;
+  }
+  .btn-primary { background: var(--steel); color: #fff; }
+  .btn-primary:hover { background: #174a75; }
+  .btn-primary:disabled { background: #A9BDCD; cursor: not-allowed; }
+  .btn-ghost { background: var(--panel); color: var(--steel); border: 1px solid var(--steel); }
+  .btn-ghost:hover { background: var(--steel-soft); }
+  .btn-amber { background: var(--amber); color: #fff; }
+  .btn-amber:hover { background: #92400e; }
+
+  .doc-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.75rem 0; }
+  .doc-pill {
+    font-size: 12px; padding: 4px 10px; border-radius: 20px;
+    background: var(--paper); border: 1px solid var(--line);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .doc-pill::before { content: '📄'; font-size: 11px; }
+
+  .loading {
+    display: flex; align-items: center; gap: 0.7rem; padding: 1rem;
+    color: var(--ink-soft); font-size: 13px;
+  }
+  .spinner {
+    width: 18px; height: 18px; border: 2.5px solid var(--line);
+    border-top-color: var(--steel); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation-duration: 2s; } }
+
+  /* extracted data table */
+  table { width: 100%; border-collapse: collapse; margin-top: 0.5rem; }
+  th {
+    text-align: left; font-size: 10.5px; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--ink-soft); font-weight: 600;
+    padding: 6px 10px; border-bottom: 1px solid var(--line);
+  }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: top; }
+  td.mono { font-family: var(--mono); font-size: 12.5px; }
+  tr:last-child td { border-bottom: none; }
+
+  .alert {
+    border-radius: 8px; padding: 0.9rem 1.1rem; margin: 0.75rem 0;
+    font-size: 13px; display: flex; gap: 0.65rem; align-items: flex-start;
+  }
+  .alert.block { background: var(--red-soft); border: 1px solid #EAB8B8; color: #7C1D1D; }
+  .alert.pass { background: var(--green-soft); border: 1px solid #B7DFC4; color: #14532D; }
+  .alert.warn { background: var(--amber-soft); border: 1px solid #EFD3AC; color: #78350F; }
+  .alert.info { background: var(--steel-soft); border: 1px solid #C3D8EA; color: #17456B; }
+  .alert ul { margin: 0.35rem 0 0 1.1rem; }
+  .alert .icon { font-size: 15px; line-height: 1.3; }
+
+  /* precedent cards */
+  .prec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
+  .prec-card {
+    border: 1px solid var(--line); border-radius: 8px; padding: 0.85rem;
+    background: var(--paper);
+  }
+  .prec-card .pc-name { font-weight: 600; font-size: 13px; }
+  .prec-card .pc-meta { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); margin: 3px 0 6px; }
+  .prec-card .pc-why { font-size: 12.5px; color: var(--ink-soft); }
+  .outcome {
+    display: inline-block; font-size: 10.5px; font-weight: 600;
+    padding: 2px 8px; border-radius: 10px; margin-top: 6px;
+    text-transform: uppercase; letter-spacing: 0.04em;
+  }
+  .outcome.performed { background: var(--green-soft); color: var(--green); }
+  .outcome.defaulted { background: var(--red-soft); color: var(--red); }
+  .outcome.restructured { background: var(--amber-soft); color: var(--amber); }
+
+  /* reasoning */
+  .rating-row { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .rating-badge {
+    font-family: var(--mono); font-size: 32px; font-weight: 500;
+    width: 74px; height: 74px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--steel-soft); color: var(--steel); border: 2px solid var(--steel);
+  }
+  .rating-info .rl { font-weight: 600; font-size: 15px; }
+  .rating-info .rs { font-size: 12.5px; color: var(--ink-soft); max-width: 460px; }
+  .evidence-item {
+    border-left: 3px solid var(--steel); background: var(--paper);
+    padding: 0.7rem 0.9rem; border-radius: 0 6px 6px 0; margin-bottom: 0.6rem;
+  }
+  .evidence-item .ec { font-weight: 600; font-size: 13px; }
+  .evidence-item .ee { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+  .evidence-item .ee::before { content: 'Evidence: '; font-weight: 600; color: var(--steel); }
+  .assessment-box {
+    background: var(--paper); border: 1px solid var(--line); border-radius: 8px;
+    padding: 1rem 1.1rem; font-size: 13px; white-space: pre-wrap; margin-top: 0.5rem;
+  }
+  h3.mini {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--ink-soft); margin: 1.1rem 0 0.4rem; font-weight: 600;
+  }
+
+  /* decision panel */
+  .decision-panel { border: 2px solid var(--ink); border-radius: 10px; }
+  .decision-panel .stage-head { background: var(--ink); color: #fff; border-bottom: none; }
+  .decision-panel .stage-head .concept { color: #9FB2C2; }
+  select, textarea {
+    font-family: var(--sans); font-size: 13.5px; width: 100%;
+    padding: 0.6rem 0.7rem; border: 1px solid var(--line); border-radius: 6px;
+    background: var(--panel); color: var(--ink); margin-top: 0.35rem;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  label.f { font-size: 12.5px; font-weight: 600; display: block; margin-top: 0.9rem; }
+  .decision-final {
+    background: var(--green-soft); border: 1px solid #B7DFC4;
+    border-radius: 8px; padding: 1rem 1.1rem; margin-top: 1rem; font-size: 13px;
+  }
+
+  .hint { font-size: 12.5px; color: var(--ink-soft); }
+  .err { color: var(--red); font-size: 13px; padding: 0.75rem 0; }
+
+  /* stories modal */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(22,35,47,0.5);
+    display: none; align-items: center; justify-content: center; z-index: 50; padding: 1rem;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: var(--panel); border-radius: 12px; max-width: 720px; width: 100%;
+    max-height: 80vh; overflow-y: auto; padding: 1.5rem;
+  }
+  .modal h2 { font-size: 16px; margin-bottom: 0.75rem; }
+  .modal .sgroup { margin-bottom: 1rem; }
+  .modal .sgroup h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--steel); margin-bottom: 0.4rem; }
+  .modal .story { font-size: 12.5px; margin-bottom: 0.45rem; padding-left: 2.4rem; text-indent: -2.4rem; }
+  .modal .story b { font-family: var(--mono); font-weight: 500; font-size: 11px; }
+  .modal .close-btn { float: right; }
+
+  footer {
+    padding: 1rem 1.5rem; font-size: 11.5px; color: var(--ink-soft);
+    border-top: 1px solid var(--line); background: var(--panel);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="mark">M</div>
+    <div>
+      <h1>Meridian Commercial Bank</h1>
+      <div class="sub">AI-Augmented Underwriting Workbench</div>
+    </div>
+  </div>
+  <div class="proto-badge">PROTOTYPE · FICTIONAL DATA</div>
+</header>
+
+<div class="app">
+  <aside>
+    <div class="label">Loan Queue</div>
+    <div id="caseList"></div>
+
+    <div class="pipeline">
+      <div class="label">Cognitive Pipeline</div>
+      <div id="pipeSteps"></div>
+    </div>
+
+    <button class="stories-toggle" onclick="document.getElementById('storiesModal').classList.add('open')">View requirements traceability</button>
+  </aside>
+
+  <main id="main">
+    <div class="alert info" style="margin-top:0">
+      <span class="icon">👋</span>
+      <div>
+        <b>Welcome, Underwriter.</b> Select a loan application from the queue on the left to begin. This prototype walks each deal through the three stages of cognitive computing — <b>Perception</b> (document intake &amp; extraction), <b>Learning</b> (historical pattern matching), and <b>Reasoning</b> (risk synthesis) — with you holding final decision authority at every step.
+      </div>
+    </div>
+  </main>
+</div>
+
+<footer>
+  This is a concept-validation prototype built for user testing. All borrowers, financials, and historical deals are fictional. AI analysis is generated in real time and reviewed by a human underwriter before any decision is recorded. The system recommends — it never approves.
+</footer>
+
+<!-- Requirements modal -->
+<div class="modal-bg" id="storiesModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <button class="btn btn-ghost close-btn" onclick="document.getElementById('storiesModal').classList.remove('open')">Close</button>
+    <h2>Requirements Traceability — 15 User Stories</h2>
+    <div class="sgroup"><h4>Perception</h4>
+      <div class="story"><b>P1</b> — Ingest and process all borrower-submitted documents regardless of file format.</div>
+      <div class="story"><b>P2</b> — Consolidate documents into a single, organized, reviewable package.</div>
+      <div class="story"><b>P3</b> — Extract key financial data points from unstructured materials.</div>
+      <div class="story"><b>P4</b> — Flag missing information and block analysis until the package is complete.</div>
+      <div class="story"><b>P5</b> — Incorporate approved alternative data sources.</div>
+    </div>
+    <div class="sgroup"><h4>Learning</h4>
+      <div class="story"><b>L1</b> — Identify patterns across historical loan data correlated with actual outcomes.</div>
+      <div class="story"><b>L2</b> — Surface similar historical deals and how they performed.</div>
+      <div class="story"><b>L3</b> — Learn only from outcome-validated historical decisions.</div>
+      <div class="story"><b>L4</b> — Capture judgment criteria from experienced underwriters.</div>
+      <div class="story"><b>L5</b> — Flag deals with limited historical precedent.</div>
+    </div>
+    <div class="sgroup"><h4>Reasoning</h4>
+      <div class="story"><b>R1</b> — Synthesize data, patterns, and risk factors into a preliminary assessment.</div>
+      <div class="story"><b>R2</b> — Generate a risk rating with justification traceable to evidence.</div>
+      <div class="story"><b>R5</b> — Apply consistent, institutionally agreed decision criteria.</div>
+      <div class="story"><b>R6</b> — Generate a written assessment as the audit trail.</div>
+      <div class="story"><b>R7</b> — Final decision authority remains with the underwriter.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════ FICTIONAL DATA ═══════════════ */
+
+const CASES = [
+  {
+    id: 'hartwell',
+    name: 'Hartwell Logistics LLC',
+    type: 'Equipment financing',
+    amount: '$650,000',
+    industry: 'Trucking & Logistics',
+    complete: true,
+    docs: ['Financial statements (FY23–FY25)', 'Tax returns (3 yrs)', 'Bank statements (12 mo)', 'Business plan', 'Equipment appraisal', 'Personal guarantee — owner'],
+    package: `LOAN APPLICATION — Hartwell Logistics LLC
+Requested: $650,000 equipment term loan (5 new Class 8 tractors)
+Term requested: 60 months. Purpose: fleet expansion to service two new regional contracts.
+
+BUSINESS OVERVIEW (from business plan): Family-owned regional trucking firm, 11 years operating, 22 trucks, 31 employees. Two new contracts signed with regional grocery distributors (combined est. $1.4M annual revenue) contingent on added capacity.
+
+FINANCIAL STATEMENTS (prepared by outside CPA, reviewed not audited):
+FY2023 revenue $4.1M, net income $210K. FY2024 revenue $4.6M, net income $265K. FY2025 revenue $5.0M, net income $198K (margin compression noted from fuel + driver wages).
+Current annual debt service on existing equipment notes: $310K. Proposed new debt service: ~$148K/yr.
+FY2025 EBITDA approx $610K. Global DSCR with new debt approx 1.33x.
+
+TAX RETURNS: FY2023, FY2024, FY2025 returns all received, consistent with statements (minor timing differences).
+
+BANK STATEMENTS: Full 12 months received. Avg operating balance $185K. Two overdraft incidents in Feb and Mar 2026 during fuel price spike, both cured within 5 days.
+
+COLLATERAL DOCUMENTATION: Complete. 5 new tractors (dealer invoices + independent appraisal $780K aggregate on file). Blanket lien on business assets prepared. Signed owner personal guarantee received (personal credit score 702, personal net worth statement on file).
+
+PACKAGE STATUS PER RM: All checklist items received. Package certified complete by loan operations.
+
+CREDIT REPORT (business): 1 trade line 30 days late in past 24 months, otherwise satisfactory. No liens, no judgments.
+
+NOTES FROM RM: Owner is well known to branch, 11-yr deposit relationship. Industry facing rate/fuel volatility but contracts provide revenue visibility.`
+  },
+  {
+    id: 'bluebonnet',
+    name: 'Bluebonnet Dental Partners',
+    type: 'Practice acquisition',
+    amount: '$850,000',
+    industry: 'Healthcare — Dental',
+    complete: true,
+    docs: ['Financial statements (seller, 3 yrs)', 'Tax returns (buyer + seller)', 'Bank statements (12 mo)', 'Purchase agreement', 'Practice valuation', 'Personal guarantee — both partners'],
+    package: `LOAN APPLICATION — Bluebonnet Dental Partners PLLC
+Requested: $850,000 practice acquisition loan
+Term requested: 84 months. Purpose: acquisition of retiring dentist's established practice (operating 26 years).
+
+BUSINESS OVERVIEW: Two licensed dentists (DDS, 8 and 6 years experience, currently associates at large group practice) acquiring established solo practice with 2,900 active patients. Seller staying 6 months for transition. Purchase price $980K ($130K buyer equity injection, 13%).
+
+SELLER PRACTICE FINANCIALS (3 years, CPA-prepared — FY2023, FY2024, FY2025 all on file):
+FY2023 collections $1.32M, seller discretionary earnings $455K.
+FY2024 collections $1.38M, SDE $472K.
+FY2025 collections $1.41M, SDE $481K. Highly stable, recurring hygiene revenue = 34% of collections.
+Proposed debt service: ~$139K/yr. Post-acquisition DSCR (adjusted for two-doctor comp) approx 1.85x.
+
+TAX RETURNS: Seller practice returns for FY2023, FY2024, FY2025 all received and reconciled to CPA statements. Buyer personal returns (both partners, 3 years each) received.
+
+VALUATION: Independent practice appraisal $965K (income approach) — full report on file. Purchase price supported.
+
+BUYERS: Combined personal credit scores 748 / 761. Student debt $210K combined (in repayment, current). Modest personal liquidity after injection (~$45K combined). Personal financial statements for both partners received and verified.
+
+BANK STATEMENTS: Full 12 months of seller practice operating account statements received. Stable, avg balance $92K, no overdrafts in 24 months.
+
+COLLATERAL DOCUMENTATION: Complete. Practice asset schedule + patient records valuation on file, executed assignment of life insurance on both buyers, signed personal guarantee commitments from both partners received. UCC-1 blanket filing prepared.
+
+CREDIT REPORTS: Pulled for both buyers, clean. No derogatory items.
+
+PACKAGE STATUS PER RM: All checklist items received. Package certified complete by loan operations.
+
+NOTES FROM RM: Dental acquisition lending is an established program at the bank. Transition risk mitigated by seller stay-on and associate experience.`
+  },
+  {
+    id: 'corridor',
+    name: 'Corridor Coffee Roasters',
+    type: 'Expansion loan',
+    amount: '$250,000',
+    industry: 'Food & Beverage',
+    complete: false,
+    docs: ['Financial statements (FY24–FY25)', 'Tax return (1 yr only)', 'Bank statements (6 mo)', 'Business plan'],
+    missingDocs: ['Tax returns — FY2023 and FY2024 not provided (only FY2025)', 'Collateral documentation — no equipment appraisal or lease assignment provided', 'Personal financial statement / guarantee documentation not provided', 'Bank statements — only 6 of 12 months provided'],
+    supplementalDocs: ['Tax returns (3 yrs)', 'Equipment appraisal', 'Lease assignment', 'Personal guarantee — owner', 'Bank statements (12 mo)'],
+    package: `LOAN APPLICATION — Corridor Coffee Roasters LLC
+Requested: $250,000 expansion loan
+Term requested: 60 months. Purpose: build-out of second retail location + roasting capacity upgrade.
+
+BUSINESS OVERVIEW (from business plan): Specialty coffee roaster + single cafe, 4 years operating. Wholesale accounts with 14 local restaurants. Proposed second location in growing suburban corridor, LOI signed on lease.
+
+FINANCIAL STATEMENTS (internally prepared, not CPA-reviewed):
+FY2024 revenue $890K, net income $61K. FY2025 revenue $1.05M, net income $88K.
+Estimated debt service on proposed loan: ~$57K/yr. Estimated DSCR approx 1.6x on FY2025 figures (unverified).
+
+TAX RETURNS: Only FY2025 return provided. FY2023 and FY2024 returns NOT included in package.
+
+BANK STATEMENTS: 6 months provided (Jan–Jun 2026). Avg balance $34K. Requested 12 months not received.
+
+COLLATERAL: Applicant references roasting equipment and leasehold improvements but NO appraisal, invoice, or valuation documents included. No lease assignment provided. 
+
+GUARANTEES: Owner referenced willingness to guarantee personally but no personal financial statement or guarantee documentation submitted.
+
+CREDIT REPORT (business): Thin file — 2 trade lines, both satisfactory.
+
+NOTES FROM RM: Enthusiastic borrower, strong local brand. Package submitted ahead of borrower's lease deadline — RM notes borrower "will send the rest shortly."`,
+    supplementalPackage: `SUPPLEMENTAL DOCUMENTS RECEIVED — Corridor Coffee Roasters LLC
+
+TAX RETURNS (FY2023, FY2024, FY2025): All three years now on file. FY2023 revenue $645K / net income $28K. FY2024 revenue $890K / net income $58K (minor variance vs internal statements, timing). FY2025 consistent with statements.
+
+BANK STATEMENTS (full 12 months): Avg operating balance $31K. One overdraft (Nov 2025, cured in 2 days). Seasonal dip in Q1 consistent with retail coffee patterns.
+
+COLLATERAL: Roasting equipment appraisal received — $118K orderly liquidation value. Leasehold improvements est. $85K (limited recovery value). Landlord consent + lease assignment for new location received.
+
+PERSONAL GUARANTEE: Owner personal financial statement received. Personal credit score 731. Personal net worth $290K (primarily home equity). Signed guarantee commitment letter on file.`
+  }
+];
+
+const HISTORICAL_PORTFOLIO = [
+  { id:'H-101', name:'Redline Freight Co', industry:'Trucking & Logistics', amount:580000, type:'Equipment', dscr:1.28, year:2021, outcome:'performed', note:'Fleet expansion, contract-backed revenue, performed through rate downturn' },
+  { id:'H-102', name:'Lonestar Haulers', industry:'Trucking & Logistics', amount:720000, type:'Equipment', dscr:1.15, year:2020, outcome:'restructured', note:'Spot-market dependent, restructured after fuel spike compressed margins' },
+  { id:'H-103', name:'Gulf Route Trucking', industry:'Trucking & Logistics', amount:450000, type:'Equipment', dscr:1.05, year:2019, outcome:'defaulted', note:'Thin DSCR at origination, lost anchor customer, default within 30 months' },
+  { id:'H-104', name:'Prairie Dental Group', industry:'Healthcare — Dental', amount:790000, type:'Acquisition', dscr:1.9, year:2022, outcome:'performed', note:'Associate buyout of retiring dentist, seller transition, strong recurring revenue' },
+  { id:'H-105', name:'Hill Country Orthodontics', industry:'Healthcare — Dental', amount:1100000, type:'Acquisition', dscr:1.7, year:2021, outcome:'performed', note:'Two-doctor acquisition, high patient retention through transition' },
+  { id:'H-106', name:'Mission Family Dental', industry:'Healthcare — Dental', amount:640000, type:'Acquisition', dscr:1.45, year:2020, outcome:'performed', note:'Solo acquisition, modest liquidity but stable collections' },
+  { id:'H-107', name:'Brazos Valley Vet Clinic', industry:'Healthcare — Veterinary', amount:520000, type:'Acquisition', dscr:1.6, year:2022, outcome:'performed', note:'Adjacent healthcare services vertical, similar recurring model' },
+  { id:'H-108', name:'Cast Iron Kitchen Group', industry:'Food & Beverage', amount:380000, type:'Expansion', dscr:1.4, year:2021, outcome:'restructured', note:'Second-location restaurant expansion, new site underperformed 18 months' },
+  { id:'H-109', name:'Morning Ritual Bakery', industry:'Food & Beverage', amount:190000, type:'Expansion', dscr:1.55, year:2022, outcome:'performed', note:'Second retail location, strong existing brand, conservative build-out' },
+  { id:'H-110', name:'Tejano Provisions', industry:'Food & Beverage', amount:310000, type:'Expansion', dscr:1.2, year:2019, outcome:'defaulted', note:'Wholesale + retail expansion simultaneously, cash cycle strain, default' },
+  { id:'H-111', name:'Alamo Machine Works', industry:'Manufacturing', amount:900000, type:'Equipment', dscr:1.5, year:2023, outcome:'performed', note:'CNC equipment, backlog-supported, performing' },
+  { id:'H-112', name:'Copper Sky Roofing', industry:'Construction', amount:275000, type:'Equipment', dscr:1.35, year:2022, outcome:'performed', note:'Equipment loan, seasonal cash flow managed with line of credit' }
+];
+
+const UW_HEURISTICS = `INSTITUTIONAL UNDERWRITING CRITERIA (captured from senior underwriter panel, validated against portfolio outcomes):
+- Minimum global DSCR 1.25x for approval without mitigants; 1.20-1.25x requires compensating strengths and escalation.
+- Contract-backed or recurring revenue materially de-risks trucking and F&B deals (validated: contract-backed trucking deals outperformed spot-market peers).
+- Simultaneous multi-front expansion (new location + new capacity + new channels) is a validated distress signal in F&B.
+- Dental/healthcare acquisitions with seller transition periods >= 3 months and DSCR >= 1.5x have a strong performance record.
+- Thin credit files and internally-prepared (non-CPA) financials increase verification risk; require CPA review or tax-return corroboration.
+- Overdraft incidents: isolated + quickly cured = minor; recurring or slow-cure = elevated concern.
+- Owner liquidity below ~6 months of debt service after injection is a watch item for acquisitions.
+RISK RATING SCALE: 1 (minimal risk) to 8 (loss). 1-3 pass grades strong; 4 acceptable/watch; 5 special mention; 6-8 classified. Preliminary recommendations should map rating + rationale to this scale.`;
+
+/* ═══════════════ STATE ═══════════════ */
+let state = { caseId: null, stage: 0, perception: null, learning: null, reasoning: null, infoRequested: false, decision: null };
+
+/* ═══════════════ API ═══════════════ */
+async function askClaude(prompt, maxTokens = 1000) {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: maxTokens,
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  if (!response.ok) throw new Error("API request failed (" + response.status + ")");
+  const data = await response.json();
+  const text = data.content.filter(b => b.type === "text").map(b => b.text).join("\n");
+  const clean = text.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
+}
+
+/* ═══════════════ RENDERING ═══════════════ */
+const $ = id => document.getElementById(id);
+
+function renderCaseList() {
+  $('caseList').innerHTML = CASES.map(c => `
+    <div class="case-card ${state.caseId===c.id?'active':''}" onclick="selectCase('${c.id}')">
+      <div class="name">${c.name}</div>
+      <div class="meta">${c.type} · ${c.industry}</div>
+      <div class="amt">${c.amount}</div>
+    </div>`).join('');
+}
+
+function renderPipeline() {
+  const steps = [
+    { n:'1', t:'Perception', s:'Intake & extraction' },
+    { n:'2', t:'Learning', s:'Historical patterns' },
+    { n:'3', t:'Reasoning', s:'Risk synthesis' },
+    { n:'✓', t:'Your Decision', s:'Human authority' }
+  ];
+  $('pipeSteps').innerHTML = steps.map((st,i) => {
+    let cls = '';
+    if (state.stage > i) cls = 'done';
+    else if (state.stage === i && state.caseId) cls = 'current';
+    if (i===0 && state.perception && state.perception.completeness && !state.perception.completeness.complete && !state.infoRequested) cls = 'blocked';
+    return `${i>0?'<div class="pipe-connector"></div>':''}
+      <div class="pipe-step ${cls}">
+        <div class="pipe-dot">${cls==='done'?'✓':st.n}</div>
+        <div><div class="pt">${st.t}</div><div class="ps">${st.s}</div></div>
+      </div>`;
+  }).join('');
+}
+
+function selectCase(id) {
+  state = { caseId: id, stage: 0, perception: null, learning: null, reasoning: null, infoRequested: false, decision: null };
+  renderCaseList(); renderPipeline(); renderMain();
+}
+
+function getCase() { return CASES.find(c => c.id === state.caseId); }
+
+function renderMain() {
+  const c = getCase();
+  if (!c) return;
+  let html = '';
+
+  /* ── STAGE 1: PERCEPTION ── */
+  html += `<div class="stage">
+    <div class="stage-head">
+      <div class="t"><span class="stage-num">STAGE 1</span><div><h2>Perception</h2><div class="concept">Document intake, data extraction &amp; completeness gate</div></div></div>
+      <div class="story-chips"><span class="chip" title="Ingest all documents regardless of format">P1</span><span class="chip" title="Consolidate into one reviewable package">P2</span><span class="chip" title="Extract key financial data points">P3</span><span class="chip" title="Flag missing info, block until complete">P4</span><span class="chip" title="Incorporate alternative data sources">P5</span></div>
+    </div>
+    <div class="stage-body" id="s1body">
+      <div class="hint"><b>${c.name}</b> — ${c.type}, ${c.amount} requested. Documents received:</div>
+      <div class="doc-list">${c.docs.map(d=>`<span class="doc-pill">${d}</span>`).join('')}
+      ${state.infoRequested ? c.supplementalDocs.map(d=>`<span class="doc-pill" style="border-color:var(--green)">${d}</span>`).join('') : ''}</div>
+      <div id="s1out"></div>
+      ${!state.perception ? `<button class="btn btn-primary" id="runS1" onclick="runPerception()">Run document analysis</button>` : ''}
+    </div>
+  </div>`;
+
+  /* ── STAGE 2: LEARNING ── */
+  const s1Complete = state.perception && state.perception.completeness && state.perception.completeness.complete;
+  html += `<div class="stage" style="${!s1Complete?'opacity:0.55':''}">
+    <div class="stage-head">
+      <div class="t"><span class="stage-num">STAGE 2</span><div><h2>Learning</h2><div class="concept">Pattern matching against outcome-validated portfolio history</div></div></div>
+      <div class="story-chips"><span class="chip" title="Patterns correlated with actual outcomes">L1</span><span class="chip" title="Surface similar historical deals">L2</span><span class="chip" title="Learn only from outcome-validated decisions">L3</span><span class="chip" title="Incorporate senior underwriter judgment criteria">L4</span><span class="chip" title="Flag limited precedent">L5</span></div>
+    </div>
+    <div class="stage-body">
+      <div id="s2out">${!s1Complete?'<div class="hint">🔒 Locked until the loan package passes the completeness gate (requirement P4).</div>':''}</div>
+      ${s1Complete && !state.learning ? `<button class="btn btn-primary" onclick="runLearning()">Compare against portfolio history</button>` : ''}
+    </div>
+  </div>`;
+
+  /* ── STAGE 3: REASONING ── */
+  html += `<div class="stage" style="${!state.learning?'opacity:0.55':''}">
+    <div class="stage-head">
+      <div class="t"><span class="stage-num">STAGE 3</span><div><h2>Reasoning</h2><div class="concept">Preliminary risk synthesis — every conclusion traceable to evidence</div></div></div>
+      <div class="story-chips"><span class="chip" title="Synthesize into preliminary assessment">R1</span><span class="chip" title="Risk rating traceable to evidence">R2</span><span class="chip" title="Consistent institutional criteria">R5</span><span class="chip" title="Written assessment audit trail">R6</span></div>
+    </div>
+    <div class="stage-body">
+      <div id="s3out">${!state.learning?'<div class="hint">🔒 Locked until learning stage is complete.</div>':''}</div>
+      ${state.learning && !state.reasoning ? `<button class="btn btn-primary" onclick="runReasoning()">Generate preliminary risk assessment</button>` : ''}
+    </div>
+  </div>`;
+
+  /* ── DECISION ── */
+  html += `<div class="stage decision-panel" style="${!state.reasoning?'opacity:0.55':''}">
+    <div class="stage-head">
+      <div class="t"><span class="stage-num" style="background:rgba(255,255,255,0.15);color:#fff">FINAL</span><div><h2 style="color:#fff">Underwriter Decision</h2><div class="concept">The system recommends. You decide. (Requirement R7)</div></div></div>
+      <div class="story-chips"><span class="chip" title="Final authority remains with the underwriter">R7</span></div>
+    </div>
+    <div class="stage-body" id="decBody">
+      ${!state.reasoning ? '<div class="hint">🔒 Complete the analysis pipeline to record your decision.</div>' : renderDecisionForm()}
+    </div>
+  </div>`;
+
+  $('main').innerHTML = html;
+  if (state.perception) paintPerception();
+  if (state.learning) paintLearning();
+  if (state.reasoning) paintReasoning();
+  renderPipeline();
+}
+
+function renderDecisionForm() {
+  if (state.decision) {
+    return `<div class="decision-final">
+      <b>Decision recorded:</b> ${state.decision.choice}<br>
+      <b>Underwriter rationale:</b> ${state.decision.notes || '(none provided)'}<br>
+      <span class="hint">Routed to credit committee with the AI preliminary assessment and your independent rationale attached.</span>
+    </div>`;
+  }
+  return `
+    <label class="f">Your decision on this application</label>
+    <select id="decChoice">
+      <option>Recommend approval as structured</option>
+      <option>Recommend approval with modified terms</option>
+      <option>Recommend decline</option>
+      <option>Escalate to senior credit officer</option>
+      <option>Return to borrower for negotiation</option>
+    </select>
+    <label class="f">Your independent rationale (agree, disagree, or adjust the AI assessment)</label>
+    <textarea id="decNotes" placeholder="e.g., I concur with the preliminary rating but am adding a covenant requirement given the margin compression trend..."></textarea>
+    <div style="margin-top:1rem"><button class="btn btn-amber" onclick="recordDecision()">Record decision &amp; route to committee</button></div>`;
+}
+
+/* ═══════════════ STAGE EXECUTION ═══════════════ */
+
+async function runPerception() {
+  const c = getCase();
+  const btn = $('runS1'); if (btn) btn.disabled = true;
+  $('s1out').innerHTML = `<div class="loading"><div class="spinner"></div>Claude is reading the loan package — extracting financial data points and checking completeness…</div>`;
+  const pkg = c.package + (state.infoRequested && c.supplementalPackage ? '\n\n' + c.supplementalPackage : '');
+  const prompt = `You are the perception module of an AI-augmented commercial loan underwriting system. Read this loan package and respond ONLY with valid JSON, no markdown, no preamble.
+
+LOAN PACKAGE:
+${pkg}
+
+Respond with this exact JSON structure:
+{
+ "extracted": [ {"field":"...","value":"...","source":"which document it came from"} ],
+ "completeness": { "complete": true/false, "missing": ["specific missing item", ...], "note":"one sentence" }
+}
+
+Extract 8-12 key financial data points (revenue by year, net income, DSCR, debt service, collateral values, credit scores, liquidity, etc). For completeness: a standard commercial package requires 3 years of tax returns, 12 months bank statements, collateral documentation/appraisal, and guarantee documentation.
+
+COMPLETENESS RULES — follow exactly:
+- Mark an item missing ONLY if the package text EXPLICITLY states it was not provided, not included, or not received (e.g. "NOT included in package", "no appraisal provided", "not submitted").
+- If the package states documents were received, are on file, or the package is certified complete, treat those items as PRESENT.
+- Do NOT infer gaps from silence or from quality concerns (e.g. internally-prepared vs CPA statements is a risk note, not a completeness gap).
+- If no items are explicitly flagged as missing, set complete=true and missing=[].`;
+  try {
+    const result = await askClaude(prompt, 1500);
+    state.perception = result;
+    state.stage = result.completeness.complete ? 1 : 0;
+    renderMain();
+  } catch (err) {
+    $('s1out').innerHTML = `<div class="err">Analysis failed: ${err.message}. Please try again.</div>`;
+    if (btn) btn.disabled = false;
+  }
+}
+
+function paintPerception() {
+  const p = state.perception; const c = getCase();
+  let html = `<h3 class="mini">Extracted financial data (P3)</h3>
+  <table><tr><th>Data point</th><th>Value</th><th>Source document</th></tr>
+  ${p.extracted.map(e=>`<tr><td>${e.field}</td><td class="mono">${e.value}</td><td class="hint">${e.source}</td></tr>`).join('')}</table>`;
+  if (p.completeness.complete) {
+    html += `<div class="alert pass"><span class="icon">✅</span><div><b>Completeness gate: PASSED.</b> ${p.completeness.note} Analysis may proceed to the learning stage.</div></div>`;
+  } else {
+    html += `<div class="alert block"><span class="icon">⛔</span><div><b>Completeness gate: BLOCKED (P4).</b> ${p.completeness.note}<ul>${p.completeness.missing.map(m=>`<li>${m}</li>`).join('')}</ul></div></div>`;
+    if (!state.infoRequested && c.supplementalPackage) {
+      html += `<button class="btn btn-ghost" onclick="requestInfo()">Request missing items from borrower</button> <span class="hint">(simulates the loop back to the loan officer / borrower)</span>`;
+    }
+  }
+  $('s1out').innerHTML = html;
+}
+
+function requestInfo() {
+  state.infoRequested = true;
+  state.perception = null;
+  renderMain();
+  const c = getCase();
+  $('s1out').innerHTML = `<div class="alert info"><span class="icon">📨</span><div><b>Information request sent.</b> Supplemental documents received from ${c.name}. Re-run the document analysis to verify the package is now complete.</div></div>`;
+}
+
+async function runLearning() {
+  $('s2out').innerHTML = `<div class="loading"><div class="spinner"></div>Claude is comparing this deal against the outcome-validated historical portfolio…</div>`;
+  const c = getCase();
+  const prompt = `You are the learning module of an AI-augmented underwriting system. Compare the current deal to the historical portfolio. The portfolio contains ONLY outcome-validated deals (each has a known real outcome). Respond ONLY with valid JSON, no markdown.
+
+CURRENT DEAL (extracted data): ${JSON.stringify(state.perception.extracted)}
+Deal context: ${c.name}, ${c.industry}, ${c.type}, ${c.amount}
+
+HISTORICAL PORTFOLIO (outcome-validated): ${JSON.stringify(HISTORICAL_PORTFOLIO)}
+
+SENIOR UNDERWRITER CRITERIA (captured institutional knowledge): ${UW_HEURISTICS}
+
+Respond with this exact JSON structure:
+{
+ "similar_deals": [ {"id":"H-xxx","similarity_reason":"one sentence on why comparable"} ],
+ "patterns": ["pattern observed across the similar deals relevant to this application", ...],
+ "precedent_strength": "strong" | "moderate" | "limited",
+ "precedent_note": "one-two sentences: how much history the portfolio really has for THIS kind of deal, per requirement L5"
+}
+Pick 2-4 genuinely similar deals. Patterns must reference actual outcomes. Be honest about precedent strength.`;
+  try {
+    const result = await askClaude(prompt);
+    state.learning = result; state.stage = 2;
+    renderMain();
+  } catch (err) {
+    $('s2out').innerHTML = `<div class="err">Analysis failed: ${err.message}. Please try again.</div><button class="btn btn-primary" onclick="runLearning()">Retry</button>`;
+  }
+}
+
+function paintLearning() {
+  const l = state.learning;
+  const deals = l.similar_deals.map(sd => {
+    const h = HISTORICAL_PORTFOLIO.find(x=>x.id===sd.id);
+    if (!h) return '';
+    return `<div class="prec-card">
+      <div class="pc-name">${h.name}</div>
+      <div class="pc-meta">${h.industry} · $${(h.amount/1000).toFixed(0)}K · DSCR ${h.dscr}x · ${h.year}</div>
+      <div class="pc-why">${sd.similarity_reason}</div>
+      <span class="outcome ${h.outcome}">${h.outcome}</span>
+    </div>`;
+  }).join('');
+  let strengthAlert = '';
+  if (l.precedent_strength === 'limited') {
+    strengthAlert = `<div class="alert warn"><span class="icon">⚠️</span><div><b>Limited precedent flag (L5).</b> ${l.precedent_note}</div></div>`;
+  } else {
+    strengthAlert = `<div class="alert info"><span class="icon">📚</span><div><b>Precedent strength: ${l.precedent_strength}.</b> ${l.precedent_note}</div></div>`;
+  }
+  $('s2out').innerHTML = `<h3 class="mini" style="margin-top:0">Comparable historical deals — with real outcomes (L2, L3)</h3>
+    <div class="prec-grid">${deals}</div>
+    <h3 class="mini">Patterns observed (L1, L4)</h3>
+    ${l.patterns.map(p=>`<div class="evidence-item"><div class="ec">${p}</div></div>`).join('')}
+    ${strengthAlert}`;
+}
+
+async function runReasoning() {
+  $('s3out').innerHTML = `<div class="loading"><div class="spinner"></div>Claude is synthesizing the full analysis into a preliminary risk assessment…</div>`;
+  const c = getCase();
+  const prompt = `You are the reasoning module of an AI-augmented underwriting system. Synthesize everything into a preliminary assessment. Respond ONLY with valid JSON, no markdown.
+
+DEAL: ${c.name}, ${c.industry}, ${c.type}, ${c.amount}
+EXTRACTED DATA: ${JSON.stringify(state.perception.extracted)}
+LEARNING RESULTS: ${JSON.stringify(state.learning)}
+INSTITUTIONAL CRITERIA (apply these consistently — requirement R5): ${UW_HEURISTICS}
+
+Respond with this exact JSON structure:
+{
+ "risk_rating": <integer 1-8>,
+ "rating_label": "e.g. Acceptable / Watch",
+ "rating_summary": "one-two sentence plain-language summary of the rating",
+ "evidence_trail": [ {"conclusion":"specific conclusion","evidence":"the specific data point, pattern, or criterion it traces to"} ],
+ "strengths": ["...", "..."],
+ "concerns": ["...", "..."],
+ "recommendation": "one sentence: recommend approval / approval with modifications (state them) / decline / escalate",
+ "written_assessment": "A concise 100-140 word formal written assessment suitable for the credit file, covering borrower, request, financial analysis, precedent, risks, and recommendation."
+}
+Every item in evidence_trail must trace to something real from the data above. Exactly 4-5 evidence items, 2-3 strengths, 2-3 concerns. Keep all strings tight — no filler.`;
+  try {
+    const result = await askClaude(prompt, 2000);
+    state.reasoning = result; state.stage = 3;
+    renderMain();
+  } catch (err) {
+    $('s3out').innerHTML = `<div class="err">Analysis failed: ${err.message}. Please try again.</div><button class="btn btn-primary" onclick="runReasoning()">Retry</button>`;
+  }
+}
+
+function paintReasoning() {
+  const r = state.reasoning;
+  $('s3out').innerHTML = `
+    <div class="rating-row">
+      <div class="rating-badge">${r.risk_rating}</div>
+      <div class="rating-info">
+        <div class="rl">${r.rating_label} — Preliminary</div>
+        <div class="rs">${r.rating_summary}</div>
+      </div>
+    </div>
+    <div class="alert info"><span class="icon">🤝</span><div><b>This is a recommendation, not a decision.</b> ${r.recommendation}</div></div>
+    <h3 class="mini">Evidence trail — every conclusion traceable (R2)</h3>
+    ${r.evidence_trail.map(e=>`<div class="evidence-item"><div class="ec">${e.conclusion}</div><div class="ee">${e.evidence}</div></div>`).join('')}
+    <h3 class="mini">Strengths</h3>
+    <ul style="margin-left:1.2rem;font-size:13px">${r.strengths.map(s=>`<li>${s}</li>`).join('')}</ul>
+    <h3 class="mini">Concerns</h3>
+    <ul style="margin-left:1.2rem;font-size:13px">${r.concerns.map(s=>`<li>${s}</li>`).join('')}</ul>
+    <h3 class="mini">Draft written assessment — credit file audit trail (R6)</h3>
+    <div class="assessment-box">${r.written_assessment}</div>`;
+}
+
+function recordDecision() {
+  state.decision = { choice: $('decChoice').value, notes: $('decNotes').value };
+  state.stage = 4;
+  renderMain();
+}
+
+/* ═══════════════ INIT ═══════════════ */
+renderCaseList();
+renderPipeline();
+</script>
+</body>
+</html>
