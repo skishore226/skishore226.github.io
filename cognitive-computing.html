@@ -362,46 +362,11 @@
 <!-- ═══════════════════════ PART 4 ═══════════════════════ -->
 <div class="part" id="part4">
 <div class="part-label">Part 4</div>
-<h2>Business Requirements as User Stories</h2>
-
-<p>Based on the discovery and pen-and-paper analysis above, the following user stories define what the future system must do — written from the underwriter's perspective, technology-agnostic, and organized by cognitive computing concept.</p>
-
-<div class="story-group">
-<h4>Perception</h4>
-<div class="story"><b>P1</b> — As an underwriter, I need the system to ingest and process all borrower-submitted documents regardless of file format, so that I don't have to manually convert or reformat documents before I can begin my review.</div>
-<div class="story"><b>P2</b> — As an underwriter, I need all submitted documents consolidated into a single, organized, reviewable package, so that I can assess all relevant borrower information side by side without switching between disconnected files and systems.</div>
-<div class="story"><b>P3</b> — As an underwriter, I need the system to extract key financial data points from across all submitted documents, so that I don't have to manually locate and transcribe figures from unstructured materials that don't share a common format.</div>
-<div class="story"><b>P4</b> — As an underwriter, I need the system to identify when required information is missing or incomplete from the loan package, flag specifically what is absent, and prevent the analysis from proceeding until a completeness threshold is met, so that I never begin an assessment built on an incomplete foundation.</div>
-<div class="story"><b>P5</b> — As an underwriter, I need the system to incorporate approved alternative data sources beyond the borrower's submitted documents, so that I can strengthen my analysis with information the borrower may not have provided but that the institution has identified as relevant.</div>
-</div>
-
-<div class="story-group">
-<h4>Learning</h4>
-<div class="story"><b>L1</b> — As an underwriter, I need the system to identify patterns across historical loan data that correlate with actual loan performance outcomes, so that I can benefit from the institution's collective experience rather than relying only on my own.</div>
-<div class="story"><b>L2</b> — As an underwriter, I need the system to surface relevant historical deals with similar borrower profiles, industries, or financial characteristics, so that I can reference how comparable deals actually performed when making my assessment.</div>
-<div class="story"><b>L3</b> — As an underwriter, I need the system to learn only from historical decisions that have been validated against actual loan outcomes, so that the system's pattern recognition is built on proven good decisions rather than inherited bias.</div>
-<div class="story"><b>L4</b> — As an underwriter, I need the system to capture and incorporate pattern recognition, risk indicators, and judgment criteria from experienced underwriters, so that expertise is available to the entire team.</div>
-<div class="story"><b>L5</b> — As an underwriter, I need the system to detect when a new application falls outside the range of what has been historically encountered and flag it as a case with limited precedent, so that I'm not presented with a false pattern match on a deal the system doesn't actually have experience with.</div>
-</div>
-
-<div class="story-group">
-<h4>Reasoning</h4>
-<div class="story"><b>R1</b> — As an underwriter, I need the system to synthesize extracted data, historical patterns, and broader risk factors into a preliminary risk assessment that weighs multiple interacting variables, so that I receive a holistic starting point for my review rather than having to manually piece together each dimension independently.</div>
-<div class="story"><b>R2</b> — As an underwriter, I need the system to generate a risk rating recommendation based on the institution's standardized scale with a clear justification that is traceable back to specific evidence in the loan file, so that I can see exactly what data points, patterns, and factors led to the conclusion and verify the reasoning before putting my name on it.</div>
-<div class="story"><b>R5</b> — As an underwriter, I need the system to apply decision criteria that are consistent, institutionally agreed upon, and documented, so that the same deal produces the same assessment regardless of when or by whom it is initiated.</div>
-<div class="story"><b>R6</b> — As an underwriter, I need the system to support the generation of a written assessment and recommendation document, so that I have an audit trail for the credit committee and regulatory review.</div>
-<div class="story"><b>R7</b> — As an underwriter, I need the final decision authority to remain with me and/or the credit committee, so that the system recommends but never approves, declines, or commits the institution to any action without human sign-off.</div>
-</div>
-</div>
-
-<!-- ═══════════════════════ PART 5 ═══════════════════════ -->
-<div class="part" id="part5">
-<div class="part-label">Part 5</div>
 <h2>The Working Prototype</h2>
 
-<p>To validate these requirements, I built a working AI-powered prototype called the <span class="emphasis">Meridian Commercial Bank Underwriting Workbench</span>. The application uses real-time AI analysis (not mocked data) to walk each loan through the three stages of cognitive computing, with the underwriter holding final decision authority at every step.</p>
+<p>To validate the analysis above, I built a working AI-powered prototype called the <span class="emphasis">Meridian Commercial Bank Underwriting Workbench</span>. The application uses real-time AI analysis (not mocked data) to walk each loan through the three stages of cognitive computing, with the underwriter holding final decision authority at every step.</p>
 
-<p>Below is a walkthrough of each stage in action. Every feature maps directly to a user story from Part 4.</p>
+<p>Below is a walkthrough of each stage in action.</p>
 
 <h3>Stage 1: Perception — Document Intake & Extraction</h3>
 <p>The system reads the full loan package, extracts key financial data points into a structured table with source attribution, and runs a completeness check. If required documents are missing, analysis is blocked until the gap is resolved.</p>
