@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agents &amp; CPQ Quoting — Sam Kishore</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F8F6F1;--bg-alt:#EFECE4;--text:#2B2D42;--text-light:#5A5D7A;--accent:#457B9D;--accent-light:#A8DADC;--warm:#E9C46A;--warm-dark:#D4A035;--dark:#264653;--white:#FFFFFF;--radius:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Source Sans 3',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;font-weight:400}
+
+nav{position:fixed;top:0;width:100%;z-index:100;padding:1rem 2rem;display:flex;justify-content:space-between;align-items:center;background:rgba(248,246,241,0.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(43,45,66,0.06)}
+nav .logo{font-family:'DM Serif Display',serif;font-size:1.25rem;color:var(--dark);text-decoration:none}
+nav ul{list-style:none;display:flex;gap:1.8rem}
+nav ul li a{text-decoration:none;color:var(--text-light);font-size:0.9rem;font-weight:500;transition:color .2s}
+nav ul li a:hover{color:var(--dark)}
+
+.hero{padding:7rem 2rem 3rem;max-width:780px;margin:0 auto}
+.breadcrumb{font-size:0.85rem;color:var(--text-light);margin-bottom:1rem}
+.breadcrumb a{color:var(--accent);text-decoration:none}
+.hero h1{font-family:'DM Serif Display',serif;font-size:2.4rem;color:var(--dark);line-height:1.2;margin-bottom:0.8rem}
+.hero .subtitle{font-size:1.05rem;color:var(--text-light);line-height:1.7;max-width:640px}
+
+.content{max-width:780px;margin:0 auto;padding:0 2rem 4rem}
+
+.part{margin-bottom:3.5rem}
+.part-label{font-size:0.75rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:0.5rem}
+.part h2{font-family:'DM Serif Display',serif;font-size:1.7rem;color:var(--dark);margin-bottom:1rem}
+.part h3{font-family:'DM Serif Display',serif;font-size:1.25rem;color:var(--dark);margin-top:2rem;margin-bottom:0.6rem}
+.part h4{font-weight:600;margin-top:1.4rem;margin-bottom:0.4rem}
+.part p{margin-bottom:1rem;line-height:1.7}
+.part ul,.part ol{margin:0.6rem 0 1rem 1.4rem;line-height:1.7}
+.part li{margin-bottom:0.4rem}
+.emphasis{font-weight:600;color:var(--dark)}
+
+.phase-card{background:var(--white);border:1px solid rgba(43,45,66,0.08);border-radius:var(--radius);padding:1.3rem 1.5rem;margin-bottom:1rem}
+.phase-card .phase-label{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:0.3rem}
+.phase-card h4{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--dark);margin-bottom:0.5rem;margin-top:0}
+.phase-card p{margin-bottom:0.5rem;font-size:0.95rem}
+
+.agent-def{background:var(--dark);color:var(--white);border-radius:var(--radius);padding:1.5rem 1.7rem;margin:1.5rem 0}
+.agent-def h3{font-family:'DM Serif Display',serif;color:var(--accent-light);margin-top:0;margin-bottom:0.6rem}
+.agent-def p{color:#CDDFE1;line-height:1.7}
+.agent-def ul{list-style:none;padding:0;margin:0.8rem 0}
+.agent-def li{padding:0.35rem 0;padding-left:1.2rem;position:relative;color:#E0EEEF}
+.agent-def li::before{content:'→';position:absolute;left:0;color:var(--accent-light)}
+
+.workflow-table{width:100%;border-collapse:collapse;margin:1rem 0 1.5rem;font-size:0.9rem}
+.workflow-table th{text-align:left;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-light);padding:8px 10px;border-bottom:2px solid rgba(43,45,66,0.12)}
+.workflow-table td{padding:10px;border-bottom:1px solid rgba(43,45,66,0.06);vertical-align:top}
+.workflow-table td:first-child{font-weight:600;white-space:nowrap;color:var(--accent);width:60px}
+
+.phase-tag{font-size:0.68rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border-radius:999px;display:inline-block;margin-right:4px}
+.phase-tag.perception{background:#E8F0F7;color:#1E5A8E}
+.phase-tag.understanding{background:#F0EBFB;color:#5F3DC4}
+.phase-tag.decision{background:#FDF3E7;color:#B45309}
+.phase-tag.action{background:#EAF6EC;color:#2B8A3E}
+.phase-tag.learning{background:#FDEFE6;color:#D9480F}
+
+.ctrl-tag{font-size:0.68rem;font-weight:600;letter-spacing:0.06em;padding:3px 8px;border-radius:999px;display:inline-block}
+.ctrl-tag.agentic{background:#F0EBFB;color:#5F3DC4}
+.ctrl-tag.programmatic{background:#EEF2F6;color:#64748B}
+
+.risk-card{background:var(--white);border:1px solid rgba(43,45,66,0.08);border-radius:var(--radius);padding:1.2rem 1.4rem;margin-bottom:0.8rem}
+.risk-card .risk-cat{font-size:0.7rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.3rem}
+.risk-cat.people{color:#D9480F}
+.risk-cat.process{color:#B45309}
+.risk-cat.technology{color:#5F3DC4}
+.risk-card h4{margin-top:0;margin-bottom:0.4rem}
+.risk-card p{font-size:0.92rem;margin-bottom:0.4rem;color:var(--text-light)}
+
+.cm-card{background:var(--white);border:1px solid rgba(43,45,66,0.08);border-radius:var(--radius);padding:1.2rem 1.4rem;margin-bottom:0.8rem}
+.cm-card h4{margin-top:0;margin-bottom:0.4rem}
+.cm-card p{font-size:0.92rem;margin-bottom:0;color:var(--text-light)}
+
+.app-preview{border:1px solid rgba(43,45,66,0.1);border-radius:var(--radius);overflow:hidden;margin:1.5rem 0;background:#fff}
+.app-bar{background:#14181F;color:#fff;padding:0.55rem 1rem;font-size:0.78rem;display:flex;align-items:center;gap:0.6rem}
+.app-bar .dot{width:10px;height:10px;border-radius:50%}
+.dot.r{background:#FF5F57}.dot.y{background:#FFBD2E}.dot.g{background:#28C840}
+.app-screen{padding:1rem 1.2rem;font-size:0.88rem}
+.app-screen img{width:100%;border-radius:8px;margin-bottom:0.8rem}
+
+.cta-btn{display:inline-block;background:var(--accent);color:var(--white);text-decoration:none;padding:0.8rem 1.8rem;border-radius:999px;font-weight:600;font-size:0.95rem;transition:background .2s}
+.cta-btn:hover{background:var(--dark)}
+
+.callout{background:var(--bg-alt);border-left:3px solid var(--accent);padding:1rem 1.3rem;border-radius:0 var(--radius) var(--radius) 0;margin:1.5rem 0;font-size:0.95rem;color:var(--text-light)}
+.callout b{color:var(--dark)}
+
+footer{text-align:center;padding:2rem 1rem;font-size:0.85rem;color:var(--text-light)}
+
+@media(max-width:640px){
+  .hero h1{font-size:1.8rem}
+  nav{padding:0.8rem 1rem}
+  nav ul{gap:1rem}
+  .content,.hero{padding-left:1.2rem;padding-right:1.2rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="index.html">Sam Kishore</a>
+  <ul>
+    <li><a href="index.html">Home</a></li>
+    <li><a href="index.html#projects">All Projects</a></li>
+    <li><a href="index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="breadcrumb"><a href="index.html">Home</a> › AI Agents &amp; CPQ Quoting</div>
+  <h1>AI Agents &amp; CPQ Quoting</h1>
+  <p class="subtitle">From concept to working prototype — this project walks through how to identify agentic AI opportunities, apply them to a real-world CPQ quoting workflow, navigate technical and organizational constraints, and build a working AI-augmented quoting tool.</p>
+</div>
+
+<div class="content">
+
+<!-- ═══════════════ PART 1 ═══════════════ -->
+<div class="part" id="part1">
+<div class="part-label">Part 1 — Discovery</div>
+<h2>What Are AI Agents?</h2>
+
+<p>Imagine you're cooking dinner for your family on a weeknight. You've done this hundreds of times, and whether you realize it or not, you're running through a process that involves five distinct mental steps every single time.</p>
+
+<div class="phase-card">
+  <div class="phase-label">Perception</div>
+  <h4>"What's coming in?"</h4>
+  <p>You open the fridge. There's chicken, some wilting spinach, half a block of cheese, and leftover rice from two days ago. You check the pantry — pasta, canned tomatoes, garlic. You now have a picture of what you're working with. That's perception: gathering the raw information you need before any thinking can happen.</p>
+</div>
+
+<div class="phase-card">
+  <div class="phase-label">Understanding</div>
+  <h4>"What does this mean?"</h4>
+  <p>You see chicken, spinach, cheese, leftover rice, pasta, canned tomatoes, and garlic. Now you have to interpret what you're looking at. The chicken is raw, so that adds cooking time. The spinach is wilting, so it needs to be used tonight or it goes to waste. The leftover rice is two days old — still fine, but one more day and you'd toss it. You're not just seeing ingredients anymore. You're understanding what each one means for your options.</p>
+</div>
+
+<div class="phase-card">
+  <div class="phase-label">Decision-Making</div>
+  <h4>"What should we do about it?"</h4>
+  <p>You've seen what's in the fridge and you understand the constraints. Now you decide. The chicken with canned tomatoes and pasta could work — that's a forty-minute meal. The leftover rice with chicken and spinach could be a quick stir-fry — twenty minutes. Your kids won't eat spinach, but your spouse loves it. You're short on time tonight. You go with the stir-fry and decide to hide the spinach by chopping it fine.</p>
+</div>
+
+<div class="phase-card">
+  <div class="phase-label">Action</div>
+  <h4>"Do the thing."</h4>
+  <p>You decided on the stir-fry. Now you have to actually cook it. Dice the chicken, chop the spinach, heat the pan, season it, cook the rice if the leftovers aren't enough, plate it, serve it. Every one of those is a step that has to happen in a sequence, and if you skip one or do them out of order, the meal fails. If you forget to heat the pan before adding the chicken, you're steaming it instead of searing it. If you plate the food but forget to call everyone to the table, it gets cold.</p>
+</div>
+
+<div class="phase-card">
+  <div class="phase-label">Learning</div>
+  <h4>"How do we get better at this?"</h4>
+  <p>After dinner, you get feedback. The kids ate everything — the chopped spinach trick worked. The stir-fry was a little under-seasoned. The rice was slightly overcooked because you misjudged the leftover quantity. Next time, you'll add more soy sauce and check the rice earlier. Over dozens of dinners, these small corrections compound. You develop instincts. You stop measuring and start eyeballing. You know which meals work on busy nights and which ones aren't worth the effort.</p>
+</div>
+
+<div class="agent-def">
+  <h3>So What Are AI Agents, Really?</h3>
+  <p>An AI agent is a system that runs through these same five phases — perceive, understand, decide, act, learn — but at a speed, scale, and consistency that no individual human can match. It can:</p>
+  <ul>
+    <li>Monitor hundreds of incoming signals simultaneously</li>
+    <li>Interpret them against a defined set of criteria without getting tired or distracted</li>
+    <li>Make decisions based on clear logic and historical patterns</li>
+    <li>Execute actions across multiple systems in seconds</li>
+    <li>Improve over time by tracking which decisions led to good outcomes and which didn't</li>
+  </ul>
+  <p>So how do we know where we can apply agentic AI? Answering this requires some analysis, which we'll get to below. But if I could summarize it, it's this: before asking whether an agent can do this job, ask whether a well-trained human or set of humans can do it clearly and consistently today. If the answer is yes, you have a candidate for agentic AI. If the answer is no, fix the human process first — because technology scales whatever you give it, including the problems.</p>
+</div>
+</div>
+
+<!-- ═══════════════ PART 2 ═══════════════ -->
+<div class="part" id="part2">
+<div class="part-label">Part 2 — Discovery</div>
+<h2>A Real-World Workflow: CPQ Quoting</h2>
+
+<p><b>Why start with the workflow?</b> Before we build anything, we need to understand what the people who will use this technology actually do every day. In the real world, this means sitting down with the sales organization — reps, sales ops, pricing teams — and mapping out their process step by step. Not how the system works. How <em>they</em> work.</p>
+
+<h3>Full Workflow: Lead Capture to Fulfillment</h3>
+
+<p>This is the high-level flow for a new business deal — from first contact with a prospect through signed contract. Processes vary from company to company, but this represents what is broadly common across the sales organizations I've worked with in technology consulting.</p>
+
+<table class="workflow-table">
+<tr><th>Step</th><th>Description</th></tr>
+<tr><td>1</td><td><b>Lead Capture.</b> A prospect expresses interest — conference, website form, or other channel. A lead record is created to track status and activities.</td></tr>
+<tr><td>2</td><td><b>Discovery Conversation.</b> A sales rep reaches out to understand the prospect's business needs, timeline, and budget through back-and-forth phone conversations.</td></tr>
+<tr><td>3</td><td><b>Account &amp; Contact Setup.</b> The rep creates records for the prospect's organization and the individual contact to track all activities going forward.</td></tr>
+<tr><td>4</td><td><b>Opportunity Creation.</b> A record is created to track sales-specific activities — conversations, notes, deal probability, lifecycle stage, and forecasting.</td></tr>
+<tr><td>5</td><td><b>Quoting.</b> The rep builds a quote based on discovery conversations — products, pricing, configurations, discounts. <em>See detailed subprocess below.</em></td></tr>
+<tr><td>6</td><td><b>Quote Revision.</b> The prospect reviews and may request changes. Multiple rounds of quotes are common — three or four versions isn't unusual.</td></tr>
+<tr><td>7</td><td><b>Quote Approval.</b> The rep submits for internal approval. Routing depends on deal size — larger deals require more senior sign-off. <em>See detailed subprocess below.</em></td></tr>
+<tr><td>8</td><td><b>Contracting.</b> Legal drafts the contract, working with sales to align terms. Additional negotiation may occur over commercial or legal terms.</td></tr>
+<tr><td>9</td><td><b>Signature &amp; Close.</b> Contract goes out. Both parties sign. The deal is active.</td></tr>
+<tr><td>10</td><td><b>Fulfillment.</b> An activation record is created. The prospect is now a customer. Servicing teams take over.</td></tr>
+</table>
+
+<h3>Quoting Subprocess — Detailed Breakdown</h3>
+
+<p>This is the most cognitively intensive step — where the rep has to figure out what products, configurations, and pricing go into the quote. Like underwriting in my cognitive computing project, it's the subprocess where judgment, experience, and consistency matter most.</p>
+
+<table class="workflow-table">
+<tr><th>Step</th><th>Description</th><th>Phase</th><th>Control</th></tr>
+<tr><td>5.0</td><td><b>Review &amp; confirm client requirements.</b> The rep reviews discovery notes to confirm a complete picture of what the client wants — products, use case, volume, timeline, budget. If anything is missing, go back to the client.</td><td><span class="phase-tag perception">Perception</span><span class="phase-tag understanding">Understanding</span><span class="phase-tag decision">Decision</span></td><td><span class="ctrl-tag agentic">Agentic</span></td></tr>
+<tr><td>5.1</td><td><b>Create the quote shell.</b> A blank quote record linked to the open opportunity. No products or pricing — just the container.</td><td><span class="phase-tag action">Action</span></td><td><span class="ctrl-tag programmatic">Programmatic</span></td></tr>
+<tr><td>5.3</td><td><b>Search &amp; select products.</b> Find products in the catalog, verify availability, add to quote. Standalone, bundled, or both.</td><td><span class="phase-tag action">Action</span></td><td><span class="ctrl-tag programmatic">Programmatic</span></td></tr>
+<tr><td>5.4</td><td><b>Configure product-level pricing.</b> Apply the right pricing model per product — flat, tiered, discounted. Varies deal to deal.</td><td><span class="phase-tag action">Action</span></td><td><span class="ctrl-tag agentic">Agentic</span></td></tr>
+<tr><td>5.5</td><td><b>Apply quote-level adjustments.</b> Deal-wide discounts, premiums, or promotional pricing on top of individual product pricing.</td><td><span class="phase-tag action">Action</span></td><td><span class="ctrl-tag agentic">Agentic</span></td></tr>
+<tr><td>5.6</td><td><b>Review &amp; finalize.</b> Sanity check — everything accurate and consistent with what the client asked for.</td><td><span class="phase-tag action">Action</span></td><td><span class="ctrl-tag agentic">Agentic</span></td></tr>
+<tr><td>5.7</td><td><b>Present to prospect.</b> Send the quote for review. Prospect may accept or request changes.</td><td><span class="phase-tag action">Action</span></td><td><span class="ctrl-tag programmatic">Programmatic</span></td></tr>
+<tr><td>5.8</td><td><b>Iterate until confirmed.</b> Revision cycles — each may touch different sub-steps depending on what the prospect wants changed.</td><td><span class="phase-tag action">Action</span></td><td><span class="ctrl-tag agentic">Agentic</span></td></tr>
+<tr><td>5.9</td><td><b>Lock &amp; submit for approval.</b> Finalize and hand off into the approval process.</td><td><span class="phase-tag action">Action</span></td><td><span class="ctrl-tag programmatic">Programmatic</span></td></tr>
+</table>
+
+<p>The <b>perception, understanding, and decision-making</b> phases all happen in step 5.0 — before the rep physically builds anything. They're reading notes, interpreting what the client needs, and forming a plan. Just like opening the fridge, assessing the ingredients, and deciding on the stir-fry all happen before you pick up a knife.</p>
+
+<p><b>Action</b> covers steps 5.1 through 5.9 — actually building the quote, pricing it, presenting it, revising it. <b>Learning</b> happens after the quote is out in the world — feedback from the rep on accuracy, feedback from the client on speed, and outcome data on which configurations led to closed deals.</p>
+
+<h3>Approval Subprocess — Detailed Breakdown</h3>
+
+<table class="workflow-table">
+<tr><th>Step</th><th>Description</th></tr>
+<tr><td>7.1</td><td><b>Determine approval routing.</b> Based on deal size, product type, discount levels, and other attributes, the appropriate approval chain is determined — manager, business unit head, senior executive, compliance, pricing desk.</td></tr>
+<tr><td>7.2</td><td><b>Send to appropriate parties.</b> The rep sends the quote to all required reviewers based on the routing.</td></tr>
+<tr><td>7.3</td><td><b>Approver reviews the quote.</b> Each approver checks products, pricing, discounts, and overall deal quality. Review quality varies — some scrutinize, some rubber-stamp.</td></tr>
+<tr><td>7.4</td><td><b>Approve or send back.</b> The approver either passes it forward or sends it back with a reason for the rep to address.</td></tr>
+<tr><td>7.5</td><td><b>Final approval.</b> All required approvers have signed off. Quote moves into contracting.</td></tr>
+</table>
+
+<div class="callout"><b>Key insight:</b> The approval subprocess is a separate process from quoting, with its own logic, steps, and bottlenecks. It could warrant its own agent. For this project, we focus the prototype on the quoting subprocess — where the richest judgment and the most inconsistency live.</div>
+</div>
+
+<!-- ═══════════════ PART 3 ═══════════════ -->
+<div class="part" id="part3">
+<div class="part-label">Part 3 — Execution</div>
+<h2>Technical Architecture, Constraints &amp; Tradeoffs</h2>
+
+<p>Discovery validated that the quoting workflow is a candidate for agentic AI. Now the question is: can we actually build it, and what will we run into when we try?</p>
+
+<h3>Compound AI Systems — What the Agent Connects To</h3>
+
+<p>A standalone AI model can't build a quote — it doesn't know your products, your pricing rules, or what the client asked for. The agent needs to be connected to the real data sources the rep already reaches for today:</p>
+
+<ul>
+<li><b>Client requirements documentation</b> — rep notes, emails, call transcripts capturing what the client wants.</li>
+<li><b>Opportunity records</b> — which deal this quote is tied to, which client, which contact.</li>
+<li><b>Product catalog</b> — available products, SKUs, bundles, availability status.</li>
+<li><b>Pricing rules</b> — tiered pricing tables, discount thresholds, stacking policies, promotional schedules.</li>
+</ul>
+
+<h3>Programmatic vs. Agentic Control Logic</h3>
+
+<p>Not every step needs an agent. The design question is: which steps are <em>toast</em> (same every time, no judgment) and which are <em>dinner for guests</em> (requires figuring it out based on the situation)?</p>
+
+<p><b>Agentic steps</b> — require judgment, vary deal to deal: confirming requirements (5.0), configuring product pricing (5.4), applying quote-level adjustments (5.5), reviewing the final quote (5.6), iterating on revisions (5.8).</p>
+
+<p><b>Programmatic steps</b> — same every time, hand it to anyone: creating the quote shell (5.1), adding products from the catalog (5.3), sending the quote to the prospect (5.7), submitting for approval (5.9).</p>
+
+<h3>The ReAct Loop — How the Agent Reasons</h3>
+
+<p>At each agentic step, the agent works in a cycle: <b>Reason</b> (plan what to do), <b>Act</b> (call a tool or execute), <b>Observe</b> (check the result), and <b>Adjust</b> (iterate if needed). Like a cook who reaches for soy sauce, discovers they're out, and pivots to a curry — the agent discovers things along the way and adapts. The loop needs a clear stopping condition, or the agent iterates forever.</p>
+
+<h3>Constraints — People, Process, Technology</h3>
+
+<div class="risk-card"><div class="risk-cat people">People</div><h4>Insufficient training on the agent</h4><p>Reps don't understand how to use the system — what to input, what to expect, how to override. Change management was rushed.</p></div>
+
+<div class="risk-card"><div class="risk-cat people">People</div><h4>Lack of product &amp; pricing knowledge</h4><p>Reps aren't trained on their own products or when different pricing mechanisms apply. The agent can look up the catalog, but it can't teach the rep what their products do.</p></div>
+
+<div class="risk-card"><div class="risk-cat people">People</div><h4>Over-trust in the agent</h4><p>The rep assumes the agent's output is correct and stops doing the sanity check. Subtle errors pass through because the human turned off their own judgment.</p></div>
+
+<div class="risk-card"><div class="risk-cat process">Process</div><h4>Processes aren't documented or are outdated</h4><p>Nobody has written down how quoting works, or the documentation is stale — product lines changed, pricing evolved, new bundles exist that aren't reflected.</p></div>
+
+<div class="risk-card"><div class="risk-cat process">Process</div><h4>Processes are inconsistent across teams</h4><p>East Coast follows one quoting procedure, West Coast follows another. The agent can only follow one — so either one team gets an agent that doesn't match, or you reconcile first.</p></div>
+
+<div class="risk-card"><div class="risk-cat process">Process</div><h4>Processes don't account for edge cases</h4><p>The happy path is documented. But what about custom configurations, discontinued products grandfathered for existing clients, or pricing exceptions? The agent has no instructions for the exception.</p></div>
+
+<div class="risk-card"><div class="risk-cat technology">Technology</div><h4>Agent breaks existing functionality</h4><p>New code interferes with existing CRM code — a validation rule conflicts, an unrelated process stops working. The foundational step fails and everything downstream fails.</p></div>
+
+<div class="risk-card"><div class="risk-cat technology">Technology</div><h4>Agent references data incorrectly</h4><p>Connected to the right sources but pulls the wrong product, misconfigures tiered pricing, or applies a discount when it shouldn't. The output looks plausible but is subtly wrong.</p></div>
+
+<div class="risk-card"><div class="risk-cat technology">Technology</div><h4>Integration failures between systems</h4><p>If any data source returns stale data, times out, or breaks the connection, the agent works with incomplete information without necessarily knowing it.</p></div>
+
+<div class="callout"><b>Mitigations:</b> Human judgment stays in the loop at every step — the agent produces a first draft, never a final product. Quality assurance testing, system integration testing, and user acceptance testing across regions and business units catch issues before production.</div>
+</div>
+
+<!-- ═══════════════ PART 4 ═══════════════ -->
+<div class="part" id="part4">
+<div class="part-label">Part 4 — Execution</div>
+<h2>Change Management</h2>
+
+<p>Technology is only part of the equation. If the people who use the agent aren't prepared for the change, the technology fails — not because it's broken, but because it's rejected.</p>
+
+<div class="cm-card"><h4>Stakeholder Partnership</h4><p>Engage key decision makers in the sales organization early. Build trust, value their input on how quoting actually works, and hold them accountable for making decisions about requirements. One of the biggest reasons digital transformation projects fail isn't bad technology — it's that stakeholders won't commit to decisions about what they actually need.</p></div>
+
+<div class="cm-card"><h4>Executive Alignment</h4><p>Key executives outside sales — CEO, CFO, CTO — need to be informed and aligned. They're not making day-to-day project decisions, but they need to know that quoting is being fundamentally changed. This protects the project from organizational politics and prevents leadership from being blindsided.</p></div>
+
+<div class="cm-card"><h4>Pilot Users &amp; Champions</h4><p>Identify a core subset of reps and sales ops users from different regions and business units to test the agent before broad rollout. These are engaged people who give honest feedback. Start small, iterate, expand. At previous roles, I ran pilot programs for CPQ implementations and Financial Force using this same model — champions from each region who regularly tested features and provided feedback.</p></div>
+
+<div class="cm-card"><h4>Training</h4><p>Hands-on training on how to use the agent — not just "here's the tool," but how to prompt it properly, what to expect as output, how to review and override, and what good practices look like. Quick reference guides, live sessions, and documentation — thorough enough that reps aren't guessing.</p></div>
+
+<div class="cm-card"><h4>Communications &amp; Feedback Channels</h4><p>Comms start months before rollout — nobody should be surprised. And a feedback channel must be established so anyone with concerns can raise them and get a response. If concerns disappear into a void, trust erodes fast.</p></div>
+
+<div class="cm-card"><h4>Rollout Sequencing</h4><p>Don't roll out to everyone at once, and especially not to reps servicing your highest-value clients first. A mistake on a million-dollar deal is relationship-damaging. Test on lower-stakes deals where errors are recoverable. Expand to mid-tier once the agent has proven itself. Only go to top-tier clients once there's enough real-world usage to trust the system. Protect your most important revenue while the agent earns trust.</p></div>
+</div>
+
+<!-- ═══════════════ PART 5 ═══════════════ -->
+<div class="part" id="part5">
+<div class="part-label">Part 5 — Execution</div>
+<h2>The Working Prototype</h2>
+
+<p>To validate the analysis above, I built a working AI-powered prototype called the <span class="emphasis">Nexus Analytics Quoting Workbench</span>. The application uses real-time AI analysis to walk a quote through each step of the subprocess, with the sales rep holding decision authority at every step. The agent drafts. The rep decides.</p>
+
+<p>Below is a walkthrough of key scenarios in the prototype.</p>
+
+<h3>Requirements Validation Gate</h3>
+<p>The agent reads raw discovery notes and extracts structured requirements — but blocks the quote if the license count is unconfirmed. The rep logs a follow-up, re-runs the agent, and it passes. Technology won't proceed on incomplete information.</p>
+
+<div class="app-preview">
+<div class="app-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span>Nexus Analytics — AI-Augmented Quoting Workbench</span></div>
+<div class="app-screen">
+<p><b>Step 5.0 — Review &amp; confirm client requirements</b> <span class="ctrl-tag agentic">Agentic</span></p>
+<p>The agent's ReAct trace shows it parsing the notes, identifying that the license count reads "roughly 75 — need to confirm," hitting the validation rule, and blocking the quote. The rep logs the follow-up, updates the notes, re-runs the agent, and the requirements pass with all fields confirmed.</p>
+</div>
+</div>
+
+<h3>Catalog Validation &amp; Product Removal</h3>
+<p>The catalog check catches an inactive SKU — RouteIQ RQ-200 has been retired and replaced by RQ-300. The rep can swap the SKU or remove the product entirely. If a product is removed, downstream logic adapts — available discounts change accordingly.</p>
+
+<h3>Agentic Pricing with Manual Override</h3>
+<p>The agent reasons through tiered pricing (50 licenses at $120, the next 25 at $95), calculates the total, and presents it. The rep can override the license count or the platform price manually — the table recalculates instantly, and a "Manual override — rep judgment" tag appears. The agent's output is a starting point, not a final answer.</p>
+
+<h3>Agent-Recommended &amp; Rep-Added Discounts</h3>
+<p>The agent checks discount policy, identifies that both multi-product (10%) and new-customer (5%) discounts qualify, but catches the no-stacking rule and recommends only the larger one. Every recommendation is a checkbox the rep can flip. And if the rep has their own idea — a competitive displacement concession, for example — they can add a custom adjustment that the agent never suggested. Custom adjustments are tagged and visible to the approval chain.</p>
+
+<h3>Summary, Review &amp; Submit</h3>
+<p>The agent generates a plain-language summary of the full quote — what's on it, whether it fits the stated budget, and anything worth double-checking. The rep has two paths for changes: describe what needs to change in a prompt and the agent routes them to the right step, or reopen any step manually. If the quote changes after the summary, a staleness warning appears and the submit button disables until the summary is regenerated. The agent never submits on its own.</p>
+
+<div style="text-align:center;margin:2.5rem 0">
+  <a href="quoting-workbench.html" class="cta-btn">Try the live prototype →</a>
+  <p style="font-size:0.85rem;color:var(--text-light);margin-top:0.75rem">The prototype uses real-time AI analysis. All companies, products, and figures are fictional.</p>
+</div>
+
+</div>
+
+</div><!-- end .content -->
+
+<footer>&copy; 2026 Sam Kishore. Built with curiosity.</footer>
+</body>
+</html>

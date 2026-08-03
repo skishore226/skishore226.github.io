@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus Analytics — AI-Augmented Quoting Workbench</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #14181F;
+    --ink-soft: #4A5364;
+    --paper: #F2F4F7;
+    --panel: #FFFFFF;
+    --line: #DCE1E8;
+    --agent: #5F3DC4;
+    --agent-soft: #F0EBFB;
+    --prog: #64748B;
+    --prog-soft: #EEF2F6;
+    --human: #D9480F;
+    --human-soft: #FDEFE6;
+    --ok: #2B8A3E;
+    --ok-soft: #EAF6EC;
+    --warn: #B45309;
+    --warn-soft: #FDF3E7;
+    --bad: #B91C1C;
+    --bad-soft: #FBEAEA;
+    --mono: 'JetBrains Mono', monospace;
+    --body: 'Inter', -apple-system, sans-serif;
+    --display: 'Space Grotesk', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--body); background: var(--paper); color: var(--ink); font-size: 14px; line-height: 1.55; }
+  button { font-family: var(--body); cursor: pointer; }
+  button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--agent); outline-offset: 2px; }
+
+  header {
+    background: var(--ink); color: #fff; padding: 0.9rem 1.5rem;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.6rem;
+  }
+  .brand { display: flex; align-items: center; gap: 0.7rem; }
+  .brand .mark {
+    width: 32px; height: 32px; border-radius: 7px;
+    background: linear-gradient(135deg, var(--agent), #7C5CE0);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--display); font-weight: 700; font-size: 16px;
+  }
+  .brand h1 { font-family: var(--display); font-size: 15.5px; font-weight: 600; }
+  .brand .sub { font-size: 11.5px; color: #A7B0BE; }
+  .proto-badge {
+    font-size: 10.5px; font-weight: 600; letter-spacing: 0.08em;
+    padding: 4px 10px; border-radius: 999px;
+    background: rgba(255,255,255,0.12); color: #DDE3EA; text-transform: uppercase;
+  }
+
+  .deal-bar {
+    background: var(--panel); border-bottom: 1px solid var(--line);
+    padding: 0.8rem 1.5rem; display: flex; flex-wrap: wrap; gap: 1.6rem; font-size: 12.5px;
+  }
+  .deal-bar .kv .k { color: var(--ink-soft); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 600; }
+  .deal-bar .kv .v { font-weight: 600; margin-top: 1px; }
+
+  .sources { padding: 0.7rem 1.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; font-size: 11.5px; }
+  .sources .lbl { color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; font-size: 10px; margin-right: 0.2rem; }
+  .src-chip { padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel); color: var(--ink-soft); font-weight: 500; transition: all 0.25s; }
+  .src-chip.active { border-color: var(--agent); background: var(--agent-soft); color: var(--agent); font-weight: 600; }
+
+  main { max-width: 880px; margin: 0 auto; padding: 1.4rem 1.2rem 4rem; }
+
+  .step { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 1.1rem; overflow: hidden; transition: opacity 0.3s; }
+  .step.locked { opacity: 0.45; pointer-events: none; }
+  .step-head { padding: 1rem 1.3rem; display: flex; align-items: flex-start; gap: 0.9rem; border-bottom: 1px solid transparent; }
+  .step.open .step-head { border-bottom-color: var(--line); }
+  .step-num { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); padding-top: 3px; white-space: nowrap; }
+  .step-head h2 { font-family: var(--display); font-size: 16px; font-weight: 600; flex: 1; }
+  .badge { font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; padding: 3.5px 9px; border-radius: 999px; text-transform: uppercase; white-space: nowrap; margin-top: 2px; }
+  .badge.agentic { background: var(--agent-soft); color: var(--agent); }
+  .badge.prog { background: var(--prog-soft); color: var(--prog); }
+  .badge.human { background: var(--human-soft); color: var(--human); }
+  .step-body { padding: 1.1rem 1.3rem 1.3rem; display: none; }
+  .step.open .step-body { display: block; }
+
+  .note { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 0.9rem; }
+  .note b { color: var(--ink); }
+
+  .raw-notes {
+    font-family: var(--mono); font-size: 12px; line-height: 1.7;
+    background: #FAFBFC; border: 1px solid var(--line); border-radius: 9px;
+    padding: 0.9rem 1rem; color: #3A4354; white-space: pre-wrap; margin-bottom: 1rem;
+  }
+  .raw-notes .src-tag { display:block; font-size: 10px; color: var(--ink-soft); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+  .raw-notes .added-line { color: var(--ok); font-weight: 500; }
+
+  .btn { border: none; border-radius: 8px; padding: 9px 16px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 7px; }
+  .btn.agent-btn { background: var(--agent); color: #fff; }
+  .btn.agent-btn:hover { background: #4F32A8; }
+  .btn.prog-btn { background: var(--ink); color: #fff; }
+  .btn.prog-btn:hover { background: #2A3140; }
+  .btn.human-btn { background: var(--human); color: #fff; }
+  .btn.human-btn:hover { background: #BC3E0C; }
+  .btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink-soft); }
+  .btn.ghost:hover { border-color: var(--ink-soft); }
+  .btn.small { padding: 6px 11px; font-size: 12px; border-radius: 7px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .trace {
+    background: #16121F; border-radius: 9px; padding: 0.9rem 1rem; margin: 1rem 0;
+    font-family: var(--mono); font-size: 11.5px; line-height: 1.85; display: none;
+  }
+  .trace.visible { display: block; }
+  .trace .t-title { color: #8B7BC7; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+  .trace .t-line { color: #C9C3DC; opacity: 0; transform: translateY(3px); transition: all 0.3s; }
+  .trace .t-line.shown { opacity: 1; transform: none; }
+  .trace .t-line .tag.reason { color: #9E8CFF; }
+  .trace .t-line .tag.act { color: #6BD5A8; }
+  .trace .t-line .tag.observe { color: #F0B860; }
+  .trace .t-line.loading::after { content: '▋'; animation: blink 1s infinite; color: #9E8CFF; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .result-panel { display: none; margin-top: 0.4rem; }
+  .result-panel.visible { display: block; }
+
+  .req-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-bottom: 0.9rem; }
+  .req-item { border: 1px solid var(--line); border-radius: 9px; padding: 0.7rem 0.85rem; }
+  .req-item .rk { font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-soft); font-weight: 600; }
+  .req-item .rv { font-size: 13px; font-weight: 600; margin-top: 2px; }
+
+  .flag {
+    display: flex; gap: 8px; align-items: flex-start;
+    background: var(--warn-soft); border: 1px solid #EFD9B8; border-radius: 9px;
+    padding: 0.7rem 0.85rem; margin-bottom: 0.6rem; font-size: 12.5px; color: #7A4A10;
+  }
+  .flag b { color: var(--warn); }
+  .flag.bad { background: var(--bad-soft); border-color: #EFC4C4; color: #7A2020; }
+  .flag.bad b { color: var(--bad); }
+
+  .block-panel {
+    border: 1.5px solid var(--bad); border-radius: 10px; background: var(--bad-soft);
+    padding: 1rem 1.1rem; margin-top: 0.9rem; display: none;
+  }
+  .block-panel.visible { display: block; }
+  .block-panel h3 { font-family: var(--display); font-size: 14px; color: var(--bad); margin-bottom: 4px; }
+  .block-panel p { font-size: 12.5px; color: #7A2020; margin-bottom: 0.8rem; }
+  .block-panel .followup-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .block-panel input {
+    flex: 1; min-width: 220px; padding: 8px 11px; border: 1px solid #E3B6B6;
+    border-radius: 8px; font-size: 13px; background: #fff;
+  }
+
+  .record-card {
+    border: 1px solid var(--line); border-radius: 9px; padding: 0.85rem 1rem; margin-bottom: 0.9rem;
+    display: flex; gap: 1.4rem; flex-wrap: wrap; background: #FAFBFC;
+    font-family: var(--mono); font-size: 12px;
+  }
+  .record-card .k { color: var(--ink-soft); font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; display: block; }
+  .record-card .v { font-weight: 500; }
+
+  table.quote-table { width: 100%; border-collapse: collapse; margin-bottom: 0.9rem; font-size: 12.5px; }
+  .quote-table th { text-align: left; font-size: 10px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-soft); padding: 6px 8px; border-bottom: 1.5px solid var(--line); }
+  .quote-table td { padding: 9px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .quote-table td.amt { text-align: right; font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+  .quote-table .calc { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); margin-top: 2px; }
+  .quote-table tr.total-row td { border-bottom: none; font-weight: 700; font-size: 13.5px; padding-top: 12px; }
+  .quote-table tr.adj-row td { color: var(--ok); }
+  .quote-table tr.custom-row td { color: var(--human); }
+
+  .status-pill { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .status-pill.ok { background: var(--ok-soft); color: var(--ok); }
+  .status-pill.err { background: var(--bad-soft); color: var(--bad); }
+
+  .prod-actions { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+
+  .override-grid { display: flex; gap: 1.4rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .override-grid .ov { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; }
+  .override-grid label { font-weight: 600; }
+  .override-grid input { width: 110px; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; font-family: var(--mono); font-size: 13px; }
+  .override-tag { font-size: 10.5px; font-weight: 600; color: var(--human); background: var(--human-soft); padding: 3px 8px; border-radius: 999px; display: none; width: fit-content; }
+  .override-tag.visible { display: inline-block; }
+
+  .rec-card { border: 1px solid var(--line); border-radius: 9px; padding: 0.85rem 1rem; margin-bottom: 0.7rem; display: flex; gap: 0.9rem; align-items: flex-start; }
+  .rec-card input[type="checkbox"] { margin-top: 3px; width: 16px; height: 16px; accent-color: var(--agent); }
+  .rec-card .rc-title { font-weight: 600; font-size: 13px; }
+  .rec-card .rc-detail { font-size: 12.5px; color: var(--ink-soft); margin-top: 2px; }
+  .rc-verdict { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; white-space: nowrap; }
+  .rc-verdict.apply { background: var(--ok-soft); color: var(--ok); }
+  .rc-verdict.skip { background: var(--prog-soft); color: var(--prog); }
+  .rc-verdict.rep { background: var(--human-soft); color: var(--human); }
+
+  .custom-adj {
+    border: 1px dashed var(--line); border-radius: 9px; padding: 0.9rem 1rem; margin: 0.9rem 0;
+  }
+  .custom-adj h4 { font-family: var(--display); font-size: 13px; margin-bottom: 2px; }
+  .custom-adj .ca-sub { font-size: 12px; color: var(--ink-soft); margin-bottom: 0.7rem; }
+  .custom-adj .ca-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .custom-adj input[type="text"] { flex: 2; min-width: 180px; padding: 8px 11px; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; }
+  .custom-adj input[type="number"] { width: 90px; padding: 8px 9px; border: 1px solid var(--line); border-radius: 8px; font-family: var(--mono); font-size: 13px; }
+  .custom-adj select { padding: 8px 9px; border: 1px solid var(--line); border-radius: 8px; font-size: 12.5px; background: #fff; }
+
+  .stack-warn { display: none; }
+  .stack-warn.visible { display: flex; }
+
+  .summary-box {
+    border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.1rem;
+    background: #FAFBFC; margin-bottom: 1rem; font-size: 13px; line-height: 1.65;
+  }
+  .summary-box .s-title { font-family: var(--display); font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-soft); margin-bottom: 6px; }
+
+  .review-options { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; margin: 1rem 0; }
+  .review-card { border: 1px solid var(--line); border-radius: 10px; padding: 0.95rem 1.05rem; }
+  .review-card h4 { font-family: var(--display); font-size: 13.5px; margin-bottom: 3px; }
+  .review-card p { font-size: 12px; color: var(--ink-soft); margin-bottom: 0.7rem; }
+  .review-card textarea { width: 100%; min-height: 58px; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-family: var(--body); font-size: 12.5px; resize: vertical; margin-bottom: 0.6rem; }
+  .reopen-btns { display: flex; flex-direction: column; gap: 6px; }
+
+  .interp-box { display: none; border: 1px solid #D8CDF2; background: var(--agent-soft); border-radius: 9px; padding: 0.8rem 0.95rem; font-size: 12.5px; margin-top: 0.6rem; color: #3E2A80; }
+  .interp-box.visible { display: block; }
+  .interp-box b { color: var(--agent); }
+
+  .stale-warn { display: none; }
+  .stale-warn.visible { display: flex; }
+
+  .decision-panel { border: 1.5px solid var(--human); border-radius: 10px; padding: 1rem 1.1rem; margin-top: 1.1rem; background: var(--human-soft); }
+  .decision-panel h3 { font-family: var(--display); font-size: 14px; margin-bottom: 4px; color: var(--human); }
+  .decision-panel p { font-size: 12.5px; color: #7A3A12; margin-bottom: 0.8rem; }
+  .decision-panel textarea { width: 100%; min-height: 64px; border: 1px solid #EAC4AC; border-radius: 8px; padding: 9px 11px; font-family: var(--body); font-size: 13px; resize: vertical; margin-bottom: 0.8rem; background: #fff; }
+
+  .done-banner { display: none; background: var(--ok-soft); border: 1px solid #BEE3C7; border-radius: 10px; padding: 1rem 1.1rem; margin-top: 1rem; font-size: 13px; color: #1E6B32; }
+  .done-banner.visible { display: block; }
+  .done-banner b { display: block; font-family: var(--display); font-size: 14.5px; margin-bottom: 3px; }
+
+  .err { display: none; background: var(--bad-soft); border: 1px solid #EFC4C4; color: #8E2323; border-radius: 9px; padding: 0.75rem 0.95rem; margin-top: 0.8rem; font-size: 12.5px; }
+  .err.visible { display: block; }
+
+  .spinner { width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.35); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+  .btn.loading .spinner { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  footer { text-align: center; font-size: 11.5px; color: var(--ink-soft); padding: 1.5rem 1rem 2.5rem; }
+
+  @media (max-width: 640px) {
+    .req-grid, .review-options { grid-template-columns: 1fr; }
+    .deal-bar { gap: 1rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .trace .t-line { transition: none; }
+    .spinner { animation-duration: 1.5s; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="mark">N</div>
+    <div>
+      <h1>Nexus Analytics — Quoting Workbench</h1>
+      <div class="sub">AI-augmented quote configuration · The agent drafts. The rep decides.</div>
+    </div>
+  </div>
+  <span class="proto-badge">Prototype · Fictional data</span>
+</header>
+
+<div class="deal-bar">
+  <div class="kv"><div class="k">Prospect</div><div class="v">Redline Freight</div></div>
+  <div class="kv"><div class="k">Opportunity</div><div class="v">OPP-2027-0114</div></div>
+  <div class="kv"><div class="k">Contract term</div><div class="v">Jan 1 — Dec 31, 2027</div></div>
+  <div class="kv"><div class="k">Rep</div><div class="v">S. Kishore</div></div>
+  <div class="kv"><div class="k">Quote total</div><div class="v" id="live-total">—</div></div>
+</div>
+
+<div class="sources">
+  <span class="lbl">Connected sources</span>
+  <span class="src-chip" id="src-notes">Client requirements</span>
+  <span class="src-chip" id="src-opp">Opportunity record</span>
+  <span class="src-chip" id="src-catalog">Product catalog</span>
+  <span class="src-chip" id="src-pricing">Pricing rules</span>
+</div>
+
+<main>
+
+  <!-- ══════════ STEP 5.0 ══════════ -->
+  <div class="step open" id="step0">
+    <div class="step-head">
+      <span class="step-num">5.0</span>
+      <h2>Review &amp; confirm client requirements</h2>
+      <span class="badge agentic">Agentic</span>
+    </div>
+    <div class="step-body">
+      <p class="note">The agent reads the rep's raw discovery notes and extracts structured requirements. A workbench validation rule blocks the quote from proceeding if anything critical is unconfirmed — <b>an agent can't build on missing information.</b></p>
+      <div class="raw-notes" id="notes-box"><span class="src-tag">Source: rep discovery notes · 11/12 call</span>Call w/ Redline Freight — Dana Whitfield (VP Ops) + Marcus (IT Dir).
+~200 trucks, 500 employees. Want fleet analytics — fuel burn, delivery
+times, driver metrics. Ops team needs access — "roughly 75 people,
+need to confirm." Also asked about route planning — saw RouteIQ on
+our site. Timeline: live by Jan 1 2027. Budget "around $45–50K."
+No internal IT capacity for setup — will need us to implement.
+New logo, never bought from us.
+OPEN ITEM: license count not yet confirmed w/ Dana.</div>
+      <button class="btn agent-btn" id="btn-extract" onclick="runExtract()"><span class="spinner"></span>Run agent — extract requirements</button>
+      <div class="trace" id="trace0"><div class="t-title">Agent trace — ReAct loop</div></div>
+      <div class="err" id="err0"></div>
+
+      <div class="block-panel" id="block0">
+        <h3>Validation failed — quote blocked</h3>
+        <p>The license count is unconfirmed. The workbench will not proceed until the rep resolves the open item and re-runs the agent. <b>Technology scales whatever you give it — including gaps.</b></p>
+        <div class="followup-row">
+          <input type="text" id="followup-input" placeholder="Log follow-up — e.g. 11/14 call: Dana confirmed 75 licenses">
+          <button class="btn human-btn small" onclick="logFollowUp()">Log follow-up &amp; update notes</button>
+        </div>
+      </div>
+
+      <div class="result-panel" id="result0">
+        <div class="req-grid" id="req-grid"></div>
+        <div id="flags0"></div>
+        <button class="btn human-btn" onclick="confirmRequirements()">Rep confirms — requirements are complete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ STEP 5.1 ══════════ -->
+  <div class="step locked" id="step1">
+    <div class="step-head">
+      <span class="step-num">5.1</span>
+      <h2>Create the quote shell</h2>
+      <span class="badge prog">Programmatic</span>
+    </div>
+    <div class="step-body">
+      <p class="note">No judgment required — the shell is created the same way every time and linked to the open opportunity. <b>No AI involved.</b> An agent reasoning about this step would be a strategist making toast.</p>
+      <button class="btn prog-btn" id="btn-shell" onclick="createShell()">Create quote shell</button>
+      <div class="result-panel" id="result1">
+        <div class="record-card">
+          <div><span class="k">Quote record</span><span class="v">QUO-2027-0042</span></div>
+          <div><span class="k">Linked opportunity</span><span class="v">OPP-2027-0114</span></div>
+          <div><span class="k">Term</span><span class="v">01/01/2027 – 12/31/2027</span></div>
+          <div><span class="k">Status</span><span class="v">Draft</span></div>
+        </div>
+        <button class="btn human-btn" onclick="advance(1)">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ STEP 5.3 ══════════ -->
+  <div class="step locked" id="step2">
+    <div class="step-head">
+      <span class="step-num">5.3</span>
+      <h2>Add products from the catalog</h2>
+      <span class="badge prog">Programmatic</span>
+    </div>
+    <div class="step-body">
+      <p class="note">The products come from the confirmed requirements. Adding them is mechanical — but the catalog check can still fail. <b>Stale catalog data is a data-quality problem no agent fixes.</b> The rep resolves it: swap the SKU, or remove the product entirely.</p>
+      <button class="btn prog-btn" id="btn-products" onclick="verifyProducts()">Verify availability &amp; add products</button>
+      <div class="result-panel" id="result2">
+        <table class="quote-table" id="products-table"></table>
+        <div class="flag bad" id="catalog-err" style="display:none"><b>Catalog validation:</b>&nbsp;One or more products failed the availability check. Resolve before continuing.</div>
+        <button class="btn human-btn" id="btn-products-continue" onclick="advance(2)" disabled>Products added — continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ STEP 5.4 ══════════ -->
+  <div class="step locked" id="step3">
+    <div class="step-head">
+      <span class="step-num">5.4</span>
+      <h2>Configure product-level pricing</h2>
+      <span class="badge agentic">Agentic</span>
+    </div>
+    <div class="step-body">
+      <p class="note">The agent reasons through which pricing model applies to each product, calls the <b>pricing rules</b> tool, and calculates tier by tier. Then the rep can adjust anything manually — license count, platform price — and the quote recalculates. <b>Rep judgment beats agent output.</b></p>
+      <button class="btn agent-btn" id="btn-price" onclick="runPricing()"><span class="spinner"></span>Run agent — price products</button>
+      <div class="trace" id="trace3"><div class="t-title">Agent trace — ReAct loop</div></div>
+      <div class="err" id="err3"></div>
+      <div class="result-panel" id="result3">
+        <div class="override-grid">
+          <div class="ov" id="ov-qty">
+            <label for="qty-input">FleetPulse licenses</label>
+            <input type="number" id="qty-input" value="75" min="1" max="500" onchange="manualPricingChange()">
+          </div>
+          <div class="ov" id="ov-rq">
+            <label for="rq-input">RouteIQ platform price ($)</label>
+            <input type="number" id="rq-input" value="15000" min="0" step="500" onchange="manualPricingChange()">
+          </div>
+          <div class="ov" style="justify-content: flex-end;">
+            <span class="override-tag" id="override-tag">Manual override — rep judgment</span>
+          </div>
+        </div>
+        <table class="quote-table" id="pricing-table"></table>
+        <button class="btn human-btn" onclick="acceptPricing()">Rep accepts pricing — continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ STEP 5.5 ══════════ -->
+  <div class="step locked" id="step4">
+    <div class="step-head">
+      <span class="step-num">5.5</span>
+      <h2>Apply quote-level adjustments</h2>
+      <span class="badge agentic">Agentic</span>
+    </div>
+    <div class="step-body">
+      <p class="note">The agent checks discount policy, reasons about what applies — and what <b>doesn't stack</b> — and recommends. Every recommendation is a checkbox the rep can flip. And if the rep has their own idea, they can <b>add a custom adjustment the agent never suggested.</b></p>
+      <button class="btn agent-btn" id="btn-adjust" onclick="runAdjustments()"><span class="spinner"></span>Run agent — recommend adjustments</button>
+      <div class="trace" id="trace4"><div class="t-title">Agent trace — ReAct loop</div></div>
+      <div class="err" id="err4"></div>
+      <div class="result-panel" id="result4">
+        <div id="rec-cards"></div>
+        <div class="custom-adj">
+          <h4>Add a custom adjustment (rep)</h4>
+          <div class="ca-sub">The agent recommends from policy. The rep can go beyond it — custom adjustments are tagged and visible to the approval chain.</div>
+          <div class="ca-row">
+            <input type="text" id="ca-desc" placeholder="Description — e.g. Competitive displacement concession">
+            <select id="ca-type">
+              <option value="pct_soft">% off software</option>
+              <option value="pct_total">% off total</option>
+              <option value="flat">$ off total</option>
+            </select>
+            <input type="number" id="ca-value" placeholder="Value" min="0">
+            <button class="btn human-btn small" onclick="addCustomAdj()">Add</button>
+          </div>
+        </div>
+        <div class="flag stack-warn" id="stack-warn"><b>Policy check:</b>&nbsp;Promotional discounts don't stack. Applying both will be flagged in the approval chain.</div>
+        <table class="quote-table" id="adj-table"></table>
+        <button class="btn human-btn" onclick="acceptAdjustments()">Rep confirms adjustments — continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ STEP 5.6 / 5.9 ══════════ -->
+  <div class="step locked" id="step5">
+    <div class="step-head">
+      <span class="step-num">5.6</span>
+      <h2>Review, finalize &amp; submit</h2>
+      <span class="badge human">Human decision</span>
+    </div>
+    <div class="step-body">
+      <p class="note">The agent generates a plain-language summary of the full quote. The rep reviews it and has two paths for changes: <b>describe the change in a prompt</b> and let the agent route them to the right step, or <b>reopen any step and edit manually.</b> Either way, the rep submits — the agent never does.</p>
+      <button class="btn agent-btn" id="btn-summary" onclick="runSummary()"><span class="spinner"></span>Run agent — generate quote summary</button>
+      <div class="trace" id="trace5"><div class="t-title">Agent trace — summary</div></div>
+      <div class="err" id="err5"></div>
+      <div class="result-panel" id="result5">
+        <div class="summary-box">
+          <div class="s-title">Agent summary — for rep review</div>
+          <div id="summary-text"></div>
+        </div>
+        <table class="quote-table" id="summary-table"></table>
+
+        <div class="review-options">
+          <div class="review-card">
+            <h4>Request changes via prompt</h4>
+            <p>Describe what needs to change. The agent interprets the request and routes you to the right step — it doesn't change the quote on its own.</p>
+            <textarea id="change-request" placeholder="e.g. Dana called back — they only need 60 licenses now"></textarea>
+            <button class="btn agent-btn small" id="btn-interpret" onclick="interpretChange()"><span class="spinner"></span>Ask the agent</button>
+            <div class="interp-box" id="interp-box"></div>
+          </div>
+          <div class="review-card">
+            <h4>Make changes manually</h4>
+            <p>Reopen any step and edit it directly. No agent involved — pure rep control.</p>
+            <div class="reopen-btns">
+              <button class="btn ghost small" onclick="reopenStep(2)">Reopen 5.3 — Products</button>
+              <button class="btn ghost small" onclick="reopenStep(3)">Reopen 5.4 — Pricing</button>
+              <button class="btn ghost small" onclick="reopenStep(4)">Reopen 5.5 — Adjustments</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flag stale-warn" id="stale-warn"><b>Quote changed:</b>&nbsp;The quote was edited after this summary was generated. Re-run the summary before submitting.</div>
+
+        <div class="decision-panel">
+          <h3>The agent drafts. You decide.</h3>
+          <p>Record your rationale and submit for approval (step 5.9). Same principle at every step: the system recommends, the human holds final authority.</p>
+          <textarea id="rationale" placeholder="Rep rationale — e.g. pricing verified against requirements, total sits inside the client's stated budget range…"></textarea>
+          <button class="btn human-btn" id="btn-submit" onclick="submitQuote()">Lock quote &amp; submit for approval</button>
+        </div>
+        <div class="done-banner" id="done-banner">
+          <b>Quote QUO-2027-0042 submitted for approval</b>
+          The quoting subprocess is complete. The quote now enters the approval chain — a separate subprocess with its own routing logic, reviewers, and decision points.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Prototype for portfolio demonstration. All companies, people, products, and figures are fictional.<br>
+  Agentic steps use real-time AI analysis. Built by Sam Kishore.
+</footer>
+
+<script>
+var CATALOG = {
+  fleetpulse: { name: "FleetPulse Analytics Platform", sku: "FP-100", tiers: [ {upTo: 50, price: 120}, {upTo: 100, price: 95}, {upTo: Infinity, price: 75} ] },
+  routeiq: { name: "RouteIQ Optimization Engine", sku: "RQ-200", newSku: "RQ-300", flat: 15000 },
+  services: { name: "Nexus Implementation Services", sku: "SV-010", flat: 25000 }
+};
+var POLICY = {
+  multiPct: 10, newCustPct: 5, premiumAdd: 10000,
+  stacking: "Promotional discounts do not stack. Apply the single largest applicable discount."
+};
+var state = {
+  followUpAdded: false, followUpText: "",
+  products: { fleetpulse: true, routeiq: true, services: true },
+  routeiqResolved: false,
+  qty: 75, agentQty: 75, rqPrice: 15000, agentRqPrice: 15000,
+  softwareSubtotal: 0, servicesSubtotal: 0,
+  discounts: { multi: true, newcust: false, premium: false },
+  customAdjs: [],
+  finalTotal: 0,
+  summaryFresh: false
+};
+
+function fmt(n) { return '$' + n.toLocaleString('en-US', { minimumFractionDigits: (n % 1 ? 2 : 0), maximumFractionDigits: 2 }); }
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function tierCalc(qty) {
+  var remaining = qty, prev = 0, lines = [], total = 0;
+  for (var i = 0; i < CATALOG.fleetpulse.tiers.length; i++) {
+    var t = CATALOG.fleetpulse.tiers[i];
+    var span = Math.min(remaining, t.upTo - prev);
+    if (span <= 0) break;
+    lines.push({ count: span, price: t.price, amount: span * t.price, range: (prev + 1) + '–' + (prev + span) });
+    total += span * t.price;
+    remaining -= span; prev = t.upTo;
+    if (remaining <= 0) break;
+  }
+  return { lines: lines, total: total };
+}
+
+function setSources(ids) {
+  var chips = document.querySelectorAll('.src-chip');
+  for (var i = 0; i < chips.length; i++) chips[i].classList.remove('active');
+  for (var j = 0; j < ids.length; j++) document.getElementById(ids[j]).classList.add('active');
+}
+
+function advance(fromIdx) {
+  var next = document.getElementById('step' + (fromIdx + 1));
+  if (next) { next.classList.remove('locked'); next.classList.add('open'); next.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+}
+
+function markStale() {
+  if (state.summaryFresh) {
+    state.summaryFresh = false;
+    document.getElementById('stale-warn').classList.add('visible');
+    document.getElementById('btn-submit').disabled = true;
+  }
+}
+
+function reopenStep(idx) {
+  var el = document.getElementById('step' + idx);
+  el.classList.remove('locked'); el.classList.add('open');
+  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  markStale();
+}
+
+async function callClaude(prompt) {
+  var response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 1000, messages: [{ role: "user", content: prompt }] })
+  });
+  var data = await response.json();
+  var text = (data.content || []).filter(function(b){ return b.type === "text"; }).map(function(b){ return b.text; }).join("\n");
+  var clean = text.replace(/```json|```/g, "").trim();
+  return JSON.parse(clean);
+}
+
+function renderTrace(el, lines, done) {
+  el.classList.add('visible');
+  var old = el.querySelectorAll('.t-line');
+  for (var i = 0; i < old.length; i++) old[i].remove();
+  var idx = 0;
+  function next() {
+    if (idx >= lines.length) { if (done) done(); return; }
+    var l = lines[idx];
+    var div = document.createElement('div');
+    div.className = 't-line';
+    div.innerHTML = '<span class="tag ' + l.type + '">' + l.type.toUpperCase() + '</span> · ' + esc(l.text);
+    el.appendChild(div);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){ div.classList.add('shown'); }); });
+    idx++;
+    setTimeout(next, 520);
+  }
+  next();
+}
+
+function traceLoading(el) {
+  el.classList.add('visible');
+  var old = el.querySelectorAll('.t-line');
+  for (var i = 0; i < old.length; i++) old[i].remove();
+  var div = document.createElement('div');
+  div.className = 't-line shown loading';
+  div.innerHTML = '<span class="tag reason">REASON</span> · Planning…';
+  el.appendChild(div);
+}
+
+function btnLoad(id, on) {
+  var b = document.getElementById(id);
+  b.disabled = on; b.classList.toggle('loading', on);
+}
+
+function requirementsContext() {
+  return 'Confirmed client requirements (Redline Freight): products = FleetPulse Analytics (' + state.qty + ' user licenses), RouteIQ Optimization Engine (company-wide license)' + (state.products.services ? ', Nexus Implementation Services' : '') + '; contract term Jan 1 - Dec 31 2027; budget range $45,000-$50,000; new customer (first purchase); needs implementation support.';
+}
+
+/* ════════ STEP 5.0 — with validation gate (Scenario 1) ════════ */
+async function runExtract() {
+  setSources(['src-notes', 'src-opp']);
+  btnLoad('btn-extract', true);
+  document.getElementById('err0').classList.remove('visible');
+  document.getElementById('block0').classList.remove('visible');
+  document.getElementById('result0').classList.remove('visible');
+  traceLoading(document.getElementById('trace0'));
+
+  var notesBase = 'Call w/ Redline Freight - Dana Whitfield (VP Ops) + Marcus (IT Dir). ~200 trucks, 500 employees. Want fleet analytics - fuel burn, delivery times, driver metrics. Ops team needs access - roughly 75 people, need to confirm. Also asked about route planning - saw RouteIQ on our site. Timeline: live by Jan 1 2027. Budget around $45-50K. No internal IT capacity - will need us to implement. New logo, never bought from us. OPEN ITEM: license count not yet confirmed w/ Dana.';
+  var notes = state.followUpAdded ? notesBase + ' FOLLOW-UP LOGGED: ' + state.followUpText : notesBase;
+
+  var prompt = 'You are the quoting agent inside a CPQ workbench. Read the sales rep raw discovery notes, extract structured requirements, and evaluate completeness. A quote CANNOT proceed unless the license count is explicitly confirmed (not "roughly" or "need to confirm").\n\nNOTES: ' + notes + '\n\nProduct catalog: FleetPulse Analytics Platform (per-user licenses), RouteIQ Optimization Engine (company-wide license), Nexus Implementation Services (implementation package).\n\nRespond ONLY with JSON, no markdown fences, exactly this shape:\n{"status":"complete|incomplete","missing":"one short sentence if incomplete else empty string","requirements":[{"label":"...","value":"..."}],"flags":[{"note":"..."}],"trace":[{"type":"reason|act|observe","text":"..."}]}\n\nrequirements: 6 items max - products of interest, license count, contract term, budget range, customer type, implementation need. flags: 0-2 short items worth double-checking. trace: 4-6 short ReAct steps (reason/act/observe), each under 12 words, ending with the completeness verdict.';
+
+  try {
+    var out = await callClaude(prompt);
+    handleExtract(out);
+  } catch (e) {
+    handleExtract(fallbackExtract());
+  }
+  btnLoad('btn-extract', false);
+}
+
+function fallbackExtract() {
+  if (!state.followUpAdded) {
+    return {
+      status: 'incomplete',
+      missing: 'License count is unconfirmed — notes say "roughly 75, need to confirm."',
+      requirements: [],
+      flags: [],
+      trace: [
+        { type: 'reason', text: 'Extract structured requirements from raw notes' },
+        { type: 'act', text: 'Parse products, term, budget, customer type' },
+        { type: 'observe', text: 'License count reads "roughly 75 - need to confirm"' },
+        { type: 'reason', text: 'Validation rule: unconfirmed counts block quoting' },
+        { type: 'observe', text: 'Status: INCOMPLETE - return to rep' }
+      ]
+    };
+  }
+  return {
+    status: 'complete',
+    missing: '',
+    requirements: [
+      { label: 'Products of interest', value: 'FleetPulse · RouteIQ · Implementation Services' },
+      { label: 'License count', value: '75 (confirmed via follow-up)' },
+      { label: 'Contract term', value: 'Jan 1 – Dec 31, 2027' },
+      { label: 'Budget range', value: '$45,000 – $50,000' },
+      { label: 'Customer type', value: 'New customer — first purchase' },
+      { label: 'Implementation', value: 'Required — no internal IT capacity' }
+    ],
+    flags: [],
+    trace: [
+      { type: 'reason', text: 'Re-extract requirements with follow-up logged' },
+      { type: 'act', text: 'Parse notes + follow-up entry' },
+      { type: 'observe', text: 'License count now explicitly confirmed' },
+      { type: 'reason', text: 'All critical fields present' },
+      { type: 'observe', text: 'Status: COMPLETE - hand to rep to confirm' }
+    ]
+  };
+}
+
+function handleExtract(out) {
+  var incomplete = (!state.followUpAdded) || out.status === 'incomplete';
+  renderTrace(document.getElementById('trace0'), out.trace || [], function() {
+    if (incomplete) {
+      var missing = out.missing || 'License count is unconfirmed.';
+      var bp = document.getElementById('block0');
+      bp.querySelector('p').innerHTML = esc(missing) + ' The workbench will not proceed until the rep resolves the open item and re-runs the agent. <b>Technology scales whatever you give it — including gaps.</b>';
+      bp.classList.add('visible');
+    } else {
+      var reqs = out.requirements && out.requirements.length ? out.requirements : fallbackExtract().requirements;
+      var grid = document.getElementById('req-grid');
+      grid.innerHTML = reqs.map(function(r){ return '<div class="req-item"><div class="rk">' + esc(r.label) + '</div><div class="rv">' + esc(r.value) + '</div></div>'; }).join('');
+      document.getElementById('flags0').innerHTML = (out.flags || []).map(function(f){ return '<div class="flag"><b>Flag:</b>&nbsp;' + esc(f.note) + '</div>'; }).join('');
+      document.getElementById('result0').classList.add('visible');
+    }
+  });
+}
+
+function logFollowUp() {
+  var v = document.getElementById('followup-input').value.trim();
+  if (!v) { v = '11/14 call: Dana confirmed 75 licenses'; }
+  state.followUpAdded = true;
+  state.followUpText = v;
+  var nb = document.getElementById('notes-box');
+  var line = document.createElement('span');
+  line.className = 'added-line';
+  line.textContent = '\nFOLLOW-UP LOGGED: ' + v;
+  nb.appendChild(line);
+  document.getElementById('block0').classList.remove('visible');
+  document.getElementById('btn-extract').innerHTML = '<span class="spinner"></span>Re-run agent — extract requirements';
+}
+
+function confirmRequirements() { advance(0); }
+
+/* ════════ STEP 5.1 ════════ */
+function createShell() {
+  setSources(['src-opp']);
+  document.getElementById('result1').classList.add('visible');
+  document.getElementById('btn-shell').disabled = true;
+}
+
+/* ════════ STEP 5.3 — catalog failure + removal (Scenario 2) ════════ */
+function verifyProducts() {
+  setSources(['src-catalog']);
+  document.getElementById('btn-products').disabled = true;
+  renderProductsTable();
+  document.getElementById('result2').classList.add('visible');
+}
+
+function renderProductsTable() {
+  var rows = '<tr><th>Product</th><th>Catalog check</th></tr>';
+  if (state.products.fleetpulse) {
+    rows += '<tr><td><b>FleetPulse Analytics Platform</b><div class="calc">Per-user license · tiered pricing · SKU FP-100</div>' +
+      '<div class="prod-actions"><button class="btn ghost small" onclick="removeProduct(\'fleetpulse\')">Remove — not wanted</button></div></td>' +
+      '<td><span class="status-pill ok">✓ Available</span></td></tr>';
+  }
+  if (state.products.routeiq) {
+    if (!state.routeiqResolved) {
+      rows += '<tr><td><b>RouteIQ Optimization Engine</b><div class="calc">Company-wide license · SKU RQ-200</div>' +
+        '<div class="prod-actions"><button class="btn human-btn small" onclick="swapRouteIQ()">Swap to RQ-300 (active SKU)</button>' +
+        '<button class="btn ghost small" onclick="removeProduct(\'routeiq\')">Remove — not wanted</button></div></td>' +
+        '<td><span class="status-pill err">✕ Inactive — SKU RQ-200 retired, replaced by RQ-300</span></td></tr>';
+    } else {
+      rows += '<tr><td><b>RouteIQ Optimization Engine</b><div class="calc">Company-wide license · SKU RQ-300 <span style="color:var(--ok);font-weight:600">(swapped by rep)</span></div>' +
+        '<div class="prod-actions"><button class="btn ghost small" onclick="removeProduct(\'routeiq\')">Remove — not wanted</button></div></td>' +
+        '<td><span class="status-pill ok">✓ Available</span></td></tr>';
+    }
+  }
+  if (state.products.services) {
+    rows += '<tr><td><b>Nexus Implementation Services</b><div class="calc">Fixed-fee package · SKU SV-010</div>' +
+      '<div class="prod-actions"><button class="btn ghost small" onclick="removeProduct(\'services\')">Remove — not wanted</button></div></td>' +
+      '<td><span class="status-pill ok">✓ Available</span></td></tr>';
+  }
+  document.getElementById('products-table').innerHTML = rows;
+
+  var hasError = state.products.routeiq && !state.routeiqResolved;
+  document.getElementById('catalog-err').style.display = hasError ? 'flex' : 'none';
+  document.getElementById('btn-products-continue').disabled = hasError;
+}
+
+function swapRouteIQ() {
+  state.routeiqResolved = true;
+  renderProductsTable();
+  markStale();
+}
+
+function removeProduct(key) {
+  state.products[key] = false;
+  renderProductsTable();
+  markStale();
+}
+
+/* ════════ STEP 5.4 — agent pricing + manual overrides (Scenario 3) ════════ */
+async function runPricing() {
+  setSources(['src-catalog', 'src-pricing']);
+  btnLoad('btn-price', true);
+  document.getElementById('err3').classList.remove('visible');
+  traceLoading(document.getElementById('trace3'));
+
+  var included = [];
+  if (state.products.fleetpulse) included.push('FleetPulse (' + state.qty + ' licenses, tiered: 1-50 @ $120, 51-100 @ $95, 101+ @ $75)');
+  if (state.products.routeiq) included.push('RouteIQ (flat $15,000 company-wide)');
+  if (state.products.services) included.push('Implementation Services (fixed $25,000)');
+
+  var prompt = 'You are the quoting agent pricing a quote. ' + requirementsContext() + '\n\nProducts on quote: ' + included.join('; ') + '.\n\nRespond ONLY with JSON, no markdown fences:\n{"trace":[{"type":"reason|act|observe","text":"..."}]}\n\ntrace: 5-7 short ReAct steps (each under 14 words) showing: identifying pricing models per product, calling pricing rules, calculating each tier explicitly with the math, retrieving flat items, arriving at the subtotal.';
+
+  try {
+    var out = await callClaude(prompt);
+    renderTrace(document.getElementById('trace3'), out.trace || [], showPricing);
+  } catch (e) {
+    var fp = tierCalc(state.qty);
+    renderTrace(document.getElementById('trace3'), [
+      { type: 'reason', text: 'Identify pricing model per product' },
+      { type: 'act', text: 'Call pricing_rules for FleetPulse tiers' },
+      { type: 'observe', text: 'Tiered: 1-50 @ $120, 51-100 @ $95' },
+      { type: 'act', text: 'Calculate 50 x $120 + 25 x $95' },
+      { type: 'observe', text: 'FleetPulse = ' + fmt(fp.total) + '; flat items retrieved' },
+      { type: 'reason', text: 'Subtotal complete - hand to rep' }
+    ], showPricing);
+  }
+  btnLoad('btn-price', false);
+}
+
+function showPricing() {
+  document.getElementById('ov-qty').style.display = state.products.fleetpulse ? 'flex' : 'none';
+  document.getElementById('ov-rq').style.display = state.products.routeiq ? 'flex' : 'none';
+  renderPricingTable();
+  document.getElementById('result3').classList.add('visible');
+}
+
+function renderPricingTable() {
+  var rows = '<tr><th>Line item</th><th style="text-align:right">Amount</th></tr>';
+  var soft = 0, services = 0;
+  if (state.products.fleetpulse) {
+    var fp = tierCalc(state.qty);
+    soft += fp.total;
+    var tierRows = fp.lines.map(function(l){ return '<div class="calc">Licenses ' + l.range + ' · ' + l.count + ' × ' + fmt(l.price) + ' = ' + fmt(l.amount) + '</div>'; }).join('');
+    rows += '<tr><td><b>FleetPulse Analytics</b> · ' + state.qty + ' licenses' + tierRows + '</td><td class="amt">' + fmt(fp.total) + '</td></tr>';
+  }
+  if (state.products.routeiq) {
+    soft += state.rqPrice;
+    rows += '<tr><td><b>RouteIQ Optimization Engine</b><div class="calc">Company-wide platform license (SKU RQ-300)</div></td><td class="amt">' + fmt(state.rqPrice) + '</td></tr>';
+  }
+  if (state.products.services) {
+    services = CATALOG.services.flat;
+    rows += '<tr><td><b>Nexus Implementation Services</b><div class="calc">Fixed-fee package</div></td><td class="amt">' + fmt(services) + '</td></tr>';
+  }
+  state.softwareSubtotal = soft;
+  state.servicesSubtotal = services;
+  rows += '<tr class="total-row"><td>Subtotal before adjustments</td><td class="amt">' + fmt(soft + services) + '</td></tr>';
+  document.getElementById('pricing-table').innerHTML = rows;
+  updateLiveTotal(soft + services);
+}
+
+function manualPricingChange() {
+  var q = parseInt(document.getElementById('qty-input').value || '0', 10);
+  var rq = parseFloat(document.getElementById('rq-input').value || '0');
+  if (q > 0) state.qty = q;
+  if (rq >= 0) state.rqPrice = rq;
+  var overridden = (state.qty !== state.agentQty) || (state.rqPrice !== state.agentRqPrice);
+  document.getElementById('override-tag').classList.toggle('visible', overridden);
+  renderPricingTable();
+  markStale();
+}
+
+function acceptPricing() { advance(3); }
+
+/* ════════ STEP 5.5 — recommendations + custom rep adjustment (Scenario 4) ════════ */
+async function runAdjustments() {
+  setSources(['src-pricing', 'src-notes']);
+  btnLoad('btn-adjust', true);
+  document.getElementById('err4').classList.remove('visible');
+  traceLoading(document.getElementById('trace4'));
+
+  var softCount = (state.products.fleetpulse ? 1 : 0) + (state.products.routeiq ? 1 : 0);
+  var prompt = 'You are the quoting agent evaluating quote-level adjustments. ' + requirementsContext() + '\n\nCurrent quote: software subtotal ' + fmt(state.softwareSubtotal) + ' (' + softCount + ' software products), services ' + fmt(state.servicesSubtotal) + ', total ' + fmt(state.softwareSubtotal + state.servicesSubtotal) + '.\n\nDiscount policy:\n- Multi-product discount: 10% off software line items when 2+ software products on quote.' + (softCount >= 2 ? ' Applies here.' : ' Does NOT apply (fewer than 2 software products).') + '\n- New customer promotion: 5% off software, first-year contracts. Applies here.\n- STACKING RULE: promotional discounts do not stack - apply only the single largest applicable discount.\n- Premium onboarding upgrade: optional, adds $10,000 to services.\n\nClient budget is $45,000-$50,000. Respond ONLY with JSON, no markdown fences:\n{"trace":[{"type":"reason|act|observe","text":"..."}]}\n\ntrace: 5-7 short ReAct steps (each under 14 words): check policy, identify qualifying discounts, apply the stacking rule, pick the larger discount, evaluate premium onboarding against budget, conclude.';
+
+  try {
+    var out = await callClaude(prompt);
+    renderTrace(document.getElementById('trace4'), out.trace || [], showRecCards);
+  } catch (e) {
+    renderTrace(document.getElementById('trace4'), [
+      { type: 'reason', text: 'Which quote-level adjustments could apply?' },
+      { type: 'act', text: 'Call discount_policy' },
+      { type: 'observe', text: 'Multi-product 10% and new-customer 5% both qualify' },
+      { type: 'observe', text: 'Policy: promotional discounts do not stack' },
+      { type: 'reason', text: '10% > 5% - recommend multi-product only' },
+      { type: 'reason', text: 'Premium onboarding risks exceeding budget - skip' }
+    ], showRecCards);
+  }
+  btnLoad('btn-adjust', false);
+}
+
+function showRecCards() {
+  var softCount = (state.products.fleetpulse ? 1 : 0) + (state.products.routeiq ? 1 : 0);
+  var cards = [];
+  if (softCount >= 2) {
+    cards.push({ id: 'multi', title: 'Multi-product discount — 10% off software', detail: 'Two software products on the quote. Both promos qualify, but discounts don\'t stack — the agent recommends this one because it\'s larger.', verdict: 'apply', checked: true });
+    state.discounts.multi = true;
+  } else {
+    state.discounts.multi = false;
+  }
+  cards.push({ id: 'newcust', title: 'New customer promotion — 5% off software', detail: softCount >= 2 ? 'Qualifies, but superseded by the larger multi-product discount under the no-stacking rule.' : 'Qualifies — and with only one software product on the quote, this is the only promotional discount available.', verdict: softCount >= 2 ? 'skip' : 'apply', checked: softCount < 2 });
+  state.discounts.newcust = softCount < 2;
+  if (state.products.services) {
+    cards.push({ id: 'premium', title: 'Premium onboarding upgrade — +$10,000', detail: 'Adds dedicated 90-day support to the services package. Would push the total above the client\'s stated $45–50K budget. The agent recommends skipping — the rep can override if the client asks for it.', verdict: 'skip', checked: false });
+  }
+  state.discounts.premium = false;
+
+  document.getElementById('rec-cards').innerHTML = cards.map(function(c) {
+    return '<div class="rec-card"><input type="checkbox" id="chk-' + c.id + '" ' + (c.checked ? 'checked' : '') + ' onchange="recalcAdjustments()">' +
+      '<div style="flex:1"><div class="rc-title">' + c.title + '</div><div class="rc-detail">' + c.detail + '</div></div>' +
+      '<span class="rc-verdict ' + c.verdict + '">' + (c.verdict === 'apply' ? 'Agent: apply' : 'Agent: skip') + '</span></div>';
+  }).join('');
+  document.getElementById('result4').classList.add('visible');
+  recalcAdjustments();
+}
+
+function addCustomAdj() {
+  var desc = document.getElementById('ca-desc').value.trim();
+  var type = document.getElementById('ca-type').value;
+  var val = parseFloat(document.getElementById('ca-value').value || '0');
+  if (!desc || !val || val <= 0) return;
+  state.customAdjs.push({ desc: desc, type: type, val: val });
+  document.getElementById('ca-desc').value = '';
+  document.getElementById('ca-value').value = '';
+  recalcAdjustments();
+}
+
+function removeCustomAdj(i) {
+  state.customAdjs.splice(i, 1);
+  recalcAdjustments();
+}
+
+function recalcAdjustments() {
+  var multiEl = document.getElementById('chk-multi');
+  var newcEl = document.getElementById('chk-newcust');
+  var premEl = document.getElementById('chk-premium');
+  var multi = multiEl ? multiEl.checked : false;
+  var newc = newcEl ? newcEl.checked : false;
+  var prem = premEl ? premEl.checked : false;
+  state.discounts = { multi: multi, newcust: newc, premium: prem };
+  document.getElementById('stack-warn').classList.toggle('visible', multi && newc);
+
+  var soft = state.softwareSubtotal;
+  var preTotal = soft + state.servicesSubtotal;
+  var total = preTotal;
+  var rows = '<tr><td>Software subtotal</td><td class="amt">' + fmt(soft) + '</td></tr>';
+  if (state.servicesSubtotal > 0) rows += '<tr><td>Services subtotal</td><td class="amt">' + fmt(state.servicesSubtotal) + '</td></tr>';
+  if (prem) { rows += '<tr><td>Premium onboarding upgrade</td><td class="amt">' + fmt(POLICY.premiumAdd) + '</td></tr>'; total += POLICY.premiumAdd; preTotal += POLICY.premiumAdd; }
+  if (multi) { var d1 = soft * POLICY.multiPct / 100; rows += '<tr class="adj-row"><td>Multi-product discount · 10% off software</td><td class="amt">−' + fmt(d1) + '</td></tr>'; total -= d1; }
+  if (newc) { var d2 = soft * POLICY.newCustPct / 100; rows += '<tr class="adj-row"><td>New customer promotion · 5% off software</td><td class="amt">−' + fmt(d2) + '</td></tr>'; total -= d2; }
+  for (var i = 0; i < state.customAdjs.length; i++) {
+    var a = state.customAdjs[i];
+    var amt = a.type === 'pct_soft' ? soft * a.val / 100 : a.type === 'pct_total' ? preTotal * a.val / 100 : a.val;
+    var lbl = a.type === 'pct_soft' ? a.val + '% off software' : a.type === 'pct_total' ? a.val + '% off total' : 'flat';
+    rows += '<tr class="custom-row"><td>' + esc(a.desc) + ' · ' + lbl + ' <span class="rc-verdict rep">Rep-added</span> <button class="btn ghost small" style="padding:2px 8px" onclick="removeCustomAdj(' + i + ')">×</button></td><td class="amt">−' + fmt(amt) + '</td></tr>';
+    total -= amt;
+  }
+  rows += '<tr class="total-row"><td>Quote total · Jan 1 – Dec 31, 2027</td><td class="amt">' + fmt(total) + '</td></tr>';
+  document.getElementById('adj-table').innerHTML = '<tr><th>Summary</th><th style="text-align:right">Amount</th></tr>' + rows;
+  state.finalTotal = total;
+  updateLiveTotal(total);
+  markStale();
+}
+
+function acceptAdjustments() { advance(4); }
+
+/* ════════ STEP 5.6 — summary + review paths (Scenario 5) ════════ */
+function quoteStateDescription() {
+  var parts = [];
+  if (state.products.fleetpulse) parts.push('FleetPulse ' + state.qty + ' licenses (tiered)');
+  if (state.products.routeiq) parts.push('RouteIQ platform license at ' + fmt(state.rqPrice));
+  if (state.products.services) parts.push('Implementation Services ' + fmt(CATALOG.services.flat));
+  var adjs = [];
+  if (state.discounts.multi) adjs.push('multi-product 10% off software');
+  if (state.discounts.newcust) adjs.push('new-customer 5% off software');
+  if (state.discounts.premium) adjs.push('premium onboarding +$10,000');
+  for (var i = 0; i < state.customAdjs.length; i++) adjs.push('rep-added: ' + state.customAdjs[i].desc + ' (' + state.customAdjs[i].val + (state.customAdjs[i].type === 'flat' ? ' flat' : '%') + ')');
+  return 'Products: ' + parts.join('; ') + '. Adjustments: ' + (adjs.length ? adjs.join('; ') : 'none') + '. Total ' + fmt(state.finalTotal) + '. Term Jan 1 - Dec 31 2027. Client budget $45,000-$50,000.' + (state.discounts.multi && state.discounts.newcust ? ' NOTE: stacked discounts violate policy.' : '');
+}
+
+async function runSummary() {
+  setSources(['src-notes', 'src-opp', 'src-catalog', 'src-pricing']);
+  btnLoad('btn-summary', true);
+  document.getElementById('err5').classList.remove('visible');
+  traceLoading(document.getElementById('trace5'));
+
+  var prompt = 'You are the quoting agent generating a final plain-language summary for the sales rep to review before submission. ' + requirementsContext() + '\n\nFinal quote state: ' + quoteStateDescription() + '\n\nRespond ONLY with JSON, no markdown fences:\n{"summary":"...","trace":[{"type":"reason|act|observe","text":"..."}]}\n\nsummary: 3-4 sentences, plain language, covering what is on the quote, the total, whether it fits the stated budget range, and anything the rep should double-check (stacked discounts, overrides, removed products). Written TO the rep. trace: 3-4 short ReAct steps.';
+
+  try {
+    var out = await callClaude(prompt);
+    renderTrace(document.getElementById('trace5'), out.trace || [], function(){ showSummary(out.summary); });
+  } catch (e) {
+    var inBudget = state.finalTotal >= 45000 && state.finalTotal <= 50000;
+    var s = 'The quote covers ' + (state.products.fleetpulse ? 'FleetPulse (' + state.qty + ' licenses)' : '') + (state.products.routeiq ? ', RouteIQ' : '') + (state.products.services ? ', and Implementation Services' : '') + ' for the Jan 1 – Dec 31, 2027 term, totaling ' + fmt(state.finalTotal) + '. ';
+    s += inBudget ? 'The total sits inside the client\'s stated $45–50K budget range. ' : 'Note: the total falls outside the client\'s stated $45–50K budget range — worth confirming with the client before submission. ';
+    if (state.discounts.multi && state.discounts.newcust) s += 'Stacked discounts are applied against policy and will be flagged in approval. ';
+    if (state.customAdjs.length) s += 'A rep-added custom adjustment is on the quote and will be visible to approvers. ';
+    s += 'Review the details below and submit when ready.';
+    renderTrace(document.getElementById('trace5'), [
+      { type: 'reason', text: 'Assemble final quote state for review' },
+      { type: 'act', text: 'Re-read requirements, pricing, adjustments' },
+      { type: 'observe', text: 'Comparing total against stated budget range' }
+    ], function(){ showSummary(s); });
+  }
+  btnLoad('btn-summary', false);
+}
+
+function showSummary(text) {
+  document.getElementById('summary-text').textContent = text;
+  var rows = '<tr><th>Quote details</th><th style="text-align:right">Amount</th></tr>';
+  if (state.products.fleetpulse) {
+    var fp = tierCalc(state.qty);
+    rows += '<tr><td>FleetPulse Analytics · ' + state.qty + ' licenses</td><td class="amt">' + fmt(fp.total) + '</td></tr>';
+  }
+  if (state.products.routeiq) rows += '<tr><td>RouteIQ Optimization Engine (RQ-300)</td><td class="amt">' + fmt(state.rqPrice) + '</td></tr>';
+  if (state.products.services) rows += '<tr><td>Nexus Implementation Services</td><td class="amt">' + fmt(CATALOG.services.flat) + '</td></tr>';
+  if (state.discounts.multi) rows += '<tr class="adj-row"><td>Multi-product discount (10% software)</td><td class="amt">−' + fmt(state.softwareSubtotal * 0.10) + '</td></tr>';
+  if (state.discounts.newcust) rows += '<tr class="adj-row"><td>New customer promotion (5% software)</td><td class="amt">−' + fmt(state.softwareSubtotal * 0.05) + '</td></tr>';
+  if (state.discounts.premium) rows += '<tr><td>Premium onboarding upgrade</td><td class="amt">' + fmt(POLICY.premiumAdd) + '</td></tr>';
+  for (var i = 0; i < state.customAdjs.length; i++) {
+    var a = state.customAdjs[i];
+    var preTotal = state.softwareSubtotal + state.servicesSubtotal + (state.discounts.premium ? POLICY.premiumAdd : 0);
+    var amt = a.type === 'pct_soft' ? state.softwareSubtotal * a.val / 100 : a.type === 'pct_total' ? preTotal * a.val / 100 : a.val;
+    rows += '<tr class="custom-row"><td>' + esc(a.desc) + ' (rep-added)</td><td class="amt">−' + fmt(amt) + '</td></tr>';
+  }
+  rows += '<tr class="total-row"><td>Quote total · Jan 1 – Dec 31, 2027</td><td class="amt">' + fmt(state.finalTotal) + '</td></tr>';
+  document.getElementById('summary-table').innerHTML = rows;
+  document.getElementById('result5').classList.add('visible');
+  state.summaryFresh = true;
+  document.getElementById('stale-warn').classList.remove('visible');
+  document.getElementById('btn-submit').disabled = false;
+  document.getElementById('btn-summary').innerHTML = '<span class="spinner"></span>Re-run agent — regenerate summary';
+}
+
+async function interpretChange() {
+  var req = document.getElementById('change-request').value.trim();
+  if (!req) return;
+  btnLoad('btn-interpret', true);
+  var box = document.getElementById('interp-box');
+  box.classList.remove('visible');
+
+  var prompt = 'You are the quoting agent. The sales rep typed a change request in plain language. Interpret it and route them to the right step of the quoting workflow. You do NOT change the quote yourself - the rep makes changes.\n\nCHANGE REQUEST: "' + req.replace(/"/g, "'") + '"\n\nQuote state: ' + quoteStateDescription() + '\n\nSteps available: requirements (step 5.0 - client needs changed), products (step 5.3 - add/remove/swap products), pricing (step 5.4 - license counts, unit prices), adjustments (step 5.5 - discounts, premiums).\n\nRespond ONLY with JSON, no markdown fences:\n{"interpretation":"one or two sentences restating what the rep wants changed and what it affects","target":"requirements|products|pricing|adjustments|none"}';
+
+  try {
+    var out = await callClaude(prompt);
+    showInterpretation(out.interpretation, out.target);
+  } catch (e) {
+    var t = 'none', low = req.toLowerCase();
+    if (low.indexOf('license') >= 0 || low.indexOf('price') >= 0 || low.indexOf('qty') >= 0 || low.indexOf('quantit') >= 0 || /\b\d+\b/.test(low)) t = 'pricing';
+    else if (low.indexOf('discount') >= 0 || low.indexOf('promo') >= 0 || low.indexOf('premium') >= 0) t = 'adjustments';
+    else if (low.indexOf('product') >= 0 || low.indexOf('sku') >= 0 || low.indexOf('remove') >= 0 || low.indexOf('add') >= 0 || low.indexOf('route') >= 0 || low.indexOf('fleet') >= 0 || low.indexOf('service') >= 0) t = 'products';
+    else if (low.indexOf('budget') >= 0 || low.indexOf('requirement') >= 0 || low.indexOf('term') >= 0) t = 'requirements';
+    showInterpretation('The rep wants a change that affects the ' + (t === 'none' ? 'quote' : t) + ' step. Reopen it to make the edit.', t);
+  }
+  btnLoad('btn-interpret', false);
+}
+
+function showInterpretation(text, target) {
+  var box = document.getElementById('interp-box');
+  var stepMap = { requirements: 0, products: 2, pricing: 3, adjustments: 4 };
+  var stepLbl = { requirements: '5.0 — Requirements', products: '5.3 — Products', pricing: '5.4 — Pricing', adjustments: '5.5 — Adjustments' };
+  var btn = (target && target !== 'none' && stepMap[target] !== undefined)
+    ? '<div style="margin-top:8px"><button class="btn agent-btn small" onclick="reopenStep(' + stepMap[target] + ')">Reopen step ' + stepLbl[target] + '</button></div>'
+    : '<div style="margin-top:8px">No step reopening needed — if this still requires a change, use the manual buttons.</div>';
+  box.innerHTML = '<b>Agent interpretation:</b> ' + esc(text) + btn;
+  box.classList.add('visible');
+}
+
+function submitQuote() {
+  if (!state.summaryFresh) return;
+  document.getElementById('done-banner').classList.add('visible');
+  document.getElementById('rationale').disabled = true;
+  document.getElementById('btn-submit').disabled = true;
+}
+
+function updateLiveTotal(n) {
+  document.getElementById('live-total').textContent = fmt(n);
+}
+</script>
+</body>
+</html>
