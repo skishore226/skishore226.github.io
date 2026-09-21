@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Role-Based Prompting — Sam Kishore</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f8f8f6;--surface:#fff;--text:#1a1a1a;--muted:#6b6b6b;--border:#e2e2e0;--accent:#2563eb;--accent-bg:#eff6ff;--accent-border:#bfdbfe;--coral:#d85a30;--coral-bg:#fef0eb;--teal:#0f6e56;--teal-bg:#e1f5ee;--purple:#534ab7;--purple-bg:#eeedfe;--amber:#b97215;--amber-bg:#fef3c7;--red:#a32d2d;--red-bg:#fcebeb;--green:#3b6d11;--green-bg:#eaf3de;--code-bg:#1e1e2e;--code-text:#cdd6f4;--code-comment:#6c7086;--code-string:#a6e3a1;--code-keyword:#cba6f7;--code-highlight:#rgba(15,110,86,0.15)}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* NAV */
+.top-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.top-nav .logo{font-weight:600;font-size:15px;color:var(--text)}
+.top-nav ul{list-style:none;display:flex;gap:1.5rem}
+.top-nav li a{font-size:13px;color:var(--muted)}
+.top-nav li a:hover{color:var(--text);text-decoration:none}
+
+/* PROGRESS */
+.progress-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0.5rem 2rem;display:flex;gap:0.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.progress-bar button{background:none;border:none;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;font-size:11px;font-family:'Inter',sans-serif;color:var(--muted);white-space:nowrap;transition:background 0.15s}
+.progress-bar button:hover{background:var(--bg)}
+.progress-bar button.active{background:var(--accent-bg);color:var(--accent);font-weight:500}
+.progress-bar button .label{display:block;font-size:10px;letter-spacing:0.03em;margin-bottom:1px}
+
+/* MAIN */
+.container{max-width:800px;margin:0 auto;padding:2rem}
+
+/* BREADCRUMB */
+.breadcrumb{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
+.breadcrumb a{color:var(--muted)}
+
+/* SLIDES */
+.slide{display:none}
+.slide.active{display:block}
+
+/* TYPOGRAPHY */
+h1{font-size:1.75rem;font-weight:600;letter-spacing:-0.02em;margin-bottom:0.75rem}
+h2{font-size:1.35rem;font-weight:600;letter-spacing:-0.01em;margin-bottom:0.75rem}
+h3{font-size:1.1rem;font-weight:600;margin-bottom:0.5rem}
+h4{font-size:1rem;font-weight:600;margin-bottom:0.4rem}
+p{margin-bottom:1rem}
+.subtitle{color:var(--muted);font-size:0.95rem;margin-bottom:2rem;max-width:640px}
+
+/* TAG */
+.tag{display:inline-block;font-size:11px;font-weight:500;letter-spacing:0.03em;text-transform:uppercase;padding:3px 10px;border-radius:4px;margin-bottom:0.5rem}
+.tag.discovery{background:var(--accent-bg);color:var(--accent)}
+.tag.execution{background:var(--teal-bg);color:var(--teal)}
+.tag.build{background:var(--purple-bg);color:var(--purple)}
+
+/* OVERVIEW CARDS */
+.overview-grid{display:flex;flex-direction:column;gap:0.75rem;margin-top:1.5rem}
+.overview-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;cursor:pointer;transition:border-color 0.15s}
+.overview-card:hover{border-color:var(--accent)}
+.overview-card .oc-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem}
+.overview-card .oc-label{font-size:11px;color:var(--muted)}
+.overview-card h4{margin-bottom:0.15rem}
+.overview-card p{font-size:13px;color:var(--muted);margin:0}
+
+/* CONCEPT CARDS */
+.concept-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+.concept-card .cc-tag{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.4rem}
+.concept-card h4{margin-bottom:0.4rem}
+.concept-card p{font-size:0.9rem;color:var(--muted);margin:0}
+
+/* CONSTRAINT CARDS */
+.constraint-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin:1.5rem 0}
+.constraint-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;border-top:3px solid var(--border)}
+.constraint-card.people{border-top-color:var(--accent)}
+.constraint-card.process{border-top-color:var(--coral)}
+.constraint-card.tech{border-top-color:var(--teal)}
+.constraint-card .cc-type{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem}
+.constraint-card.people .cc-type{color:var(--accent)}
+.constraint-card.process .cc-type{color:var(--coral)}
+.constraint-card.tech .cc-type{color:var(--teal)}
+.constraint-card h4{font-size:0.85rem;margin-bottom:0.35rem}
+.constraint-card p{font-size:0.8rem;color:var(--muted);margin:0;line-height:1.5}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:0.88rem}
+th{text-align:left;font-weight:500;padding:0.6rem 0.75rem;border-bottom:2px solid var(--border);font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.03em}
+td{padding:0.6rem 0.75rem;border-bottom:1px solid var(--border);vertical-align:top}
+
+/* CODE */
+.code-container{background:var(--code-bg);border-radius:10px;overflow:hidden;margin:1.25rem 0}
+.code-header{padding:0.6rem 1rem;font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--code-comment);border-bottom:1px solid rgba(255,255,255,0.06)}
+.code-body{padding:1rem;overflow-x:auto}
+.code-body pre{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;line-height:1.8;color:var(--code-text);white-space:pre}
+.comment{color:var(--code-comment)}.string{color:var(--code-string)}.keyword{color:var(--code-keyword)}
+.highlight-bad{background:rgba(216,90,48,0.15);padding:2px 4px;border-radius:3px;display:inline}
+.highlight-good{background:rgba(15,110,86,0.15);padding:2px 4px;border-radius:3px;display:inline}
+
+/* OUTPUT CARDS */
+.output-card{padding:1rem 1.25rem;border-radius:8px;border-left:4px solid;margin:1rem 0}
+.output-card.bad{background:var(--red-bg);border-color:var(--coral);color:var(--red)}
+.output-card.good{background:var(--green-bg);border-color:var(--teal);color:var(--green)}
+.output-card .ol{font-weight:600;font-size:0.82rem;margin-bottom:0.25rem}
+.output-card p{font-size:0.85rem;margin:0;line-height:1.6}
+
+/* CHANGE MGMT CARDS */
+.cm-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:0.75rem}
+.cm-card h4{margin-bottom:0.35rem}
+.cm-card p{font-size:0.9rem;color:var(--muted);margin:0;line-height:1.6}
+
+/* TAKEAWAY */
+.takeaway{padding:1.25rem 1.5rem;background:var(--purple-bg);border:1px solid var(--purple);border-radius:10px;margin:2rem 0}
+.takeaway p{font-size:0.9rem;line-height:1.7;margin:0}
+.takeaway p+p{margin-top:0.6rem}
+
+/* CALLOUT */
+.callout{padding:1rem 1.25rem;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:8px;margin:1.25rem 0;font-size:0.9rem}
+
+/* NAV BUTTONS */
+.slide-nav{display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.slide-nav button{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.5rem 1.25rem;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;color:var(--text);transition:border-color 0.15s}
+.slide-nav button:hover{border-color:var(--accent)}
+.slide-nav button:disabled{opacity:0.3;cursor:default}
+.slide-nav .counter{font-size:12px;color:var(--muted)}
+
+/* VIDEO EMBED */
+.video-wrap{margin:1.5rem 0;border-radius:10px;overflow:hidden;background:#0b0b0b;position:relative}
+.video-wrap iframe{width:100%;aspect-ratio:16/9;display:block;border:none}
+.video-placeholder{aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#888;font-size:13px}
+.video-placeholder .vp-icon{font-size:36px;color:#555}
+.video-placeholder span{color:#666}
+.ref-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-top:2rem;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);display:block}
+
+/* RESPONSIVE */
+@media(max-width:700px){
+
+/* SVG DIAGRAM CLASSES */
+svg .th{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;fill:var(--text)}
+svg .ts{font-family:'Inter',sans-serif;font-size:12px;font-weight:400;fill:var(--muted)}
+svg .arr{stroke:var(--muted);stroke-width:1.5}
+svg .leader{stroke:var(--muted);stroke-width:0.5;stroke-dasharray:3 3}
+svg .c-gray>rect,svg .c-gray>circle{fill:#F1EFE8;stroke:#5F5E5A;stroke-width:0.5}
+svg .c-gray>text.th,svg .c-gray>text.ts{fill:#2C2C2A}
+svg .c-blue>rect{fill:#E6F1FB;stroke:#185FA5;stroke-width:0.5}
+svg .c-blue>text.th{fill:#0C447C}
+svg .c-blue>text.ts{fill:#185FA5}
+svg .c-purple>rect{fill:#EEEDFE;stroke:#534AB7;stroke-width:0.5}
+svg .c-purple>text.th{fill:#3C3489}
+svg .c-purple>text.ts{fill:#534AB7}
+svg .c-teal>rect{fill:#E1F5EE;stroke:#0F6E56;stroke-width:0.5}
+svg .c-teal>text.th{fill:#085041}
+svg .c-teal>text.ts{fill:#0F6E56}
+svg .c-coral>rect{fill:#FAECE7;stroke:#993C1D;stroke-width:0.5}
+svg .c-coral>text.th{fill:#712B13}
+svg .c-coral>text.ts{fill:#993C1D}
+svg .c-amber>rect{fill:#FAEEDA;stroke:#854F0B;stroke-width:0.5}
+svg .c-amber>text.th{fill:#633806}
+svg .c-amber>text.ts{fill:#854F0B}
+svg .c-green>rect{fill:#EAF3DE;stroke:#3B6D11;stroke-width:0.5}
+svg .c-green>text.th{fill:#27500A}
+svg .c-green>text.ts{fill:#3B6D11}
+svg .c-red>rect{fill:#FCEBEB;stroke:#A32D2D;stroke-width:0.5}
+svg .c-red>text.th{fill:#791F1F}
+svg .c-red>text.ts{fill:#A32D2D}
+
+/* RESPONSIVE CONT */
+@media(max-width:700px){
+  .constraint-grid{grid-template-columns:1fr}
+  .container{padding:1.25rem}
+  .progress-bar{padding:0.5rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://skishore226.github.io/index.html" class="logo">Sam Kishore</a>
+  <ul>
+    <li><a href="https://skishore226.github.io/index.html">Home</a></li>
+    <li><a href="https://skishore226.github.io/index.html#projects">All Projects</a></li>
+    <li><a href="https://skishore226.github.io/index.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="progress-bar" id="progressBar">
+  <button onclick="goTo(0)" class="active"><span class="label">Intro</span>Overview</button>
+  <button onclick="goTo(1)"><span class="label">Part 1</span>The Concept</button>
+  <button onclick="goTo(2)"><span class="label">Part 2</span>Process Mapping</button>
+  <button onclick="goTo(3)"><span class="label">Part 3</span>Prompt Design</button>
+  <button onclick="goTo(4)"><span class="label">Part 4</span>Live Demo</button>
+</div>
+
+<div class="container">
+
+<!-- ==================== SLIDE 0: OVERVIEW ==================== -->
+<div class="slide active" id="slide-0">
+<p class="breadcrumb"><a href="https://skishore226.github.io/index.html">Home</a> &rsaquo; Role-Based Prompting</p>
+<h1>Role-Based Prompting</h1>
+<p class="subtitle">How to assign precise identities to AI agents so their output matches the expertise, tone, and judgment of the human roles they represent — applied to lead qualification in a Lead to Cash workflow.</p>
+<div class="video-wrap"><div class="video-placeholder"><div class="vp-icon">&#9654;</div><span>Video walkthrough coming soon</span></div></div>
+
+<span class="ref-label">Reference notes</span>
+
+<p>Use the arrows below, the progress bar above, or your keyboard's arrow keys to move through the project.</p>
+
+<div class="overview-grid">
+  <div class="overview-card" onclick="goTo(1)">
+    <div class="oc-top"><span class="tag discovery">Part 1 · Discovery</span></div>
+    <h4>What Is Role-Based Prompting?</h4>
+    <p>The concept explained through a restaurant — same question, four roles, four completely different answers.</p>
+  </div>
+  <div class="overview-card" onclick="goTo(2)">
+    <div class="oc-top"><span class="tag discovery">Part 2 · Discovery</span></div>
+    <h4>Process Mapping &amp; Role Identification</h4>
+    <p>Mapping the lead qualification workflow and identifying the distinct roles that evaluate the same lead differently.</p>
+  </div>
+  <div class="overview-card" onclick="goTo(3)">
+    <div class="oc-top"><span class="tag execution">Part 3 · Execution</span></div>
+    <h4>Prompt Design &amp; Iterative Refinement</h4>
+    <p>Defining role criteria and building prompts from vague to precise — three drafts, three different outputs, one unchanged codebase.</p>
+  </div>
+  <div class="overview-card" onclick="goTo(4)">
+    <div class="oc-top"><span class="tag build">Part 4 · Build</span></div>
+    <h4>Live Demo</h4>
+    <p>Three Claude conversations, three different prompts, same lead — watch how the output transforms as the role definition gets more precise.</p>
+  </div>
+</div>
+</div>
+
+<!-- ==================== SLIDE 1: THE CONCEPT ==================== -->
+<div class="slide" id="slide-1">
+<span class="tag discovery">Part 1 — Discovery</span>
+<h2>What Is Role-Based Prompting?</h2>
+
+<div class="video-wrap"><div class="video-placeholder"><div class="vp-icon">&#9654;</div><span>Video walkthrough coming soon</span></div></div>
+
+<span class="ref-label">Reference notes</span>
+
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.5rem;text-align:center;margin-bottom:2rem">
+  <div style="width:64px;height:64px;border-radius:50%;background:var(--purple-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:28px">🧠</div>
+  <h4 style="margin-bottom:0.35rem">Role-based prompting in one line</h4>
+  <p style="font-size:0.9rem;color:var(--muted);margin:0;line-height:1.6;max-width:500px;margin:0 auto">Assigning a specific identity to an LLM before giving it a task — so it knows which slice of its knowledge to activate and how to frame its response.</p>
+</div>
+
+<h3>🍽️ "Tell me about the lamb shank."</h3>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin:1.25rem 0">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:28px">🍽️</div>
+    <h4 style="margin-bottom:0.25rem">Server</h4>
+    <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent);margin-bottom:0.5rem">Customer experience</div>
+    <p style="font-size:0.82rem;color:var(--muted);margin:0;line-height:1.5">What's popular, what pairs well, what people enjoy</p>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:28px">👨‍🍳</div>
+    <h4 style="margin-bottom:0.25rem">Head Chef</h4>
+    <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--teal);margin-bottom:0.5rem">Preparation technique</div>
+    <p style="font-size:0.82rem;color:var(--muted);margin:0;line-height:1.5">How it's made, cook time, finishing details</p>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--amber-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:28px">🍷</div>
+    <h4 style="margin-bottom:0.25rem">Sommelier</h4>
+    <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--amber);margin-bottom:0.5rem">Pairing &amp; balance</div>
+    <p style="font-size:0.82rem;color:var(--muted);margin:0;line-height:1.5">What complements the dish, tannin structure, wine selection</p>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--coral-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:28px">📋</div>
+    <h4 style="margin-bottom:0.25rem">Health Inspector</h4>
+    <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--coral);margin-bottom:0.5rem">Safety &amp; compliance</div>
+    <p style="font-size:0.82rem;color:var(--muted);margin:0;line-height:1.5">Internal temp, hold times, storage protocols</p>
+  </div>
+</div>
+
+<p>You didn't change the question or the dish. You changed <strong>who you asked</strong> — and that shaped everything about the answer.</p>
+
+<hr style="border:none;border-top:1px solid var(--border);margin:2rem 0">
+
+<h3>📊 "Evaluate this lead: BrightLoop Technologies"</h3>
+<p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem">SaaS · 45 employees · $3.8M revenue · VP of Operations · Austin, TX</p>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin:1.25rem 0">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--accent-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:28px">🎯</div>
+    <h4 style="margin-bottom:0.25rem">SDR</h4>
+    <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent);margin-bottom:0.5rem">ICP fit</div>
+    <p style="font-size:0.82rem;color:var(--muted);margin:0;line-height:1.5">45 employees is below our 200 minimum. Disqualified — don't waste a meeting slot.</p>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--teal-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:28px">🗄️</div>
+    <h4 style="margin-bottom:0.25rem">Rev Ops</h4>
+    <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--teal);margin-bottom:0.5rem">Data integrity</div>
+    <p style="font-size:0.82rem;color:var(--muted);margin:0;line-height:1.5">Webinar source confirmed. No CRM duplicate. Routed to correct rep. Data is clean.</p>
+  </div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center">
+    <div style="width:64px;height:64px;border-radius:50%;background:var(--coral-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 0.75rem;font-size:28px">💰</div>
+    <h4 style="margin-bottom:0.25rem">Finance</h4>
+    <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--coral);margin-bottom:0.5rem">Financial risk</div>
+    <p style="font-size:0.82rem;color:var(--muted);margin:0;line-height:1.5">$3.8M revenue is thin for our contract size. Flag for credit review.</p>
+  </div>
+</div>
+
+<p>Same lead. The <strong>role-based prompt</strong> determined what each agent focused on.</p>
+</div>
+
+<!-- ==================== SLIDE 2: PROCESS MAPPING ==================== -->
+<div class="slide" id="slide-2">
+<span class="tag discovery">Part 2 — Discovery</span>
+<h2>Process Mapping &amp; Role Identification</h2>
+
+<div class="video-wrap"><div class="video-placeholder"><div class="vp-icon">&#9654;</div><span>Video walkthrough coming soon</span></div></div>
+
+<span class="ref-label">Reference notes</span>
+
+<p>Before designing any agent prompts, map the human workflow first. What does the SDR actually do, step by step, and in which system?</p>
+
+<h3>SDR Lead Qualification Process</h3>
+
+<svg width="100%" viewBox="0 0 680 860" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#888" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<rect x="170" y="30" width="260" height="44" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="300" y="52" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#2C2C2A">Receive lead notification</text>
+
+<line x1="300" y1="74" x2="300" y2="100" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<rect x="170" y="100" width="260" height="56" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="300" y="120" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#0C447C">Review company data</text>
+<text x="300" y="140" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#185FA5">Size, industry, revenue</text>
+
+<line x1="300" y1="156" x2="300" y2="182" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<rect x="170" y="182" width="260" height="56" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="300" y="202" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#0C447C">Review contact data</text>
+<text x="300" y="222" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#185FA5">Title, seniority, email domain</text>
+
+<line x1="300" y1="238" x2="300" y2="264" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<rect x="170" y="264" width="260" height="56" rx="8" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="300" y="284" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#3C3489">Check engagement history</text>
+<text x="300" y="304" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#534AB7">Webinars, downloads, page visits</text>
+
+<line x1="300" y1="320" x2="300" y2="346" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<rect x="140" y="346" width="320" height="56" rx="8" fill="#FAEEDA" stroke="#854F0B" stroke-width="0.5"/>
+<text x="300" y="366" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#633806">Evaluate against ICP criteria</text>
+<text x="300" y="386" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#854F0B">Size, industry, title, geography</text>
+
+<line x1="300" y1="402" x2="300" y2="428" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<polygon points="300,428 400,478 300,528 200,478" fill="#FEF3C7" stroke="#B97215" stroke-width="1"/>
+<text x="300" y="472" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#633806">Qualify or</text>
+<text x="300" y="490" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#633806">disqualify?</text>
+
+<line x1="400" y1="478" x2="470" y2="478" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+<text x="432" y="468" font-family="Inter,sans-serif" font-size="12" fill="#6b6b6b">Yes</text>
+<line x1="200" y1="478" x2="120" y2="478" stroke="#888" stroke-width="1.5"/>
+<text x="162" y="468" font-family="Inter,sans-serif" font-size="12" fill="#6b6b6b">No</text>
+<line x1="120" y1="478" x2="120" y2="556" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<rect x="470" y="448" width="180" height="56" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="560" y="468" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#27500A">Log rationale</text>
+<text x="560" y="488" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#3B6D11">Update status</text>
+
+<line x1="560" y1="504" x2="560" y2="546" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<rect x="470" y="546" width="180" height="56" rx="8" fill="#EAF3DE" stroke="#3B6D11" stroke-width="0.5"/>
+<text x="560" y="566" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#27500A">Schedule outreach</text>
+<text x="560" y="586" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#3B6D11">Book discovery call</text>
+
+<rect x="30" y="558" width="180" height="56" rx="8" fill="#FCEBEB" stroke="#A32D2D" stroke-width="0.5"/>
+<text x="120" y="578" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#791F1F">Log disqualification</text>
+<text x="120" y="598" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#A32D2D">Record failed criteria</text>
+
+<line x1="120" y1="614" x2="120" y2="646" stroke="#888" stroke-width="1.5" marker-end="url(#arr)"/>
+
+<rect x="70" y="648" width="100" height="44" rx="8" fill="#F1EFE8" stroke="#5F5E5A" stroke-width="0.5"/>
+<text x="120" y="670" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#2C2C2A">End</text>
+
+<text x="120" y="750" font-family="Inter,sans-serif" font-size="14" font-weight="500" fill="#1a1a1a">Systems used in this process</text>
+<rect x="120" y="768" width="50" height="22" rx="4" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.5"/>
+<text x="145" y="779" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#0C447C">CRM</text>
+<rect x="182" y="768" width="72" height="22" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="218" y="779" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#085041">LinkedIn</text>
+<rect x="266" y="768" width="60" height="22" rx="4" fill="#FAECE7" stroke="#993C1D" stroke-width="0.5"/>
+<text x="296" y="779" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#712B13">MAP</text>
+<rect x="338" y="768" width="78" height="22" rx="4" fill="#EEEDFE" stroke="#534AB7" stroke-width="0.5"/>
+<text x="377" y="779" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#3C3489">Outreach</text>
+<rect x="428" y="768" width="78" height="22" rx="4" fill="#E1F5EE" stroke="#0F6E56" stroke-width="0.5"/>
+<text x="467" y="779" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif" font-size="12" fill="#085041">Calendar</text>
+<text x="120" y="812" font-family="Inter,sans-serif" font-size="12" fill="#6b6b6b">MAP = marketing automation platform</text>
+</svg>
+</div>
+
+<!-- ==================== SLIDE 3: PROMPT DESIGN ==================== -->
+<div class="slide" id="slide-3">
+<span class="tag execution">Part 3 — Execution</span>
+<h2>Prompt Design &amp; Iterative Refinement</h2>
+
+<div class="video-wrap"><div class="video-placeholder"><div class="vp-icon">&#9654;</div><span>Video walkthrough coming soon</span></div></div>
+
+<span class="ref-label">Reference notes</span>
+
+<h3>Step 1: Derive role criteria from the process map</h3>
+
+<p>Each step in the SDR process map (Part 2) translates directly into a criterion or instruction for the prompt. The prompt doesn't come out of thin air — it's derived from the process.</p>
+
+<table>
+  <thead><tr><th>Process step</th><th>What the SDR looks at</th><th>Derived criterion</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Review company data</strong></td><td>Employee count, industry vertical</td><td>Company size: 200–2,000 employees<br>Industry: SaaS or Fintech</td></tr>
+    <tr><td><strong>Review contact data</strong></td><td>Title, seniority level</td><td>Contact title: Director-level or above</td></tr>
+    <tr><td><strong>Check engagement history</strong></td><td>Webinars, downloads, page visits</td><td>Context input — informs intent, not a pass/fail gate</td></tr>
+    <tr><td><strong>Evaluate against ICP</strong></td><td>Company location</td><td>Geography: North America (US, Canada, Mexico)</td></tr>
+    <tr><td><strong>Qualify or disqualify</strong></td><td>All criteria together</td><td>Output: clear QUALIFIED or DISQUALIFIED verdict</td></tr>
+    <tr><td><strong>Log rationale</strong></td><td>Why the decision was made</td><td>Output: 2–3 sentence rationale for pipeline review</td></tr>
+  </tbody>
+</table>
+
+<h3>SDR Agent — Role specification</h3>
+
+<p>Consolidated from the criteria mapping above. This is the spec the prompt gets built to.</p>
+
+<div style="background:var(--surface);border:2px solid var(--accent);border-radius:10px;padding:1.5rem;margin:1.25rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem">
+    <div style="font-size:20px">🎯</div>
+    <h4 style="margin:0">SDR Lead Qualification Agent</h4>
+  </div>
+
+  <div style="margin-bottom:1rem">
+    <div style="font-size:0.75rem;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent);margin-bottom:0.35rem">Role identity</div>
+    <p style="font-size:0.88rem;margin:0">Senior SDR at a B2B SaaS company</p>
+  </div>
+
+  <div style="margin-bottom:1rem">
+    <div style="font-size:0.75rem;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent);margin-bottom:0.35rem">ICP criteria (pass/fail)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+      <div style="background:var(--bg);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.82rem"><strong>Company size:</strong> 200–2,000 employees</div>
+      <div style="background:var(--bg);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.82rem"><strong>Industry:</strong> SaaS or Fintech</div>
+      <div style="background:var(--bg);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.82rem"><strong>Contact title:</strong> Director-level or above</div>
+      <div style="background:var(--bg);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.82rem"><strong>Geography:</strong> North America (US, CA, MX)</div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:1rem">
+    <div style="font-size:0.75rem;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent);margin-bottom:0.35rem">Evaluation method</div>
+    <p style="font-size:0.88rem;margin:0">Evaluate each criterion one at a time. State the lead data and whether it passes or fails. Do not skip any.</p>
+  </div>
+
+  <div style="margin-bottom:1rem">
+    <div style="font-size:0.75rem;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent);margin-bottom:0.35rem">Required output</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+      <div style="background:var(--bg);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.82rem"><strong>Verdict:</strong> QUALIFIED or DISQUALIFIED</div>
+      <div style="background:var(--bg);padding:0.5rem 0.75rem;border-radius:6px;font-size:0.82rem"><strong>Rationale:</strong> 2–3 sentences for pipeline review</div>
+    </div>
+  </div>
+
+  <div>
+    <div style="font-size:0.75rem;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent);margin-bottom:0.35rem">Context input (non-criteria)</div>
+    <p style="font-size:0.88rem;margin:0">Engagement history (webinars, downloads, page visits) — informs intent assessment but is not a pass/fail gate.</p>
+  </div>
+</div>
+
+<h3>Step 2: Iterative prompt refinement</h3>
+
+<p>The spec above is the target. Now we encode it into an actual prompt — and the first draft is never the final product.</p>
+
+<div class="callout">
+<strong>Lead:</strong> BrightLoop Technologies · SaaS · 45 employees · $3.8M revenue · VP of Operations · Austin, TX · Source: webinar signup, downloaded whitepaper on workflow automation, attended live Q&amp;A.
+</div>
+
+<h3>Draft 1 — The vague prompt</h3>
+
+<p>System prompt: <em>"You are a sales rep. Look at this lead and tell me if it's good."</em></p>
+
+<div class="output-card bad">
+  <div class="ol">What the LLM produced</div>
+  <p>A generic marketing-style overview. "This lead appears to be quite good." Cited relevant industry, engaged contact, company size looks fine, lead source looks promising. No ICP criteria, no verdict, no reasoning an SDR manager could act on.</p>
+</div>
+
+<h3>Draft 2 — Specific role with ICP criteria</h3>
+
+<p>System prompt defined a Senior SDR with explicit ICP criteria (200-2000 employees, SaaS or Fintech, Director-level+, North America) and required a structured verdict with rationale.</p>
+
+<div class="output-card good">
+  <div class="ol">Improvement</div>
+  <p>Clear DISQUALIFIED verdict. Structured evaluation. Right tone. But the model made a factual error — listed Geography as a criteria miss even though Austin, TX is in North America. The output <em>looked</em> like a strong SDR evaluation, but a real SDR manager would catch that error in two seconds.</p>
+</div>
+
+<h3>Draft 3 — Forced step-by-step evaluation</h3>
+
+<p>Added one instruction: evaluate each ICP criterion one at a time, state the data from the lead, and determine pass/fail before rendering a verdict.</p>
+
+<div class="output-card good">
+  <div class="ol">Result</div>
+  <p>Geography error disappeared. Model correctly identified Austin, TX as passing North America. Only disqualifying factor: company size at 45 employees, below the 200 minimum. The right call.</p>
+</div>
+
+<div class="takeaway">
+  <p><strong>No code changed across the three drafts.</strong> The Python stayed the same. The model stayed the same. The lead data stayed the same. The only thing that changed was the system prompt — the role definition and instructions.</p>
+  <p>The skill isn't in writing the code. The skill is in designing the instructions — knowing the role well enough to define it with precision, specifying the criteria, and structuring the output so it's actionable.</p>
+</div>
+</div>
+
+<!-- ==================== SLIDE 4: LIVE DEMO ==================== -->
+<div class="slide" id="slide-4">
+<span class="tag build">Part 4 — Build</span>
+<h2>Live Demo</h2>
+
+<div class="video-wrap"><div class="video-placeholder"><div class="vp-icon">&#9654;</div><span>Video walkthrough coming soon</span></div></div>
+
+<span class="ref-label">Reference notes</span>
+
+<p>Same lead pasted into three separate Claude conversations. The only thing that changes is the prompt. Watch how the output transforms as the role definition gets more precise.</p>
+
+<div class="callout" style="margin-bottom:1.5rem"><strong>Lead used in all three drafts:</strong> BrightLoop Technologies · SaaS · 45 employees · $3.8M revenue · Marcus Rivera, VP of Operations · Austin, TX · Source: webinar signup, whitepaper download, live Q&amp;A attendance.</div>
+
+<h3>Draft 1 — Vague role prompt</h3>
+
+<div class="code-container">
+  <div class="code-header">Prompt pasted into Claude</div>
+  <div class="code-body"><pre style="white-space:pre-wrap; color:#cdd6f4">You are a sales rep. Look at this lead and tell me if it's good.
+
+Company: BrightLoop Technologies
+Industry: SaaS
+Employee Count: 45
+Annual Revenue: $3.8M
+Contact Name: Marcus Rivera
+Contact Title: VP of Operations
+Contact Email: marcus@brightlooptech.com
+Location: Austin, TX
+Lead Source: Webinar signup
+Notes: Downloaded whitepaper on workflow automation. Attended live Q&A.</pre>
+  </div>
+</div>
+
+<div class="output-card bad">
+  <div class="ol">What to watch for in the output</div>
+  <p>No ICP criteria applied. No qualified/disqualified verdict. Marketing tone — "this lead appears to be quite good." Useless in an actual pipeline review. This is what happens when the role has no specificity.</p>
+</div>
+
+<h3>Draft 2 — Specific ICP criteria, no step-by-step</h3>
+
+<div class="code-container">
+  <div class="code-header">Prompt pasted into Claude</div>
+  <div class="code-body"><pre style="white-space:pre-wrap; color:#cdd6f4">You are a Senior SDR at a B2B SaaS company. Your job is to evaluate inbound leads against the following ICP criteria and make a fast qualify/disqualify decision:
+
+- Company size: 200-2,000 employees
+- Industry: SaaS or Fintech
+- Contact title: Director-level or above
+- Geography: North America
+
+For each lead, provide:
+1. A one-word verdict: QUALIFIED or DISQUALIFIED
+2. ICP criteria met (list which ones)
+3. ICP criteria missed (list which ones)
+4. A 2-3 sentence rationale written the way you'd explain it to your SDR manager in a pipeline review
+
+Here is the lead:
+
+Company: BrightLoop Technologies
+Industry: SaaS
+Employee Count: 45
+Annual Revenue: $3.8M
+Contact Name: Marcus Rivera
+Contact Title: VP of Operations
+Contact Email: marcus@brightlooptech.com
+Location: Austin, TX
+Lead Source: Webinar signup
+Notes: Downloaded whitepaper on workflow automation. Attended live Q&A.</pre>
+  </div>
+</div>
+
+<div class="output-card bad" style="background:var(--amber-bg);border-color:var(--amber);color:var(--amber)">
+  <div class="ol">What to watch for in the output</div>
+  <p>Much better — structured verdict, right tone. But watch for factual errors. The model may list Geography as a miss even though Austin, TX is in North America. If it does, that's the key lesson: the output <em>looks</em> professional but a real SDR manager would catch the mistake immediately. If it gets geography right this time, the inconsistency itself is the point — "sometimes it works, sometimes it doesn't" is exactly why Draft 3 matters.</p>
+</div>
+
+<h3>Draft 3 — Step-by-step evaluation</h3>
+
+<div class="code-container">
+  <div class="code-header">Prompt pasted into Claude</div>
+  <div class="code-body"><pre style="white-space:pre-wrap; color:#cdd6f4">You are a Senior SDR at a B2B SaaS company. Your job is to evaluate inbound leads against ICP criteria and make a fast qualify/disqualify decision.
+
+ICP Criteria:
+- Company size: 200-2,000 employees
+- Industry: SaaS or Fintech
+- Contact title: Director-level or above
+- Geography: North America (United States, Canada, Mexico)
+
+Instructions:
+1. Evaluate each ICP criterion one at a time. For each one, state the data from the lead and whether it passes or fails. Do not skip any.
+2. After evaluating all four, give a final verdict: QUALIFIED or DISQUALIFIED.
+3. Write a 2-3 sentence rationale the way you'd explain it to your SDR manager in a pipeline review — direct, no fluff.
+
+Here is the lead:
+
+Company: BrightLoop Technologies
+Industry: SaaS
+Employee Count: 45
+Annual Revenue: $3.8M
+Contact Name: Marcus Rivera
+Contact Title: VP of Operations
+Contact Email: marcus@brightlooptech.com
+Location: Austin, TX
+Lead Source: Webinar signup
+Notes: Downloaded whitepaper on workflow automation. Attended live Q&A.</pre>
+  </div>
+</div>
+
+<div class="output-card good">
+  <div class="ol">What to watch for in the output</div>
+  <p>Each ICP criterion evaluated individually with pass/fail. Geography correctly identified as passing. Clear DISQUALIFIED verdict on company size. Actionable rationale. This is what a well-designed role prompt produces — because the step-by-step instruction prevents the model from blending and skipping.</p>
+</div>
+
+<div class="takeaway">
+  <p><strong>Same lead. Same LLM. Three different prompts.</strong> The only thing that changed was how precisely the role was defined and how explicitly the evaluation method was structured.</p>
+  <p>The skill isn't in the technology. It's in the design of the instructions — knowing the role well enough to define it with precision, specifying the criteria, and structuring the output so it's actionable. That's an operations skill, not an engineering skill.</p>
+</div>
+
+<details style="margin-top:2rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:0">
+  <summary style="padding:1rem 1.25rem;cursor:pointer;font-size:0.9rem;font-weight:500;color:var(--muted)">Technical reference: Python implementation</summary>
+  <div style="padding:0 1.25rem 1.25rem">
+    <p style="font-size:0.85rem;color:var(--muted)">The same exercise can be run as a Python script using the OpenAI API. The code is identical across all three drafts — only the system prompt changes.</p>
+
+    <div class="code-container">
+      <div class="code-header">sdr_agent.py</div>
+      <div class="code-body"><pre><span class="keyword">from</span> openai <span class="keyword">import</span> OpenAI                           <span class="comment"># import the library</span>
+
+client = OpenAI(api_key=<span class="string">'YOUR_KEY_HERE'</span>)              <span class="comment"># authenticate with the API</span>
+
+lead = <span class="string">"""
+Company: BrightLoop Technologies
+Industry: SaaS
+Employee Count: 45
+Annual Revenue: $3.8M
+Contact Name: Marcus Rivera
+Contact Title: VP of Operations
+Contact Email: marcus@brightlooptech.com
+Location: Austin, TX
+Lead Source: Webinar signup
+Notes: Downloaded whitepaper on workflow automation.
+"""</span>                                                    <span class="comment"># the input data</span>
+
+system_prompt = <span class="string">"""Your role-based prompt goes here"""</span>  <span class="comment"># swap this for each draft</span>
+
+response = client.chat.completions.create(             <span class="comment"># send to the LLM</span>
+    model=<span class="string">'gpt-4o-mini'</span>,                                <span class="comment"># which model to use</span>
+    messages=[
+        {<span class="string">'role'</span>: <span class="string">'system'</span>, <span class="string">'content'</span>: system_prompt},  <span class="comment"># role instructions</span>
+        {<span class="string">'role'</span>: <span class="string">'user'</span>, <span class="string">'content'</span>: lead}              <span class="comment"># input data</span>
+    ]
+)
+
+<span class="keyword">print</span>(response.choices[0].message.content)            <span class="comment"># display the output</span></pre>
+      </div>
+    </div>
+  </div>
+</details>
+</div>
+
+</div><!-- /container -->
+
+<div class="container">
+  <div class="slide-nav">
+    <button id="prevBtn" onclick="prev()" disabled>&larr; Previous</button>
+    <span class="counter" id="counter">1 / 7</span>
+    <button id="nextBtn" onclick="next()">Next &rarr;</button>
+  </div>
+</div>
+
+<script>
+let current = 0;
+const total = 5;
+
+function goTo(i) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide-' + i).classList.add('active');
+  document.querySelectorAll('.progress-bar button').forEach((b, idx) => {
+    b.classList.toggle('active', idx === i);
+  });
+  current = i;
+  document.getElementById('prevBtn').disabled = (i === 0);
+  document.getElementById('nextBtn').disabled = (i === total - 1);
+  document.getElementById('counter').textContent = (i + 1) + ' / ' + total;
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function next() { if (current < total - 1) goTo(current + 1); }
+function prev() { if (current > 0) goTo(current - 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') next();
+  if (e.key === 'ArrowLeft') prev();
+});
+</script>
+
+</body>
+</html>
