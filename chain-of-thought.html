@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chain-of-Thought Reasoning — Sam Kishore</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f1117;
+  --bg-card: #181b24;
+  --bg-card-hover: #1e2230;
+  --text: #e4e6ee;
+  --text-secondary: #9ca0b0;
+  --text-muted: #6b6f82;
+  --accent: #6b83f2;
+  --accent-light: #8da0ff;
+  --accent-bg: rgba(107,131,242,0.1);
+  --border: #2a2d3a;
+  --border-light: #222533;
+  --green: #4ade80;
+  --green-bg: rgba(74,222,128,0.08);
+  --green-border: rgba(74,222,128,0.25);
+  --green-text: #6ee7a0;
+  --red: #f87171;
+  --red-bg: rgba(248,113,113,0.08);
+  --red-border: rgba(248,113,113,0.25);
+  --red-text: #fca5a5;
+  --purple: #a78bda;
+  --purple-bg: rgba(167,139,218,0.08);
+  --purple-border: rgba(167,139,218,0.25);
+  --purple-text: #c4a8ee;
+  --gate-blue: #60a5fa;
+  --gate-bg: rgba(96,165,250,0.08);
+  --gate-border: rgba(96,165,250,0.25);
+  --gate-text: #93c5fd;
+  --yellow-bg: rgba(250,204,21,0.08);
+  --yellow-border: rgba(250,204,21,0.2);
+  --yellow-text: #fde68a;
+  --nav-height: 56px;
+  --progress-height: 48px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+/* ═══ NAV ═══ */
+.nav { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-height); background: rgba(15,17,23,0.92); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 100; }
+.nav-brand { font-weight: 600; font-size: 15px; color: var(--text); text-decoration: none; }
+.nav-links { display: flex; gap: 24px; }
+.nav-links a { font-size: 13px; color: var(--text-secondary); text-decoration: none; transition: color 0.2s; }
+.nav-links a:hover { color: var(--text); }
+
+/* ═══ PROGRESS BAR ═══ */
+.progress-bar { position: fixed; top: var(--nav-height); left: 0; right: 0; height: var(--progress-height); background: rgba(15,17,23,0.95); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 0; z-index: 99; padding: 0 24px; }
+.progress-step { display: flex; align-items: center; gap: 0; cursor: pointer; padding: 6px 12px; border-radius: 6px; transition: background 0.2s; }
+.progress-step:hover { background: var(--bg-card); }
+.progress-step.active { background: var(--accent-bg); }
+.progress-step.active .progress-label { color: var(--accent-light); }
+.progress-step.active .progress-sublabel { color: var(--accent); }
+.progress-label { font-size: 11px; font-weight: 600; color: var(--text-muted); display: block; }
+.progress-sublabel { font-size: 10px; color: var(--text-muted); display: block; opacity: 0.7; }
+.progress-connector { width: 32px; height: 1px; background: var(--border); margin: 0 4px; }
+
+/* ═══ SECTIONS ═══ */
+.section { display: none; min-height: calc(100vh - var(--nav-height) - var(--progress-height)); padding: calc(var(--nav-height) + var(--progress-height) + 40px) 24px 80px; }
+.section.active { display: block; }
+.section-inner { max-width: 860px; margin: 0 auto; }
+
+/* ═══ BREADCRUMB ═══ */
+.breadcrumb { font-size: 13px; color: var(--text-muted); margin-bottom: 12px; }
+.breadcrumb a { color: var(--text-muted); text-decoration: none; }
+.breadcrumb a:hover { color: var(--text-secondary); }
+
+/* ═══ HERO ═══ */
+.hero-title { font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 12px; }
+.hero-subtitle { font-size: 16px; color: var(--text-secondary); line-height: 1.6; max-width: 680px; margin-bottom: 32px; }
+.hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+.hero-tag { font-size: 12px; color: var(--accent); background: var(--accent-bg); border: 1px solid rgba(107,131,242,0.2); padding: 4px 10px; border-radius: 4px; }
+
+/* ═══ VIDEO PLACEHOLDER ═══ */
+.video-placeholder { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 48px 24px; text-align: center; margin-bottom: 32px; }
+.video-placeholder .play-icon { font-size: 36px; margin-bottom: 8px; opacity: 0.4; }
+.video-placeholder p { font-size: 13px; color: var(--text-muted); }
+
+/* ═══ PART OVERVIEW CARDS ═══ */
+.parts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.part-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; cursor: pointer; transition: all 0.2s; }
+.part-card:hover { background: var(--bg-card-hover); border-color: var(--accent); transform: translateY(-2px); }
+.part-card-eyebrow { font-size: 11px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+.part-card-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.part-card-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+/* ═══ SECTION HEADERS ═══ */
+.section-header { margin-bottom: 32px; }
+.section-eyebrow { font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+.section-title { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+.section-desc { font-size: 15px; color: var(--text-secondary); line-height: 1.6; max-width: 640px; }
+
+/* ═══ SCENARIO CARD ═══ */
+.scenario-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 24px; }
+.scenario-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+.scenario-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.scenario-item { font-size: 13px; color: var(--text-secondary); }
+.scenario-item strong { color: var(--text); font-weight: 500; }
+
+/* ═══ HIGH-LEVEL FLOW ═══ */
+.hl-flow { display: flex; align-items: stretch; gap: 0; margin: 24px 0; }
+.hl-phase { flex: 1; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 16px 12px; }
+.hl-phase-num { font-size: 10px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
+.hl-phase-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.hl-phase-desc { font-size: 11px; color: var(--text-secondary); line-height: 1.5; }
+.hl-connector { display: flex; align-items: center; padding: 0 6px; color: var(--text-muted); font-size: 16px; flex-shrink: 0; }
+
+/* ═══ DETAIL TRANSITION ═══ */
+.detail-transition { display: flex; align-items: center; gap: 12px; margin: 28px 0; }
+.detail-transition-line { flex: 1; height: 1px; background: var(--border); }
+.detail-transition-label { font-size: 12px; font-weight: 600; color: var(--red); white-space: nowrap; padding: 4px 14px; border: 1px solid var(--red-border); border-radius: 20px; background: var(--red-bg); }
+.detail-transition-label.green { color: var(--green-text); border-color: var(--green-border); background: var(--green-bg); }
+.detail-transition-label.purple { color: var(--purple-text); border-color: var(--purple-border); background: var(--purple-bg); }
+
+/* ═══ PROCESS STEPS ═══ */
+.process-steps { display: flex; flex-direction: column; gap: 0; margin: 24px 0; }
+.process-step { display: flex; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--border-light); }
+.process-step:last-child { border-bottom: none; }
+.step-num { font-size: 11px; font-weight: 600; color: var(--text-muted); min-width: 48px; padding-top: 2px; }
+.step-content { flex: 1; }
+.step-role { font-size: 11px; font-weight: 600; color: var(--accent); margin-bottom: 4px; }
+.step-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+.step-systems { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.step-sys { font-size: 10px; font-family: 'JetBrains Mono', monospace; color: var(--text-muted); background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 3px; padding: 1px 6px; }
+
+/* ═══ PAIN POINT ═══ */
+.pain-box { background: var(--red-bg); border: 1px solid var(--red-border); border-radius: 8px; padding: 14px 16px; margin: 8px 0; }
+.pain-box p { font-size: 12px; color: var(--red-text); line-height: 1.6; }
+.pain-box .pain-label { font-size: 10px; font-weight: 600; color: var(--red); margin-bottom: 4px; display: block; }
+
+/* ═══ FIX BOX ═══ */
+.fix-box { background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 8px; padding: 14px 16px; margin: 8px 0; }
+.fix-box p { font-size: 12px; color: var(--green-text); line-height: 1.6; }
+.fix-box .fix-label { font-size: 10px; font-weight: 600; color: var(--green); margin-bottom: 4px; display: block; }
+
+/* ═══ AI BOX ═══ */
+.ai-box { background: var(--purple-bg); border: 1px dashed var(--purple-border); border-radius: 8px; padding: 14px 16px; margin: 8px 0; }
+.ai-box p { font-size: 12px; color: var(--purple-text); line-height: 1.6; }
+.ai-box .ai-label { font-size: 10px; font-weight: 600; color: var(--purple); margin-bottom: 4px; display: block; }
+
+/* ═══ GATE BOX ═══ */
+.gate-box { background: var(--gate-bg); border: 1px solid var(--gate-border); border-radius: 8px; padding: 14px 16px; margin: 8px 0; }
+.gate-box p { font-size: 12px; color: var(--gate-text); line-height: 1.6; }
+.gate-box .gate-label { font-size: 10px; font-weight: 600; color: var(--gate-blue); margin-bottom: 4px; display: block; }
+
+/* ═══ OPS FRAMEWORK ═══ */
+.ops-cards { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 24px 0; }
+.ops-card { background: var(--green-bg); border: 1px solid var(--green-border); border-radius: 8px; padding: 16px; }
+.ops-letter { font-size: 24px; font-weight: 700; color: var(--green); margin-bottom: 4px; }
+.ops-title { font-size: 14px; font-weight: 600; color: var(--green-text); margin-bottom: 6px; }
+.ops-desc { font-size: 12px; color: var(--green-text); opacity: 0.8; line-height: 1.5; }
+
+/* ═══ WHY COT GRID ═══ */
+.why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 24px 0; }
+.why-card { background: var(--purple-bg); border: 1px solid var(--purple-border); border-radius: 8px; padding: 18px; }
+.why-card h4 { font-size: 14px; font-weight: 600; color: var(--purple-text); margin-bottom: 6px; }
+.why-card p { font-size: 12px; color: var(--purple-text); line-height: 1.6; opacity: 0.85; }
+
+/* ═══ SETUP STEPS ═══ */
+.setup-steps { display: flex; flex-direction: column; gap: 16px; margin: 24px 0; }
+.setup-step { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; padding: 20px; display: flex; gap: 16px; }
+.setup-step-num { font-size: 20px; font-weight: 700; color: var(--accent); min-width: 36px; }
+.setup-step h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+.setup-step p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+/* ═══ CODE BLOCK ═══ */
+.code-block { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 16px 0; overflow-x: auto; }
+.code-block pre { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-secondary); line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+.code-block .code-label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; display: block; }
+
+/* ═══ CALLOUT ═══ */
+.callout { background: var(--yellow-bg); border: 1px solid var(--yellow-border); border-radius: 8px; padding: 16px 18px; margin: 20px 0; }
+.callout p { font-size: 13px; color: var(--yellow-text); line-height: 1.6; }
+.callout strong { color: var(--yellow-text); }
+
+/* ═══ NAV ARROWS ═══ */
+.nav-arrows { display: flex; justify-content: space-between; align-items: center; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); }
+.nav-arrow { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--accent); cursor: pointer; padding: 8px 16px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); transition: all 0.2s; text-decoration: none; }
+.nav-arrow:hover { background: var(--accent-bg); border-color: var(--accent); }
+.nav-arrow.disabled { opacity: 0.3; pointer-events: none; }
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .hl-flow { flex-direction: column; }
+  .hl-connector { transform: rotate(90deg); padding: 6px 0; justify-content: center; }
+  .parts-grid, .why-grid { grid-template-columns: 1fr; }
+  .ops-cards { grid-template-columns: 1fr; }
+  .scenario-meta { grid-template-columns: 1fr; }
+  .progress-bar { overflow-x: auto; justify-content: flex-start; }
+  .hero-title { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="https://skishore226.github.io/index.html" class="nav-brand">Sam Kishore</a>
+  <div class="nav-links">
+    <a href="https://skishore226.github.io/index.html">Home</a>
+    <a href="https://skishore226.github.io/index.html#projects">All Projects</a>
+    <a href="https://skishore226.github.io/index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<div class="progress-bar">
+  <div class="progress-step active" onclick="goTo(0)">
+    <span class="progress-label">Overview</span>
+  </div>
+  <div class="progress-connector"></div>
+  <div class="progress-step" onclick="goTo(1)">
+    <span class="progress-label">The Problem</span>
+  </div>
+  <div class="progress-connector"></div>
+  <div class="progress-step" onclick="goTo(2)">
+    <span class="progress-label">The Redesign</span>
+  </div>
+  <div class="progress-connector"></div>
+  <div class="progress-step" onclick="goTo(3)">
+    <span class="progress-label">Why CoT</span>
+  </div>
+  <div class="progress-connector"></div>
+  <div class="progress-step" onclick="goTo(4)">
+    <span class="progress-label">Prototype Demo</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- INTRO -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section active" id="section-0">
+<div class="section-inner">
+  <div class="breadcrumb"><a href="https://skishore226.github.io/index.html">Home</a> › Chain-of-Thought Reasoning</div>
+  <h1 class="hero-title">Chain-of-Thought Reasoning</h1>
+  <p class="hero-subtitle">How to redesign a broken operational workflow, identify where AI actually belongs, and apply Chain-of-Thought reasoning to sales discovery and proposal generation.</p>
+
+  <div class="video-placeholder">
+    <div class="play-icon">▶</div>
+    <p>Video walkthrough coming soon</p>
+  </div>
+  <div class="parts-grid">
+    <div class="part-card" onclick="goTo(1)">
+      <div class="part-card-eyebrow">Discovery</div>
+      <div class="part-card-title">The Problem</div>
+      <div class="part-card-desc">A realistic, broken sales discovery process — fragmented data, unstructured handoffs, and proposals built on guesswork.</div>
+    </div>
+    <div class="part-card" onclick="goTo(2)">
+      <div class="part-card-eyebrow">Redesign</div>
+      <div class="part-card-title">The Redesign</div>
+      <div class="part-card-desc">The OPS framework: three process fixes that are independently good practice and prerequisite for AI to work.</div>
+    </div>
+    <div class="part-card" onclick="goTo(3)">
+      <div class="part-card-eyebrow">Analysis</div>
+      <div class="part-card-title">Why Chain-of-Thought</div>
+      <div class="part-card-desc">Why CoT is the right AI concept for the remaining complexity — and what makes it different from a lookup table or a checklist.</div>
+    </div>
+    <div class="part-card" onclick="goTo(4)">
+      <div class="part-card-eyebrow">Build</div>
+      <div class="part-card-title">Prototype Demo</div>
+      <div class="part-card-desc">Claude reasons through a real discovery record step by step — visible reasoning chain, auditable logic, defensible proposal.</div>
+    </div>
+  </div>
+  <div class="nav-arrows">
+    <span></span>
+    <a class="nav-arrow" onclick="goTo(1)">The Problem →</a>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- PART 1: THE PROBLEM -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="section-1">
+<div class="section-inner">
+  <div class="section-header">
+    <div class="section-eyebrow">Discovery</div>
+    <h2 class="section-title">The Problem</h2>
+    <p class="section-desc">Before touching any technology, understand the broken process. Here's a realistic sales discovery workflow at a mid-market B2B software company — with all the dysfunction that leads to misaligned proposals and lost deals.</p>
+  </div>
+  <div class="video-placeholder">
+    <div class="play-icon">▶</div>
+    <p>Video walkthrough coming soon</p>
+  </div>
+  <div class="scenario-card">
+    <h4>The scenario: Meridian Solutions</h4>
+    <div class="scenario-meta">
+      <div class="scenario-item"><strong>Company:</strong> Mid-market B2B workforce management platform</div>
+      <div class="scenario-item"><strong>Modules:</strong> Time & Attendance, Scheduling, Compliance, Analytics</div>
+      <div class="scenario-item"><strong>Verticals:</strong> Healthcare, manufacturing, professional services</div>
+      <div class="scenario-item"><strong>Deal size:</strong> $75K–$400K ACV, 4–8 month sales cycles</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;margin-bottom:16px;">Phases 1–4: How discovery information gets gathered</h3>
+  <div class="hl-flow">
+    <div class="hl-phase">
+      <div class="hl-phase-num">Phase 1</div>
+      <div class="hl-phase-title">Lead handoff</div>
+      <div class="hl-phase-desc">SDR qualifies lead with loose BANT. Hands off via Salesforce task + Slack. No structured template. No minimum info threshold.</div>
+    </div>
+    <div class="hl-connector">→</div>
+    <div class="hl-phase">
+      <div class="hl-phase-num">Phase 2</div>
+      <div class="hl-phase-title">Discovery call</div>
+      <div class="hl-phase-desc">AE runs discovery. MEDDIC adopted but inconsistent. MEDDIC fields sparsely populated. Notes are free text.</div>
+    </div>
+    <div class="hl-connector">→</div>
+    <div class="hl-phase">
+      <div class="hl-phase-num">Phase 3</div>
+      <div class="hl-phase-title">Stakeholder assessment</div>
+      <div class="hl-phase-desc">AE meets 2–3 of 5–8 stakeholders. Fills gaps with assumptions. No stakeholder mapping template.</div>
+    </div>
+    <div class="hl-connector">→</div>
+    <div class="hl-phase">
+      <div class="hl-phase-num">Phase 4</div>
+      <div class="hl-phase-title">Technical scoping</div>
+      <div class="hl-phase-desc">SE logs findings in Confluence, not Salesforce. Scope doc emailed as Word file. SE re-asks questions prospect already answered.</div>
+    </div>
+  </div>
+
+  <div class="detail-transition">
+    <div class="detail-transition-line"></div>
+    <div class="detail-transition-label">All of this feeds into Phase 5 — where things break</div>
+    <div class="detail-transition-line"></div>
+  </div>
+
+  <h3 style="font-size:16px;margin-bottom:16px;">Phase 5: Needs-to-proposal translation (detailed)</h3>
+
+  <div class="process-steps">
+    <div class="process-step">
+      <div class="step-num">5.1</div>
+      <div class="step-content">
+        <div class="step-role">Account Executive</div>
+        <div class="step-text">AE gathers discovery information to build proposal. Must pull from multiple sources and synthesize manually.</div>
+        <div class="step-systems"><span class="step-sys">Salesforce</span><span class="step-sys">Confluence</span><span class="step-sys">Email</span><span class="step-sys">Gong</span><span class="step-sys">Memory</span></div>
+        <div class="pain-box"><span class="pain-label">Pain point</span><p>Discovery data lives in 5 places: SDR notes in Salesforce, AE's call notes in Salesforce, SE's Confluence doc, SE's emailed Word scope doc, and Gong recordings nobody re-watches. No single consolidated view.</p></div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">5.2</div>
+      <div class="step-content">
+        <div class="step-role">Account Executive</div>
+        <div class="step-text">AE selects product modules and builds commercial proposal based on what they can piece together.</div>
+        <div class="pain-box"><span class="pain-label">Pain point</span><p>Translation is lossy. AE defaults to "standard" vertical package. Recommends modules prospect didn't need. Misses critical modules (e.g. Compliance). Underprices by $40K+ because SE's scope doc flagged a custom API build the AE didn't read.</p></div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">5.3</div>
+      <div class="step-content">
+        <div class="step-role">Account Executive → Prospect</div>
+        <div class="step-text">Send proposal to prospect. Prospect pushes back on misalignment.</div>
+        <div class="pain-box"><span class="pain-label">Pain point</span><p>"You recommended modules we didn't ask for." "You missed our compliance requirement." "Your pricing doesn't include the integration your own SE scoped." Credibility damaged.</p></div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">5.4</div>
+      <div class="step-content">
+        <div class="step-role">Account Executive</div>
+        <div class="step-text">Re-enter discovery. Second round of calls that should have happened the first time. Adds weeks to deal cycle.</div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-arrows">
+    <a class="nav-arrow" onclick="goTo(0)">← Overview</a>
+    <a class="nav-arrow" onclick="goTo(2)">The Redesign →</a>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- PART 2: THE REDESIGN -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="section-2">
+<div class="section-inner">
+  <div class="section-header">
+    <div class="section-eyebrow">Redesign</div>
+    <h2 class="section-title">The Redesign</h2>
+    <p class="section-desc">Don't bolt AI onto a broken process. Fix the process first. The OPS framework addresses three categories of failure that are independently good practice — and that create the conditions AI needs to function downstream.</p>
+  </div>
+  <div class="video-placeholder">
+    <div class="play-icon">▶</div>
+    <p>Video walkthrough coming soon</p>
+  </div>
+  <div class="ops-cards">
+    <div class="ops-card">
+      <div class="ops-letter">O</div>
+      <div class="ops-title">One source of truth</div>
+      <div class="ops-desc">All discovery data consolidated into a single system. If it's not there, it doesn't exist for the purposes of this deal.</div>
+    </div>
+    <div class="ops-card">
+      <div class="ops-letter">P</div>
+      <div class="ops-title">Process handoffs</div>
+      <div class="ops-desc">Structured templates replace verbal recaps and ad-hoc notes. Required fields, not free text.</div>
+    </div>
+    <div class="ops-card">
+      <div class="ops-letter">S</div>
+      <div class="ops-title">Stage gates</div>
+      <div class="ops-desc">Data is validated before it progresses. Deals can't advance without meeting minimum quality thresholds.</div>
+    </div>
+  </div>
+
+  <div class="callout"><p><strong>Why these three?</strong> They're not random fixes. They're the three that are independently justified as good operational practice and that create the prerequisites for AI to work: clean inputs, consolidated context, and validated data to reason from.</p></div>
+
+  <div class="detail-transition">
+    <div class="detail-transition-line"></div>
+    <div class="detail-transition-label green">Phase 5 — Redesigned with OPS fixes</div>
+    <div class="detail-transition-line"></div>
+  </div>
+
+  <div class="process-steps">
+    <div class="process-step">
+      <div class="step-num">5.1</div>
+      <div class="step-content">
+        <div class="step-role">Account Executive</div>
+        <div class="step-text">AE opens single consolidated deal record.</div>
+        <div class="fix-box"><span class="fix-label">O — One source of truth</span><p>All discovery data — SDR handoff, AE notes, MEDDIC fields, stakeholder map, SE technical scope — lives in one record. No hunting across Confluence, email, or Gong.</p></div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">5.2</div>
+      <div class="step-content">
+        <div class="step-role">Account Executive + Solutions Engineer</div>
+        <div class="step-text">AE uses structured discovery-to-proposal template.</div>
+        <div class="fix-box"><span class="fix-label">P — Process handoff</span><p>Template maps each stakeholder need to a product module, flags unconfirmed assumptions, and cross-references SE technical scope. SE's findings are already in the same record.</p></div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">5.3</div>
+      <div class="step-content">
+        <div class="step-role">Account Executive</div>
+        <div class="step-text">AE builds proposal from complete, consolidated record.</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">5.4</div>
+      <div class="step-content">
+        <div class="step-role">Account Executive + Sales Manager</div>
+        <div class="step-text">Proposal review before sending.</div>
+        <div class="gate-box"><span class="gate-label">S — Stage gate</span><p>Does the configuration map to documented needs? Are SE-flagged requirements reflected in pricing? Are assumptions called out? Manager reviews structured data, not the AE's verbal summary.</p></div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">5.5</div>
+      <div class="step-content">
+        <div class="step-role">Account Executive → Prospect</div>
+        <div class="step-text">Send proposal to prospect.</div>
+      </div>
+    </div>
+  </div>
+  <div class="nav-arrows">
+    <a class="nav-arrow" onclick="goTo(1)">← The Problem</a>
+    <a class="nav-arrow" onclick="goTo(3)">Why CoT →</a>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- PART 3: WHY COT -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="section-3">
+<div class="section-inner">
+  <div class="section-header">
+    <div class="section-eyebrow">Analysis</div>
+    <h2 class="section-title">Why Chain-of-Thought</h2>
+    <p class="section-desc">The OPS fixes solved the data and process problems. But translating a complete discovery record into the right product configuration is still genuinely hard — it requires multi-step reasoning, not a checklist.</p>
+  </div>
+  <div class="video-placeholder">
+    <div class="play-icon">▶</div>
+    <p>Video walkthrough coming soon</p>
+  </div>
+
+  <div class="callout"><p><strong>Chain-of-Thought in one line:</strong> Give the model all the inputs upfront and have it work through them step by step, showing its reasoning at every stage — so the output isn't just an answer, it's a defensible argument.</p></div>
+
+  <div class="detail-transition">
+    <div class="detail-transition-line"></div>
+    <div class="detail-transition-label purple">Where CoT applies in Phase 5</div>
+    <div class="detail-transition-line"></div>
+  </div>
+
+  <div class="process-steps">
+    <div class="process-step">
+      <div class="step-num">5.3a</div>
+      <div class="step-content">
+        <div class="step-role">Chain-of-Thought step 1</div>
+        <div class="step-text">Pain-to-module mapping</div>
+        <div class="ai-box"><span class="ai-label">Chain-of-Thought</span><p>Map each documented stakeholder pain to a product module. Reason step by step: "VP Ops stated compliance risk as top concern → maps to Compliance Tracking module. IT flagged HIPAA requirements → confirms Compliance, adds healthcare configuration."</p></div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">5.3b</div>
+      <div class="step-content">
+        <div class="step-role">Chain-of-Thought step 2</div>
+        <div class="step-text">Constraint reconciliation</div>
+        <div class="ai-box"><span class="ai-label">Chain-of-Thought</span><p>Reconcile competing constraints: "SE scoped a custom API at $45K. HR's budget ceiling is $220K. Standard 4-module package is $185K. With integration, we exceed budget → either reduce scope or propose phased implementation."</p></div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">5.3c</div>
+      <div class="step-content">
+        <div class="step-role">Chain-of-Thought step 3</div>
+        <div class="step-text">Configuration recommendation with visible reasoning</div>
+        <div class="ai-box"><span class="ai-label">Chain-of-Thought</span><p>Produce final recommendation. Every module included or excluded has a documented rationale tied to a specific discovery finding. The reasoning chain is inspectable — a manager can audit it, a junior AE can learn from it.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;margin: 32px 0 16px;">Why CoT is the right concept here</h3>
+  <div class="why-grid">
+    <div class="why-card">
+      <h4>All inputs are available upfront</h4>
+      <p>Unlike a live conversation (which would require ReAct), the proposal step has everything: the full discovery record, the product catalog, the pricing. CoT works through what's already there.</p>
+    </div>
+    <div class="why-card">
+      <h4>Multi-step reasoning, not a lookup</h4>
+      <p>The right configuration isn't a one-to-one mapping. It requires weighing competing needs, reconciling budget with technical requirements, and making trade-off decisions.</p>
+    </div>
+    <div class="why-card">
+      <h4>The reasoning is the value</h4>
+      <p>A junior AE could guess at a configuration. The value is showing why — tying every recommendation to a discovery finding. That's what makes the proposal defensible.</p>
+    </div>
+    <div class="why-card">
+      <h4>Visible reasoning solves tribal knowledge</h4>
+      <p>Today, top AEs' reasoning is invisible. CoT externalizes it into a chain that can be audited, reviewed, and studied. The organization retains the logic even if the AE leaves.</p>
+    </div>
+  </div>
+  <div class="nav-arrows">
+    <a class="nav-arrow" onclick="goTo(2)">← The Redesign</a>
+    <a class="nav-arrow" onclick="goTo(4)">Prototype Demo →</a>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!-- PART 4: LIVE DEMO -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="section" id="section-4">
+<div class="section-inner">
+  <div class="section-header">
+    <div class="section-eyebrow">Build</div>
+    <h2 class="section-title">Prototype Demo</h2>
+    <p class="section-desc">Claude reasons through a real discovery record for a $200K+ healthcare deal — step by step, with visible reasoning. Watch how extended thinking produces a proposal recommendation that a sales manager can audit at every step.</p>
+  </div>
+  <div class="video-placeholder">
+    <div class="play-icon">▶</div>
+    <p>Video walkthrough coming soon</p>
+  </div>
+
+  <h3 style="font-size:16px;margin-bottom:16px;">Setup: How the Claude project works</h3>
+  <div class="setup-steps">
+    <div class="setup-step">
+      <div class="setup-step-num">1</div>
+      <div>
+        <h4>Create a Claude project</h4>
+        <p>A project gives Claude persistent knowledge — the product catalog, pricing, and commercial policy that a senior AE would have internalized.</p>
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="setup-step-num">2</div>
+      <div>
+        <h4>Upload the product catalog</h4>
+        <p>Meridian's four modules, pricing tiers, vertical packages, integration costs, and discount policy. This is what Claude reasons against.</p>
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="setup-step-num">3</div>
+      <div>
+        <h4>Write the system prompt</h4>
+        <p>Tells Claude its role (senior sales consultant) and the five-step reasoning process: pain-to-module mapping, constraint reconciliation, trade-off analysis, configuration recommendation, risk callout.</p>
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="setup-step-num">4</div>
+      <div>
+        <h4>Paste the discovery record</h4>
+        <p>A consolidated deal file for Bayside Regional Medical Center — a $200K+ healthcare deal with a Cerner integration that blows up the budget, a union environment, an unmet CFO, and a late-arriving procurement process.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;margin: 32px 0 16px;">The discovery record: Bayside Regional Medical Center</h3>
+  <div class="scenario-card">
+    <h4>Deal snapshot</h4>
+    <div class="scenario-meta">
+      <div class="scenario-item"><strong>Company:</strong> Bayside Regional Medical Center</div>
+      <div class="scenario-item"><strong>Vertical:</strong> Healthcare, 2,200 employees, 3 facilities</div>
+      <div class="scenario-item"><strong>Est. deal:</strong> $200K–$250K ACV</div>
+      <div class="scenario-item"><strong>Timeline:</strong> 6 months (Kronos contract expiring)</div>
+      <div class="scenario-item"><strong>Champion:</strong> Maria Chen, Director of HR</div>
+      <div class="scenario-item"><strong>Budget ceiling:</strong> $220K (could stretch to $250K)</div>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;margin: 24px 0 12px;">What makes this deal interesting for CoT</h3>
+  <div class="process-steps">
+    <div class="process-step">
+      <div class="step-num">🔴</div>
+      <div class="step-content">
+        <div class="step-text"><strong>Budget conflict:</strong> The Cerner EHR integration requires a custom bidirectional API build at $45K + $8K/year. Combined with the full 4-module healthcare package, this pushes the deal past the $220K comfort zone.</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">🔴</div>
+      <div class="step-content">
+        <div class="step-text"><strong>Union complexity:</strong> Facility 2 has 230 unionized nurses, requiring the union rule compliance add-on for scheduling — another $8K/year.</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">🟡</div>
+      <div class="step-content">
+        <div class="step-text"><strong>Unmet stakeholder:</strong> CFO James Park (final approver above $200K) has not been spoken with directly. Maria believes he'll approve — but it's an assumption.</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">🟡</div>
+      <div class="step-content">
+        <div class="step-text"><strong>Late procurement:</strong> If the deal exceeds $200K, procurement issues a formal RFP. The procurement contact hasn't been identified. Timeline risk.</div>
+      </div>
+    </div>
+    <div class="process-step">
+      <div class="step-num">🟡</div>
+      <div class="step-content">
+        <div class="step-text"><strong>Scope uncertainty:</strong> Facility 3 may have a different EHR than Cerner. If true, integration scope expands. Two department managers (Lab, Radiology) haven't been contacted.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="font-size:16px;margin: 32px 0 12px;">What to watch for in Claude's output</h3>
+  <div class="callout"><p>Claude's extended thinking shows the step-by-step reasoning chain — you can expand it to see the logic. The final output should map every stakeholder pain to a module, catch the budget conflict from the Cerner integration, flag the unmet CFO and late procurement as risks, and produce a configuration recommendation where every choice ties back to a specific discovery finding. A junior AE would miss most of this. The CoT reasoning catches all of it — and shows its work.</p></div>
+
+  <div class="nav-arrows">
+    <a class="nav-arrow" onclick="goTo(3)">← Why CoT</a>
+    <span></span>
+  </div>
+</div>
+</div>
+
+<script>
+let current = 0;
+const sections = document.querySelectorAll('.section');
+const steps = document.querySelectorAll('.progress-step');
+
+function goTo(index) {
+  sections[current].classList.remove('active');
+  steps[current].classList.remove('active');
+  current = index;
+  sections[current].classList.add('active');
+  steps[current].classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' && current < sections.length - 1) goTo(current + 1);
+  if (e.key === 'ArrowLeft' && current > 0) goTo(current - 1);
+});
+</script>
+
+</body>
+</html>
