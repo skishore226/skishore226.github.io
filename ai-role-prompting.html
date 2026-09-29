@@ -4,30 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Role-Based Prompting — Sam Kishore</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#f8f8f6;--surface:#fff;--text:#1a1a1a;--muted:#6b6b6b;--border:#e2e2e0;--accent:#2563eb;--accent-bg:#eff6ff;--accent-border:#bfdbfe;--coral:#d85a30;--coral-bg:#fef0eb;--teal:#0f6e56;--teal-bg:#e1f5ee;--purple:#534ab7;--purple-bg:#eeedfe;--amber:#b97215;--amber-bg:#fef3c7;--red:#a32d2d;--red-bg:#fcebeb;--green:#3b6d11;--green-bg:#eaf3de;--code-bg:#1e1e2e;--code-text:#cdd6f4;--code-comment:#6c7086;--code-string:#a6e3a1;--code-keyword:#cba6f7;--code-highlight:#rgba(15,110,86,0.15)}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+:root{--bg:#F5F6F8;--surface:#fff;--text:#0A1628;--muted:#4A5568;--border:#E2E6EC;--accent:#00B4A0;--accent-bg:rgba(0,180,160,0.08);--accent-border:rgba(0,180,160,0.25);--coral:#d85a30;--coral-bg:#fef0eb;--teal:#0f6e56;--teal-bg:#e1f5ee;--purple:#534ab7;--purple-bg:#eeedfe;--amber:#b97215;--amber-bg:#fef3c7;--red:#a32d2d;--red-bg:#fcebeb;--green:#3b6d11;--green-bg:#eaf3de;--code-bg:#0A1628;--code-text:#cdd6f4;--code-comment:#6c7086;--code-string:#a6e3a1;--code-keyword:#cba6f7;--code-highlight:rgba(0,180,160,0.15)}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
 a{color:var(--accent);text-decoration:none}
 a:hover{text-decoration:underline}
 
 /* NAV */
-.top-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100}
+.top-nav{background:rgba(10,22,40,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:fixed;top:0;left:0;right:0;z-index:100}
 .top-nav .logo{font-weight:600;font-size:15px;color:var(--text)}
 .top-nav ul{list-style:none;display:flex;gap:1.5rem}
 .top-nav li a{font-size:13px;color:var(--muted)}
 .top-nav li a:hover{color:var(--text);text-decoration:none}
 
 /* PROGRESS */
-.progress-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0.5rem 2rem;display:flex;gap:0.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.progress-bar button{background:none;border:none;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;font-size:11px;font-family:'Inter',sans-serif;color:var(--muted);white-space:nowrap;transition:background 0.15s}
+.progress-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0.5rem 2rem;position:fixed;top:64px;left:0;right:0;z-index:99;display:flex;gap:0.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.progress-bar button{background:none;border:none;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;font-size:11px;font-family:'Inter',system-ui,sans-serif;color:var(--muted);white-space:nowrap;transition:background 0.15s}
 .progress-bar button:hover{background:var(--bg)}
-.progress-bar button.active{background:var(--accent-bg);color:var(--accent);font-weight:500}
+.progress-bar button.active{background:rgba(0,180,160,0.08);color:#00B4A0;font-weight:500}
 .progress-bar button .label{display:block;font-size:10px;letter-spacing:0.03em;margin-bottom:1px}
 
 /* MAIN */
-.container{max-width:800px;margin:0 auto;padding:2rem}
+.container{max-width:860px;margin:0 auto;padding:calc(64px + 48px + 2rem) 2rem 2rem}
 
 /* BREADCRUMB */
 .breadcrumb{font-size:13px;color:var(--muted);margin-bottom:1.5rem}
@@ -38,9 +38,9 @@ a:hover{text-decoration:underline}
 .slide.active{display:block}
 
 /* TYPOGRAPHY */
-h1{font-size:1.75rem;font-weight:600;letter-spacing:-0.02em;margin-bottom:0.75rem}
-h2{font-size:1.35rem;font-weight:600;letter-spacing:-0.01em;margin-bottom:0.75rem}
-h3{font-size:1.1rem;font-weight:600;margin-bottom:0.5rem}
+h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:0.75rem}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:-0.01em;margin-bottom:0.75rem}
+h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:0.5rem}
 h4{font-size:1rem;font-weight:600;margin-bottom:0.4rem}
 p{margin-bottom:1rem}
 .subtitle{color:var(--muted);font-size:0.95rem;margin-bottom:2rem;max-width:640px}
@@ -106,7 +106,7 @@ td{padding:0.6rem 0.75rem;border-bottom:1px solid var(--border);vertical-align:t
 .cm-card p{font-size:0.9rem;color:var(--muted);margin:0;line-height:1.6}
 
 /* TAKEAWAY */
-.takeaway{padding:1.25rem 1.5rem;background:var(--purple-bg);border:1px solid var(--purple);border-radius:10px;margin:2rem 0}
+.takeaway{padding:1.25rem 1.5rem;background:#0A1628;border:1px solid #1B3A5C;color:#E8ECF1;border-radius:10px;margin:2rem 0}
 .takeaway p{font-size:0.9rem;line-height:1.7;margin:0}
 .takeaway p+p{margin-top:0.6rem}
 
@@ -115,25 +115,21 @@ td{padding:0.6rem 0.75rem;border-bottom:1px solid var(--border);vertical-align:t
 
 /* NAV BUTTONS */
 .slide-nav{display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border)}
-.slide-nav button{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.5rem 1.25rem;font-size:13px;font-family:'Inter',sans-serif;cursor:pointer;color:var(--text);transition:border-color 0.15s}
+.slide-nav button{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.5rem 1.25rem;font-size:13px;font-family:'Inter',system-ui,sans-serif;cursor:pointer;color:var(--text);transition:border-color 0.15s}
 .slide-nav button:hover{border-color:var(--accent)}
 .slide-nav button:disabled{opacity:0.3;cursor:default}
 .slide-nav .counter{font-size:12px;color:var(--muted)}
 
 /* VIDEO EMBED */
-.video-wrap{margin:1.5rem 0;border-radius:10px;overflow:hidden;background:#0b0b0b;position:relative}
-.video-wrap iframe{width:100%;aspect-ratio:16/9;display:block;border:none}
-.video-placeholder{aspect-ratio:16/9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#888;font-size:13px}
-.video-placeholder .vp-icon{font-size:36px;color:#555}
-.video-placeholder span{color:#666}
+/* old video-wrap removed — using video-slot instead */
 .ref-label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted);margin-top:2rem;margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border);display:block}
 
 /* RESPONSIVE */
 @media(max-width:700px){
 
 /* SVG DIAGRAM CLASSES */
-svg .th{font-family:'Inter',sans-serif;font-size:14px;font-weight:500;fill:var(--text)}
-svg .ts{font-family:'Inter',sans-serif;font-size:12px;font-weight:400;fill:var(--muted)}
+svg .th{font-family:'Inter',system-ui,sans-serif;font-size:14px;font-weight:500;fill:var(--text)}
+svg .ts{font-family:'Inter',system-ui,sans-serif;font-size:12px;font-weight:400;fill:var(--muted)}
 svg .arr{stroke:var(--muted);stroke-width:1.5}
 svg .leader{stroke:var(--muted);stroke-width:0.5;stroke-dasharray:3 3}
 svg .c-gray>rect,svg .c-gray>circle{fill:#F1EFE8;stroke:#5F5E5A;stroke-width:0.5}
@@ -166,16 +162,25 @@ svg .c-red>text.ts{fill:#A32D2D}
   .container{padding:1.25rem}
   .progress-bar{padding:0.5rem 1rem}
 }
+
+/* VIDEO PLACEHOLDER */
+.video-slot{background:#0A1628;border-radius:6px;overflow:hidden;margin:1.5rem 0;cursor:pointer}
+.video-slot-inner{aspect-ratio:16/9;max-height:300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.75rem}
+.video-play-btn{width:56px;height:56px;border-radius:50%;background:rgba(0,180,160,0.15);border:2px solid #00B4A0;display:flex;align-items:center;justify-content:center;transition:background 0.2s,transform 0.15s}
+.video-slot:hover .video-play-btn{background:rgba(0,180,160,0.25);transform:scale(1.05)}
+.video-play-btn svg{width:22px;height:22px;fill:#00D4BC;margin-left:2px}
+.video-label{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.875rem;font-weight:600;color:rgba(255,255,255,0.7)}
+.video-sublabel{font-family:'IBM Plex Mono',monospace;font-size:0.6875rem;color:rgba(255,255,255,0.35);letter-spacing:0.04em}
 </style>
 </head>
 <body>
 
-<nav class="top-nav">
-  <a href="https://skishore226.github.io/index.html" class="logo">Sam Kishore</a>
-  <ul>
-    <li><a href="https://skishore226.github.io/index.html">Home</a></li>
-    <li><a href="https://skishore226.github.io/index.html#projects">All Projects</a></li>
-    <li><a href="https://skishore226.github.io/index.html#contact">Contact</a></li>
+<nav style="position:fixed;top:0;width:100%;z-index:100;padding:0 2rem;display:flex;justify-content:space-between;align-items:center;height:64px;background:rgba(10,22,40,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06)">
+  <a href="index.html" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;text-decoration:none">Sam Kishore</a>
+  <ul style="list-style:none;display:flex;gap:2rem">
+    <li><a href="index.html" style="text-decoration:none;color:rgba(255,255,255,0.7);font-size:0.875rem;font-weight:500">Home</a></li>
+    <li><a href="index.html#projects" style="text-decoration:none;color:rgba(255,255,255,0.7);font-size:0.875rem;font-weight:500">Projects</a></li>
+    <li><a href="index.html#contact" style="text-decoration:none;color:rgba(255,255,255,0.7);font-size:0.875rem;font-weight:500">Contact</a></li>
   </ul>
 </nav>
 
@@ -191,10 +196,10 @@ svg .c-red>text.ts{fill:#A32D2D}
 
 <!-- ==================== SLIDE 0: OVERVIEW ==================== -->
 <div class="slide active" id="slide-0">
-<p class="breadcrumb"><a href="https://skishore226.github.io/index.html">Home</a> &rsaquo; Role-Based Prompting</p>
+<p style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:600;color:#00B4A0;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.5rem">Enterprise AI Transformation — Case Study</p>
 <h1>Role-Based Prompting</h1>
 <p class="subtitle">How to assign precise identities to AI agents so their output matches the expertise, tone, and judgment of the human roles they represent — applied to lead qualification in a Lead to Cash workflow.</p>
-<div class="video-wrap"><div class="video-placeholder"><div class="vp-icon">&#9654;</div><span>Video walkthrough coming soon</span></div></div>
+<div class="video-slot"><div class="video-slot-inner"><div class="video-play-btn"><svg viewBox="0 0 24 24" width="22" height="22" style="width:22px;height:22px;fill:#00D4BC;margin-left:2px;flex-shrink:0"><polygon points="8,5 20,12 8,19"/></svg></div><div class="video-label">Video walkthrough</div><div class="video-sublabel">Coming soon</div></div></div>
 
 <span class="ref-label">Reference notes</span>
 
@@ -229,7 +234,7 @@ svg .c-red>text.ts{fill:#A32D2D}
 <span class="tag discovery">Part 1 — Discovery</span>
 <h2>What Is Role-Based Prompting?</h2>
 
-<div class="video-wrap"><div class="video-placeholder"><div class="vp-icon">&#9654;</div><span>Video walkthrough coming soon</span></div></div>
+<div class="video-slot"><div class="video-slot-inner"><div class="video-play-btn"><svg viewBox="0 0 24 24" width="22" height="22" style="width:22px;height:22px;fill:#00D4BC;margin-left:2px;flex-shrink:0"><polygon points="8,5 20,12 8,19"/></svg></div><div class="video-label">Video walkthrough</div><div class="video-sublabel">Coming soon</div></div></div>
 
 <span class="ref-label">Reference notes</span>
 
@@ -304,7 +309,7 @@ svg .c-red>text.ts{fill:#A32D2D}
 <span class="tag discovery">Part 2 — Discovery</span>
 <h2>Process Mapping &amp; Role Identification</h2>
 
-<div class="video-wrap"><div class="video-placeholder"><div class="vp-icon">&#9654;</div><span>Video walkthrough coming soon</span></div></div>
+<div class="video-slot"><div class="video-slot-inner"><div class="video-play-btn"><svg viewBox="0 0 24 24" width="22" height="22" style="width:22px;height:22px;fill:#00D4BC;margin-left:2px;flex-shrink:0"><polygon points="8,5 20,12 8,19"/></svg></div><div class="video-label">Video walkthrough</div><div class="video-sublabel">Coming soon</div></div></div>
 
 <span class="ref-label">Reference notes</span>
 
@@ -397,7 +402,7 @@ svg .c-red>text.ts{fill:#A32D2D}
 <span class="tag execution">Part 3 — Execution</span>
 <h2>Prompt Design &amp; Iterative Refinement</h2>
 
-<div class="video-wrap"><div class="video-placeholder"><div class="vp-icon">&#9654;</div><span>Video walkthrough coming soon</span></div></div>
+<div class="video-slot"><div class="video-slot-inner"><div class="video-play-btn"><svg viewBox="0 0 24 24" width="22" height="22" style="width:22px;height:22px;fill:#00D4BC;margin-left:2px;flex-shrink:0"><polygon points="8,5 20,12 8,19"/></svg></div><div class="video-label">Video walkthrough</div><div class="video-sublabel">Coming soon</div></div></div>
 
 <span class="ref-label">Reference notes</span>
 
@@ -507,7 +512,7 @@ svg .c-red>text.ts{fill:#A32D2D}
 <span class="tag build">Part 4 — Build</span>
 <h2>Live Demo</h2>
 
-<div class="video-wrap"><div class="video-placeholder"><div class="vp-icon">&#9654;</div><span>Video walkthrough coming soon</span></div></div>
+<div class="video-slot"><div class="video-slot-inner"><div class="video-play-btn"><svg viewBox="0 0 24 24" width="22" height="22" style="width:22px;height:22px;fill:#00D4BC;margin-left:2px;flex-shrink:0"><polygon points="8,5 20,12 8,19"/></svg></div><div class="video-label">Video walkthrough</div><div class="video-sublabel">Coming soon</div></div></div>
 
 <span class="ref-label">Reference notes</span>
 
