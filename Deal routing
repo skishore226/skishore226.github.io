@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Powered Quote Approval Routing — Sam Kishore</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#F5F6F8;--surface:#fff;--text:#0A1628;--muted:#4A5568;--border:#E2E6EC;--accent:#00B4A0;--accent-bg:rgba(0,180,160,0.08);--accent-border:rgba(0,180,160,0.25);--coral:#d85a30;--coral-bg:#fef0eb;--teal:#0f6e56;--teal-bg:#e1f5ee;--purple:#534ab7;--purple-bg:#eeedfe;--amber:#b97215;--amber-bg:#fef3c7;--red:#a32d2d;--red-bg:#fcebeb;--green:#3b6d11;--green-bg:#eaf3de;--code-bg:#0A1628;--code-text:#cdd6f4;--code-comment:#6c7086;--code-string:#a6e3a1;--code-keyword:#cba6f7}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.top-nav{background:rgba(10,22,40,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:fixed;top:0;left:0;right:0;z-index:100}
+.progress-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0.5rem 2rem;position:fixed;top:64px;left:0;right:0;z-index:99;display:flex;gap:0.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.progress-bar button{background:none;border:none;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;font-size:11px;font-family:'Inter',system-ui,sans-serif;color:var(--muted);white-space:nowrap;transition:background 0.15s}
+.progress-bar button:hover{background:var(--bg)}
+.progress-bar button.active{background:rgba(0,180,160,0.08);color:#00B4A0;font-weight:500}
+.progress-bar button .label{display:block;font-size:10px;letter-spacing:0.03em;margin-bottom:1px}
+
+.container{max-width:860px;margin:0 auto;padding:calc(64px + 48px + 2rem) 2rem 2rem}
+.slide{display:none}.slide.active{display:block}
+
+h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:0.75rem}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:-0.01em;margin-bottom:0.75rem}
+h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:0.5rem}
+h4{font-size:1rem;font-weight:600;margin-bottom:0.4rem}
+p{margin-bottom:1rem}
+.subtitle{color:var(--muted);font-size:0.95rem;margin-bottom:2rem;max-width:640px}
+
+.tag{display:inline-block;font-size:11px;font-weight:500;letter-spacing:0.03em;text-transform:uppercase;padding:3px 10px;border-radius:4px;margin-bottom:0.5rem}
+
+.overview-grid{display:flex;flex-direction:column;gap:0.75rem;margin-top:1.5rem}
+.overview-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;cursor:pointer;transition:border-color 0.15s}
+.overview-card:hover{border-color:var(--accent)}
+.overview-card .oc-label{font-size:11px;color:var(--muted);margin-bottom:0.25rem}
+.overview-card h4{margin-bottom:0.15rem}
+.overview-card p{font-size:13px;color:var(--muted);margin:0}
+
+.cm-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:0.75rem}
+.cm-card h4{margin-bottom:0.35rem}
+.cm-card p{font-size:0.9rem;color:var(--muted);margin:0;line-height:1.6}
+
+.output-card{padding:1rem 1.25rem;border-radius:8px;border-left:4px solid;margin:1rem 0}
+.output-card.bad{background:var(--red-bg);border-color:var(--coral);color:var(--red)}
+.output-card.good{background:var(--green-bg);border-color:var(--teal);color:var(--green)}
+.output-card.warn{background:var(--amber-bg);border-color:var(--amber);color:var(--amber)}
+.output-card .ol{font-weight:600;font-size:0.82rem;margin-bottom:0.25rem}
+.output-card p{font-size:0.85rem;margin:0;line-height:1.6}
+
+.takeaway{padding:1.25rem 1.5rem;background:#0A1628;border:1px solid #1B3A5C;color:#E8ECF1;border-radius:10px;margin:2rem 0}
+.takeaway p{font-size:0.9rem;line-height:1.7;margin:0}
+.takeaway p+p{margin-top:0.6rem}
+
+.callout{padding:1rem 1.25rem;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:8px;margin:1.25rem 0;font-size:0.9rem}
+
+.concept-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1.25rem 1.5rem;margin-bottom:1rem}
+.concept-card h4{margin-bottom:0.4rem}
+.concept-card p{font-size:0.9rem;color:var(--muted);margin:0}
+
+table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:0.88rem}
+th{text-align:left;font-weight:500;padding:0.6rem 0.75rem;border-bottom:2px solid var(--border);font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.03em}
+td{padding:0.6rem 0.75rem;border-bottom:1px solid var(--border);vertical-align:top}
+
+.slide-nav{display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.slide-nav button{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.5rem 1.25rem;font-size:13px;font-family:'Inter',system-ui,sans-serif;cursor:pointer;color:var(--text);transition:border-color 0.15s}
+.slide-nav button:hover{border-color:var(--accent)}
+.slide-nav button:disabled{opacity:0.3;cursor:default}
+.slide-nav .counter{font-size:12px;color:var(--muted)}
+
+.constraint-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin:1.5rem 0}
+.constraint-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;border-top:3px solid var(--border)}
+.constraint-card .cc-type{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem}
+.constraint-card h4{font-size:0.85rem;margin-bottom:0.35rem}
+.constraint-card p{font-size:0.8rem;color:var(--muted);margin:0;line-height:1.5}
+
+@media(max-width:700px){
+  .constraint-grid{grid-template-columns:1fr}
+  .container{padding:1.25rem}
+  .progress-bar{padding:0.5rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<nav style="position:fixed;top:0;width:100%;z-index:100;padding:0 2rem;display:flex;justify-content:space-between;align-items:center;height:64px;background:rgba(10,22,40,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06)">
+  <a href="index.html" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;text-decoration:none">Sam Kishore</a>
+  <ul style="list-style:none;display:flex;gap:2rem">
+    <li><a href="index.html" style="text-decoration:none;color:rgba(255,255,255,0.7);font-size:0.875rem;font-weight:500">Home</a></li>
+    <li><a href="index.html#projects" style="text-decoration:none;color:rgba(255,255,255,0.7);font-size:0.875rem;font-weight:500">Projects</a></li>
+    <li><a href="index.html#contact" style="text-decoration:none;color:rgba(255,255,255,0.7);font-size:0.875rem;font-weight:500">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="progress-bar" id="progressBar">
+  <button onclick="goTo(0)" class="active"><span class="label">Intro</span>Overview</button>
+  <button onclick="goTo(1)"><span class="label">Part 1</span>The Problem</button>
+  <button onclick="goTo(2)"><span class="label">Part 2</span>AI Readiness</button>
+  <button onclick="goTo(3)"><span class="label">Part 3</span>AI Routing</button>
+  <button onclick="goTo(4)"><span class="label">Part 4</span>Change Mgmt</button>
+  <button onclick="goTo(5)"><span class="label">Part 5</span>Prototype</button>
+</div>
+
+<div class="container">
+
+<!-- ==================== SLIDE 0: OVERVIEW ==================== -->
+<div class="slide active" id="slide-0">
+<p style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:600;color:#00B4A0;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.5rem">Enterprise AI Transformation — Case Study</p>
+<h1>AI-Powered Quote Approval Routing</h1>
+<p class="subtitle">From bloated approval matrices to intelligent deal routing — this project walks through the full transformation arc: mapping the operational problem, diagnosing AI readiness, designing the solution, and building a working prototype that routes deals based on context, not just fields.</p>
+
+<div class="overview-grid">
+  <div class="overview-card" onclick="goTo(1)">
+    <div class="oc-label">Part 1</div>
+    <h4>The Operational Problem</h4>
+    <p>Mapping what's actually broken in enterprise approval workflows.</p>
+  </div>
+  <div class="overview-card" onclick="goTo(2)">
+    <div class="oc-label">Part 2</div>
+    <h4>AI Readiness</h4>
+    <p>The prerequisite work that has to happen before AI can function.</p>
+  </div>
+  <div class="overview-card" onclick="goTo(3)">
+    <div class="oc-label">Part 3</div>
+    <h4>Why AI Routing</h4>
+    <p>Why basic automation is not enough.</p>
+  </div>
+  <div class="overview-card" onclick="goTo(4)">
+    <div class="oc-label">Part 4</div>
+    <h4>Change Management</h4>
+    <p>Five principles for leading the rollout.</p>
+  </div>
+  <div class="overview-card" onclick="goTo(5)">
+    <div class="oc-label">Part 5</div>
+    <h4>The Working Prototype</h4>
+    <p>A live prototype that routes the same deal through basic automation and AI — side by side.</p>
+  </div>
+</div>
+</div>
+
+<!-- ==================== SLIDE 1: THE OPERATIONAL PROBLEM ==================== -->
+<div class="slide" id="slide-1">
+
+
+<!-- Hero stat -->
+<div style="background:var(--code-bg);border-radius:10px;padding:2rem;margin:1rem 0 1.5rem;text-align:center">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2.5rem;font-weight:800;color:#fff;letter-spacing:-0.02em">5 approvers. 4–7 days.</div>
+  <div style="font-size:0.95rem;color:rgba(255,255,255,0.5);margin-top:0.5rem">For an $80,000 renewal where the customer already said yes.</div>
+</div>
+
+<!-- Approval chain - dark visual -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0 2rem">
+  <div style="font-size:0.85rem;color:rgba(255,255,255,0.4);margin-bottom:0.75rem">Here's what happens to a straightforward deal at a company with a standard enterprise approval matrix.</div>
+  <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid rgba(255,255,255,0.08)">
+    <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:600;color:#fff">Acme Corp — Platform renewal ($80K)</span>
+    <span style="font-size:0.78rem;color:rgba(255,255,255,0.4)">5 rules fire</span>
+  </div>
+
+  <div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.85rem">
+    <div style="width:10px;height:10px;border-radius:50%;background:var(--amber);flex-shrink:0;margin-top:6px"></div>
+    <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:0.88rem;font-weight:500;color:rgba(255,255,255,0.9)">1. Sales manager</div><div style="font-size:0.75rem;color:var(--amber)">~4 hrs</div></div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.4)">Rubber stamp — approves 98% without review.</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.85rem">
+    <div style="width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:6px"></div>
+    <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:0.88rem;font-weight:500;color:rgba(255,255,255,0.9)">2. Deal desk</div><div style="font-size:0.75rem;color:var(--accent)">~8 hrs</div></div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.4)">Checks pricing and terms compliance. <span style="color:var(--accent)">The one that matters.</span></div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.85rem">
+    <div style="width:10px;height:10px;border-radius:50%;background:var(--coral);flex-shrink:0;margin-top:6px"></div>
+    <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:0.88rem;font-weight:500;color:rgba(255,255,255,0.9)">3. Pricing manager</div><div style="font-size:0.75rem;color:var(--coral)">~24 hrs</div></div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.4)">Reviews the same discount deal desk already validated.</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:0.75rem;align-items:flex-start;margin-bottom:0.85rem">
+    <div style="width:10px;height:10px;border-radius:50%;background:var(--coral);flex-shrink:0;margin-top:6px"></div>
+    <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:0.88rem;font-weight:500;color:rgba(255,255,255,0.9)">4. Business unit head</div><div style="font-size:0.75rem;color:var(--coral)">1–3 days</div></div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.4)">Auto-triggered by a flag marked as true on the quote. Rarely substantive.</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:0.75rem;align-items:flex-start">
+    <div style="width:10px;height:10px;border-radius:50%;background:var(--coral);flex-shrink:0;margin-top:6px"></div>
+    <div style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font-size:0.88rem;font-weight:500;color:rgba(255,255,255,0.9)">5. Product management</div><div style="font-size:0.75rem;color:var(--coral)">1–2 days</div></div>
+      <div style="font-size:0.8rem;color:rgba(255,255,255,0.4)">Quote has multiple products, so it gets routed to PM for a compatibility review — a step that has never resulted in a rejection.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Rule change section - hero bar -->
+<div style="background:var(--code-bg);border-radius:10px;padding:2rem;margin:0 0 1rem;display:flex;align-items:center;justify-content:center;gap:2rem;flex-wrap:wrap">
+  <div style="text-align:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:var(--accent)">30 seconds</div>
+    <div style="font-size:0.8rem;color:rgba(255,255,255,0.5)">to decide the rule change</div>
+  </div>
+  <div style="font-size:1.5rem;color:rgba(255,255,255,0.2)">→</div>
+  <div style="text-align:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:var(--coral)">2 weeks</div>
+    <div style="font-size:0.8rem;color:rgba(255,255,255,0.5)">to implement it</div>
+  </div>
+  <div style="font-size:1.5rem;color:rgba(255,255,255,0.2)">×</div>
+  <div style="text-align:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:var(--amber)">4× / year</div>
+    <div style="font-size:0.8rem;color:rgba(255,255,255,0.5)">every fiscal quarter</div>
+  </div>
+</div>
+
+<!-- Timeline cascade - dark visual -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:0.75rem 0 1.5rem">
+  <div style="font-size:0.85rem;color:rgba(255,255,255,0.4);margin-bottom:0.75rem">The commercial ops team changes a discount threshold. That single business decision triggers a cascade.</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:0.85rem 1rem">
+      <div style="font-size:0.72rem;font-weight:500;color:rgba(255,255,255,0.35);margin-bottom:0.2rem">Days 1–4</div>
+      <div style="font-size:0.85rem;font-weight:500;color:rgba(255,255,255,0.8)">File ticket, audit every rule that references the field</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:0.85rem 1rem">
+      <div style="font-size:0.72rem;font-weight:500;color:rgba(255,255,255,0.35);margin-bottom:0.2rem">Days 5–7</div>
+      <div style="font-size:0.85rem;font-weight:500;color:rgba(255,255,255,0.8)">Reconfigure the CPQ, regression test deal scenarios</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.05);border-radius:8px;padding:0.85rem 1rem">
+      <div style="font-size:0.72rem;font-weight:500;color:rgba(255,255,255,0.35);margin-bottom:0.2rem">Days 8–9</div>
+      <div style="font-size:0.85rem;font-weight:500;color:rgba(255,255,255,0.8)">Stakeholder sign-off, draft comms to the sales team</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.15);border:1px solid rgba(216,90,48,0.3);border-radius:8px;padding:0.85rem 1rem">
+      <div style="font-size:0.72rem;font-weight:500;color:var(--coral);margin-bottom:0.2rem">Days 10–14</div>
+      <div style="font-size:0.85rem;font-weight:500;color:var(--coral)">Go live — reps confused, in-flight deals stuck</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== SLIDE 2: AI READINESS (OPS) ==================== -->
+<div class="slide" id="slide-2">
+
+
+<!-- Hero -->
+<div style="background:var(--code-bg);border-radius:10px;padding:2rem;margin:1rem 0 1.5rem;text-align:center">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:800;color:#fff;letter-spacing:-0.02em">Before AI can work, three things have to be true.</div>
+  <div style="font-size:0.9rem;color:rgba(255,255,255,0.4);margin-top:0.5rem">One source. Clean process. Clear stage gates.</div>
+</div>
+
+<!-- ONE SOURCE OF DATA -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:0 0 1rem">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.5rem">O — One source of data</div>
+  <div style="font-size:0.85rem;color:rgba(255,255,255,0.4);margin-bottom:1.25rem">Where does the approval logic actually live today?</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:1rem">
+    <div style="background:rgba(216,90,48,0.12);border:1px solid rgba(216,90,48,0.25);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.25rem;margin-bottom:0.35rem">⚙️</div>
+      <div style="font-size:0.82rem;font-weight:500;color:var(--coral)">CPQ tool</div>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.2rem">The configured rules</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.12);border:1px solid rgba(216,90,48,0.25);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.25rem;margin-bottom:0.35rem">📊</div>
+      <div style="font-size:0.82rem;font-weight:500;color:var(--coral)">Ops spreadsheet</div>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.2rem">The rationale behind them</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.12);border:1px solid rgba(216,90,48,0.25);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.25rem;margin-bottom:0.35rem">🧠</div>
+      <div style="font-size:0.82rem;font-weight:500;color:var(--coral)">People's heads</div>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.2rem">The exceptions</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:rgba(255,255,255,0.2);font-size:1.25rem;margin:0.5rem 0">↓</div>
+
+  <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:1rem;text-align:center">
+    <div style="font-size:0.88rem;font-weight:600;color:var(--accent)">One agreed-upon source</div>
+    <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-top:0.25rem">It doesn't matter where it lives. It matters that everyone agrees it's the truth.</div>
+  </div>
+</div>
+
+<!-- PROCESS SIMPLIFICATION -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:0 0 1rem">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.5rem">P — Process simplification</div>
+  <div style="font-size:0.85rem;color:rgba(255,255,255,0.4);margin-bottom:1.25rem">Which approvers are exercising real judgment — and which are just adding wait time?</div>
+
+  <div style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1.25rem">
+    <div style="background:rgba(216,90,48,0.1);border-radius:6px;padding:0.65rem 1rem;display:flex;justify-content:space-between;align-items:center">
+      <div><span style="font-size:0.85rem;font-weight:500;color:rgba(255,255,255,0.8)">Sales manager</span><span style="font-size:0.78rem;color:rgba(255,255,255,0.3);margin-left:0.75rem">Rubber stamp — 98% approval rate</span></div>
+      <span style="font-size:0.7rem;font-weight:600;color:var(--coral);background:rgba(216,90,48,0.2);padding:2px 8px;border-radius:4px">Remove</span>
+    </div>
+    <div style="background:rgba(0,180,160,0.1);border:1px solid rgba(0,180,160,0.2);border-radius:6px;padding:0.65rem 1rem;display:flex;justify-content:space-between;align-items:center">
+      <div><span style="font-size:0.85rem;font-weight:500;color:var(--accent)">Deal desk</span><span style="font-size:0.78rem;color:rgba(255,255,255,0.3);margin-left:0.75rem">Checks pricing, validates terms, catches issues</span></div>
+      <span style="font-size:0.7rem;font-weight:600;color:var(--accent);background:rgba(0,180,160,0.2);padding:2px 8px;border-radius:4px">Keep</span>
+    </div>
+    <div style="background:rgba(216,90,48,0.1);border-radius:6px;padding:0.65rem 1rem;display:flex;justify-content:space-between;align-items:center">
+      <div><span style="font-size:0.85rem;font-weight:500;color:rgba(255,255,255,0.8)">Pricing manager</span><span style="font-size:0.78rem;color:rgba(255,255,255,0.3);margin-left:0.75rem">Redundant with deal desk</span></div>
+      <span style="font-size:0.7rem;font-weight:600;color:var(--coral);background:rgba(216,90,48,0.2);padding:2px 8px;border-radius:4px">Remove</span>
+    </div>
+    <div style="background:rgba(216,90,48,0.1);border-radius:6px;padding:0.65rem 1rem;display:flex;justify-content:space-between;align-items:center">
+      <div><span style="font-size:0.85rem;font-weight:500;color:rgba(255,255,255,0.8)">Business unit head</span><span style="font-size:0.78rem;color:rgba(255,255,255,0.3);margin-left:0.75rem">Auto-triggered by a flag, rarely substantive</span></div>
+      <span style="font-size:0.7rem;font-weight:600;color:var(--coral);background:rgba(216,90,48,0.2);padding:2px 8px;border-radius:4px">Remove</span>
+    </div>
+    <div style="background:rgba(216,90,48,0.1);border-radius:6px;padding:0.65rem 1rem;display:flex;justify-content:space-between;align-items:center">
+      <div><span style="font-size:0.85rem;font-weight:500;color:rgba(255,255,255,0.8)">Product management</span><span style="font-size:0.78rem;color:rgba(255,255,255,0.3);margin-left:0.75rem">Compatibility check that has never failed</span></div>
+      <span style="font-size:0.7rem;font-weight:600;color:var(--coral);background:rgba(216,90,48,0.2);padding:2px 8px;border-radius:4px">Remove</span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(0,180,160,0.12);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent)">1 approver</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.4)">Deal desk only — standard deal</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.12);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent)">&lt; 1 day</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.4)">Down from 4–7 days</div>
+    </div>
+  </div>
+</div>
+
+<!-- THE BIGGER POINT -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:1rem;text-align:center">Why simplify?</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+    <div style="background:rgba(0,180,160,0.1);border:1px solid rgba(0,180,160,0.2);border-radius:8px;padding:1.15rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:0.4rem">Faster today</div>
+      <div style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.55">Every layer you remove eliminates wait time, reduces bottlenecks, and gets quotes to customers sooner.</div>
+    </div>
+    <div style="background:rgba(83,74,183,0.1);border:1px solid rgba(83,74,183,0.2);border-radius:8px;padding:1.15rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:#9b93f0;margin-bottom:0.4rem">AI-ready tomorrow</div>
+      <div style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.55">AI is powerful — but it produces better results when it's reasoning about a clean, well-defined approval matrix instead of overlapping rules, undocumented exceptions, and tribal knowledge.</div>
+    </div>
+  </div>
+</div>
+
+<!-- STAGE GATES -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.5rem">S — Stage gates</div>
+  <div style="font-size:0.85rem;color:rgba(255,255,255,0.4);margin-bottom:1.25rem">Simplification doesn't mean elimination. Match approval depth to actual risk.</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+    <div style="background:rgba(0,180,160,0.1);border:1px solid rgba(0,180,160,0.2);border-radius:8px;padding:1.15rem">
+      <div style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--accent);margin-bottom:0.5rem">Standard deal</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:0.6rem">$80K renewal · 15% discount · standard terms</div>
+      <div style="font-size:0.88rem;font-weight:600;color:var(--accent);margin-bottom:0.25rem">Rep → Deal desk → Quote sent</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.35)">Same day. One checkpoint.</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.1);border:1px solid rgba(185,114,21,0.2);border-radius:8px;padding:1.15rem">
+      <div style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--amber);margin-bottom:0.5rem">High-risk deal</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.4);margin-bottom:0.6rem">$500K new logo · 30% discount · non-standard terms</div>
+      <div style="font-size:0.88rem;font-weight:600;color:var(--amber);margin-bottom:0.25rem">Rep → Deal desk → Finance → Legal → Quote sent</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.35)">2–3 days. Every approver exercises real judgment.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== SLIDE 3: WHY AI ROUTING ==================== -->
+<div class="slide" id="slide-3">
+
+
+<!-- HERO: THE QUESTION -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.25rem 1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;font-weight:700;color:#fff;text-align:center;line-height:1.4">If the process is simpler now, why not just hardcode simpler rules?</div>
+  <div style="font-size:0.82rem;color:rgba(255,255,255,0.45);text-align:center;margin-top:0.5rem;line-height:1.55">Basic automation works for clean, standard deals — and those exist. But most enterprise deals carry context that lives outside the structured fields: rep notes, email threads, customer history, competitive pressure. That context changes what the right routing decision should be.</div>
+</div>
+
+<!-- THE SAME DEAL, TWO SYSTEMS -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.25rem 1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:700;color:#fff;margin-bottom:0.25rem;text-align:center">The same deal, two systems</div>
+  <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:1rem">NovaTech — $45K renewal, 22% discount</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+    <!-- BASIC AUTOMATION COLUMN -->
+    <div>
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--amber);margin-bottom:0.5rem;text-align:center">Basic automation</div>
+      <!-- Structured fields -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:0.85rem;margin-bottom:0.5rem">
+        <div style="font-size:0.68rem;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;color:rgba(255,255,255,0.35);margin-bottom:0.4rem">Structured fields</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:0.78rem">
+          <span style="color:rgba(255,255,255,0.4)">Deal size</span><span style="text-align:right;color:rgba(255,255,255,0.7)">$45,000</span>
+          <span style="color:rgba(255,255,255,0.4)">Discount</span><span style="text-align:right;color:var(--coral);font-weight:600">22%</span>
+          <span style="color:rgba(255,255,255,0.4)">Type</span><span style="text-align:right;color:rgba(255,255,255,0.7)">Renewal</span>
+        </div>
+      </div>
+      <!-- Result -->
+      <div style="background:rgba(216,90,48,0.1);border:1px solid rgba(216,90,48,0.2);border-radius:8px;padding:0.85rem">
+        <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--coral);margin-bottom:0.3rem">Rule fired</div>
+        <div style="font-size:0.82rem;color:rgba(255,255,255,0.7);line-height:1.5">Discount exceeds 20% → route to deal desk + pricing manager</div>
+        <div style="font-size:0.82rem;color:rgba(255,255,255,0.35);margin-top:0.35rem">⏱ 2–3 days</div>
+      </div>
+    </div>
+
+    <!-- AI ROUTING COLUMN -->
+    <div>
+      <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--accent);margin-bottom:0.5rem;text-align:center">AI routing</div>
+      <!-- Structured fields -->
+      <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:0.85rem;margin-bottom:0.5rem">
+        <div style="font-size:0.68rem;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;color:rgba(255,255,255,0.35);margin-bottom:0.4rem">Structured fields</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:0.78rem">
+          <span style="color:rgba(255,255,255,0.4)">Deal size</span><span style="text-align:right;color:rgba(255,255,255,0.7)">$45,000</span>
+          <span style="color:rgba(255,255,255,0.4)">Discount</span><span style="text-align:right;color:rgba(255,255,255,0.7)">22%</span>
+          <span style="color:rgba(255,255,255,0.4)">Type</span><span style="text-align:right;color:rgba(255,255,255,0.7)">Renewal</span>
+        </div>
+      </div>
+      <!-- Unstructured context - active -->
+      <div style="background:rgba(0,180,160,0.06);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;margin-bottom:0.5rem">
+        <div style="font-size:0.68rem;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;color:var(--accent);margin-bottom:0.4rem">Unstructured context</div>
+        <div style="background:rgba(0,0,0,0.2);border-radius:5px;padding:0.45rem 0.6rem;font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;line-height:1.45"><span style="color:rgba(255,255,255,0.7);font-weight:600;font-size:0.7rem">Rep notes</span><br>CompetitorX at $35K. 40% expansion over 3 yrs. Reference customer.</div>
+        <div style="background:rgba(0,0,0,0.2);border-radius:5px;padding:0.45rem 0.6rem;font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;line-height:1.45"><span style="color:rgba(255,255,255,0.7);font-weight:600;font-size:0.7rem">CRM activity</span><br>12 support tickets in 90 days. CSM flagged churn risk. Customer satisfaction score dropped significantly.</div>
+        <div style="background:rgba(0,0,0,0.2);border-radius:5px;padding:0.45rem 0.6rem;font-size:0.75rem;color:rgba(255,255,255,0.5);line-height:1.45"><span style="color:rgba(255,255,255,0.7);font-weight:600;font-size:0.7rem">Email thread</span><br>Sales director pre-approved matching CompetitorX's price to retain the account (Aug 1).</div>
+      </div>
+      <!-- Result -->
+      <div style="background:rgba(0,180,160,0.1);border:1px solid rgba(0,180,160,0.2);border-radius:8px;padding:0.85rem">
+        <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--accent);margin-bottom:0.3rem">Classification: competitive retention</div>
+        <div style="font-size:0.82rem;color:rgba(255,255,255,0.7);line-height:1.5">Route to deal desk only. Discount justified. Expedite.</div>
+        <div style="font-size:0.82rem;color:var(--accent);margin-top:0.35rem">⏱ Same day</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAKEAWAY -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.25rem 1.5rem;margin:1rem 0">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:700;color:var(--coral);margin-bottom:0.3rem">Deterministic rules</div>
+      <div style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.55">Read the row.</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.05rem;font-weight:700;color:var(--accent);margin-bottom:0.3rem">AI routing</div>
+      <div style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.55">Read the story.</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ==================== SLIDE 4: CHANGE MANAGEMENT ==================== -->
+<div class="slide" id="slide-4">
+<!-- HERO -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.25rem 1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;font-weight:700;color:#fff;text-align:center;line-height:1.4">Technology doesn't fail because it's broken. It fails because it's rejected.</div>
+  <div style="font-size:0.82rem;color:rgba(255,255,255,0.45);text-align:center;margin-top:0.5rem;line-height:1.55">If the people who use the system aren't prepared for the change, none of the work above matters.</div>
+</div>
+
+<!-- SHIFT CARDS -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.25rem 1.5rem;margin:1rem 0;display:flex;flex-direction:column;gap:0.6rem">
+
+  <div style="display:flex;gap:0.85rem;align-items:flex-start">
+    <div style="width:34px;height:34px;border-radius:8px;background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.2);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;color:var(--accent);flex-shrink:0">S</div>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;font-weight:700;color:#fff;margin-bottom:0.15rem">Story</div>
+      <div style="font-size:0.88rem;color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:0.15rem">Frame the why before the what.</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);line-height:1.5">Don't pitch the technology — describe the problem everyone already feels.</div>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid rgba(255,255,255,0.05)"></div>
+
+  <div style="display:flex;gap:0.85rem;align-items:flex-start">
+    <div style="width:34px;height:34px;border-radius:8px;background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.2);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;color:var(--accent);flex-shrink:0">H</div>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;font-weight:700;color:#fff;margin-bottom:0.15rem">Human impact</div>
+      <div style="font-size:0.88rem;color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:0.15rem">Augmented intelligence, not artificial.</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);line-height:1.5">Remove the worst parts of the workflow so people can focus on the judgment calls that actually need a human.</div>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid rgba(255,255,255,0.05)"></div>
+
+  <div style="display:flex;gap:0.85rem;align-items:flex-start">
+    <div style="width:34px;height:34px;border-radius:8px;background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.2);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;color:var(--accent);flex-shrink:0">I</div>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;font-weight:700;color:#fff;margin-bottom:0.15rem">Incentive</div>
+      <div style="font-size:0.88rem;color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:0.15rem">Remove the pain they already have.</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);line-height:1.5">The deal desk stops drowning in rubber stamps. The rep gets quotes out the same day. Everyone's incentive is that the worst part of their job goes away.</div>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid rgba(255,255,255,0.05)"></div>
+
+  <div style="display:flex;gap:0.85rem;align-items:flex-start">
+    <div style="width:34px;height:34px;border-radius:8px;background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.2);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;color:var(--accent);flex-shrink:0">F</div>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;font-weight:700;color:#fff;margin-bottom:0.15rem">Feedback loop</div>
+      <div style="font-size:0.88rem;color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:0.15rem">Launch, listen, adjust.</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);line-height:1.5">Start with pilot users from the field. Fix misroutes next week, not next quarter.</div>
+    </div>
+  </div>
+
+  <div style="border-top:1px solid rgba(255,255,255,0.05)"></div>
+
+  <div style="display:flex;gap:0.85rem;align-items:flex-start">
+    <div style="width:34px;height:34px;border-radius:8px;background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.2);display:flex;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:700;color:var(--accent);flex-shrink:0">T</div>
+    <div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;font-weight:700;color:#fff;margin-bottom:0.15rem">Training</div>
+      <div style="font-size:0.88rem;color:rgba(255,255,255,0.7);font-weight:600;margin-bottom:0.15rem">Teach the tool and the workflow change.</div>
+      <div style="font-size:0.78rem;color:rgba(255,255,255,0.55);line-height:1.5">People need to know how the tool works — but also what they do differently on Monday morning.</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ==================== SLIDE 5: PROTOTYPE ==================== -->
+<div class="slide" id="slide-5">
+<!-- HERO -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.25rem 1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.15rem;font-weight:700;color:#fff;text-align:center;line-height:1.4">The same deal. Two routing systems. Two different outcomes.</div>
+  <div style="font-size:0.82rem;color:rgba(255,255,255,0.55);text-align:center;margin-top:0.5rem;line-height:1.55">This prototype routes the NovaTech renewal — with its structured fields and unstructured context — through both basic automation and AI routing side by side.</div>
+</div>
+
+<!-- TWO PATHS -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.25rem 1.5rem;margin:1rem 0">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:1rem">
+      <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--coral);margin-bottom:0.3rem">Route with basic automation</div>
+      <div style="font-size:0.82rem;color:rgba(255,255,255,0.55);line-height:1.55">Pure if-then logic. Reads structured fields, checks against hardcoded rules. The 22% discount exceeds the threshold — route to deal desk plus pricing manager. 2–3 day wait.</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:1rem">
+      <div style="font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--accent);margin-bottom:0.3rem">Route with AI</div>
+      <div style="font-size:0.82rem;color:rgba(255,255,255,0.55);line-height:1.55">Reads the full picture — structured fields and unstructured context. Steps through the analysis visibly: rep notes, CRM history, email threads. Then synthesizes a classification and routing decision.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0;text-align:center">
+  <a href="deal-routing-prototype.html" style="display:inline-block;background:#00B4A0;color:#fff;padding:0.7rem 2rem;border-radius:8px;font-size:0.9rem;font-weight:600;text-decoration:none;transition:opacity 0.15s">Try the live prototype →</a>
+  <div style="font-size:0.75rem;color:rgba(255,255,255,0.35);margin-top:0.6rem">Uses real-time AI analysis. All companies, products, and figures are fictional.</div>
+</div>
+</div>
+
+</div><!-- /container -->
+
+<div class="container">
+  <div class="slide-nav">
+    <button id="prevBtn" onclick="prev()" disabled>&larr; Previous</button>
+    <span class="counter" id="counter">1 / 6</span>
+    <button id="nextBtn" onclick="next()">Next &rarr;</button>
+  </div>
+</div>
+
+<script>
+let current = 0;
+const total = 6;
+
+function goTo(i) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide-' + i).classList.add('active');
+  document.querySelectorAll('.progress-bar button').forEach((b, idx) => {
+    b.classList.toggle('active', idx === i);
+  });
+  current = i;
+  document.getElementById('prevBtn').disabled = (i === 0);
+  document.getElementById('nextBtn').disabled = (i === total - 1);
+  document.getElementById('counter').textContent = (i + 1) + ' / ' + total;
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function next() { if (current < total - 1) goTo(current + 1); }
+function prev() { if (current > 0) goTo(current - 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') next();
+  if (e.key === 'ArrowLeft') prev();
+});
+</script>
+
+</body>
+</html>
