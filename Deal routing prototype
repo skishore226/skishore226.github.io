@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Deal Desk Routing — Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d1f35;
+  --bg-white: #0A1628;
+  --bg-muted: rgba(255,255,255,0.04);
+  --text: #e8edf3;
+  --text-sec: rgba(255,255,255,0.55);
+  --text-muted: rgba(255,255,255,0.35);
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.12);
+  --accent: #00B4A0;
+  --accent-light: rgba(0,180,160,0.1);
+  --accent-text: #00B4A0;
+  --coral: #d85a30;
+  --danger: var(--coral);
+  --danger-bg: rgba(216,90,48,0.08);
+  --danger-text: #f0956e;
+  --success: #00B4A0;
+  --success-bg: rgba(0,180,160,0.08);
+  --success-text: #5ee8d5;
+  --warn: #b97215;
+  --warn-bg: rgba(185,114,21,0.12);
+  --warn-text: #e8a94e;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1f35; --bg-white: #0A1628; --bg-muted: rgba(255,255,255,0.04);
+    --text: #e8edf3; --text-sec: rgba(255,255,255,0.55); --text-muted: rgba(255,255,255,0.35);
+    --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.12);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d1f35; --bg-white: #0A1628; --bg-muted: rgba(255,255,255,0.04);
+  --text: #e8edf3; --text-sec: rgba(255,255,255,0.55); --text-muted: rgba(255,255,255,0.35);
+  --border: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.12);
+}
+html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 700; margin-bottom: 4px; color: #fff; }
+.page-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+.badge {
+  display: inline-block; font-size: 11px; font-weight: 500;
+  padding: 3px 10px; border-radius: 20px; margin-bottom: 24px;
+}
+.badge-pending { background: var(--warn-bg); color: var(--warn-text); }
+.badge-approved { background: var(--success-bg); color: var(--success-text); }
+.badge-routed { background: var(--danger-bg); color: var(--danger-text); }
+
+.card {
+  background: var(--bg-white); border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 14px;
+}
+.card-header {
+  padding: 13px 18px; border-bottom: 1px solid var(--border);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px; font-weight: 600; color: #fff;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.card-body { padding: 18px; }
+
+.quote-table { width: 100%; border-collapse: collapse; }
+.quote-table th {
+  text-align: left; font-size: 11px; font-weight: 500;
+  color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: .04em; padding: 0 0 8px; border-bottom: 1px solid var(--border);
+}
+.quote-table td { padding: 10px 0; font-size: 13px; border-bottom: 1px solid var(--border); color: var(--text-sec); }
+.quote-table tr:last-child td { border-bottom: none; font-weight: 600; color: var(--text); }
+.quote-table td:last-child, .quote-table th:last-child { text-align: right; }
+
+.field-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+@media (max-width: 560px) { .field-grid { grid-template-columns: 1fr 1fr; } }
+.field label {
+  display: block; font-size: 11px; font-weight: 500;
+  color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: .03em; margin-bottom: 4px;
+}
+.field-value {
+  font-size: 13px; color: var(--text); padding: 7px 10px;
+  background: var(--bg-muted); border-radius: 6px; border: 1px solid var(--border);
+}
+.field-value.flag { color: var(--coral); font-weight: 600; }
+
+.context-note {
+  background: var(--bg-muted); border: 1px solid var(--border);
+  border-radius: 8px; padding: 12px 14px; margin-bottom: 8px;
+  font-size: 13px; color: var(--text-sec); line-height: 1.55;
+  transition: background .3s, border-color .3s;
+}
+.context-note:last-child { margin-bottom: 0; }
+.context-note-label { font-size: 11px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.context-tag {
+  display: inline-block; font-size: 10px; font-weight: 500;
+  padding: 1px 6px; border-radius: 3px;
+  background: var(--accent-light); color: var(--accent-text); margin-left: 6px;
+}
+
+.routing-section {
+  margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--border);
+}
+.routing-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 600; margin-bottom: 4px; color: #fff; }
+.routing-sub { font-size: 13px; color: var(--text-sec); margin-bottom: 16px; }
+.routing-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn {
+  padding: 10px 20px; border-radius: 8px; font-size: 13px;
+  font-weight: 500; cursor: pointer; border: none;
+  font-family: inherit; transition: all .15s; flex: 1; min-width: 180px; text-align: center;
+}
+.btn:disabled { opacity: .4; cursor: wait; }
+.btn-auto { background: rgba(216,90,48,0.12); color: var(--danger-text); border: 1px solid rgba(216,90,48,0.25); }
+.btn-auto:hover:not(:disabled) { background: rgba(216,90,48,0.2); }
+.btn-ai { background: var(--accent); color: #fff; }
+.btn-ai:hover:not(:disabled) { opacity: .9; }
+.btn-reset {
+  background: var(--bg-white); color: var(--text-sec); border: 1px solid var(--border-strong);
+  display: none; flex: 0; min-width: auto; padding: 10px 24px;
+}
+.btn-reset.show { display: block; }
+.btn-reset:hover { background: var(--bg-muted); color: var(--text); }
+
+/* Basic automation result */
+.result-basic {
+  margin-top: 20px; background: var(--danger-bg);
+  border: 1px solid rgba(216,90,48,0.2); border-radius: 10px;
+  padding: 18px; display: none;
+}
+.result-basic.show { display: block; animation: fadeIn .3s ease; }
+.result-basic .rb-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600; color: var(--danger-text); margin-bottom: 8px; }
+.result-basic .rb-body { font-size: 13px; color: var(--danger-text); opacity: .8; line-height: 1.6; margin-bottom: 12px; }
+.result-basic .rb-chain { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin-bottom: 10px; }
+.rb-node { font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 6px; background: rgba(216,90,48,.12); color: var(--danger-text); }
+.rb-arrow { font-size: 13px; padding: 0 6px; color: var(--danger-text); opacity: .4; }
+.result-basic .rb-note { font-size: 12px; color: var(--danger-text); opacity: .6; font-style: italic; }
+
+/* AI analysis steps */
+.ai-analysis { margin-top: 20px; display: none; }
+.ai-analysis.show { display: block; }
+
+.ai-step {
+  display: flex; gap: 14px; align-items: flex-start;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .4s ease, transform .4s ease;
+  margin-bottom: 0;
+}
+.ai-step.visible { opacity: 1; transform: translateY(0); }
+
+.ai-step-indicator {
+  width: 28px; flex-shrink: 0; display: flex;
+  flex-direction: column; align-items: center; padding-top: 2px;
+}
+.ai-step-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--border-strong); transition: background .3s;
+}
+.ai-step.visible .ai-step-dot { background: var(--accent); }
+.ai-step.complete .ai-step-dot { background: var(--accent); opacity: .5; }
+.ai-step-line { width: 1px; flex: 1; background: var(--border); min-height: 12px; }
+
+.ai-step-content { padding-bottom: 18px; flex: 1; min-width: 0; }
+.ai-step-label { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.ai-step-detail { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.ai-step.visible .ai-step-detail { color: var(--text-sec); }
+
+.ai-step-highlight {
+  margin-top: 6px; font-size: 12px; font-weight: 500;
+  color: var(--accent-text); background: var(--accent-light);
+  padding: 5px 10px; border-radius: 6px; display: inline-block;
+}
+
+/* AI final result */
+.ai-result {
+  margin-top: 4px; background: var(--success-bg);
+  border: 1px solid rgba(0,180,160,0.2); border-radius: 10px;
+  padding: 18px; opacity: 0; transform: translateY(8px);
+  transition: opacity .5s ease, transform .5s ease;
+}
+.ai-result.visible { opacity: 1; transform: translateY(0); }
+.ai-result .ar-classification {
+  font-size: 11px; font-weight: 500; text-transform: uppercase;
+  letter-spacing: .04em; color: var(--success-text); opacity: .7; margin-bottom: 4px;
+}
+.ai-result .ar-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; color: var(--success-text); margin-bottom: 10px; }
+.ai-result .ar-body { font-size: 13px; color: var(--success-text); opacity: .8; line-height: 1.6; margin-bottom: 14px; }
+.ar-chain { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin-bottom: 12px; }
+.ar-node { font-size: 12px; font-weight: 500; padding: 5px 12px; border-radius: 6px; background: rgba(0,180,160,.12); color: var(--success-text); }
+.ar-arrow { font-size: 13px; padding: 0 6px; color: var(--success-text); opacity: .4; }
+.ar-time {
+  display: inline-block; font-size: 12px; font-weight: 600;
+  padding: 4px 12px; border-radius: 20px;
+  background: var(--accent); color: #fff; margin-bottom: 10px;
+}
+.ai-result .ar-note { font-size: 12px; color: var(--success-text); opacity: .6; }
+
+.reset-link {
+  display: none; margin-top: 14px; font-size: 12px;
+  color: var(--text-muted); cursor: pointer; text-decoration: underline;
+}
+.reset-link.show { display: inline-block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+.pulsing { animation: pulse 1s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<h1>NovaTech Inc. — Platform renewal</h1>
+<div class="page-sub">Quote Q-2026-04892 · Submitted by J. Martinez</div>
+<span class="badge badge-pending" id="status-badge">Pending routing</span>
+
+<div class="card">
+  <div class="card-header">Quote summary</div>
+  <div class="card-body">
+    <table class="quote-table">
+      <thead><tr><th>Line item</th><th>Qty</th><th>List price</th><th>Discount</th><th>Net price</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Platform license — Annual</td><td>48 seats</td>
+          <td>$57,600</td><td style="color:var(--danger);font-weight:500">22%</td><td>$44,928</td>
+        </tr>
+        <tr><td colspan="4">Total</td><td>$44,928</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Deal attributes</div>
+  <div class="card-body">
+    <div class="field-grid">
+      <div class="field"><label>Deal size</label><div class="field-value">$44,928</div></div>
+      <div class="field"><label>Discount</label><div class="field-value flag">22%</div></div>
+      <div class="field"><label>Product</label><div class="field-value">Platform</div></div>
+      <div class="field"><label>Customer tier</label><div class="field-value">Standard</div></div>
+      <div class="field"><label>Deal type</label><div class="field-value">Renewal</div></div>
+      <div class="field"><label>Terms</label><div class="field-value">Standard</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">Deal context<span class="context-tag">Unstructured</span></div>
+  <div class="card-body">
+    <div class="context-note" id="ctx-rep">
+      <div class="context-note-label">Rep notes — J. Martinez</div>
+      Customer has been evaluating CompetitorX since July. Their published pricing for equivalent platform seats is $35K/year. We need to match to retain. Account has expanded 40% over 3 years and is a reference customer — featured in two published case studies.
+    </div>
+    <div class="context-note" id="ctx-crm">
+      <div class="context-note-label">CRM activity log</div>
+      12 support tickets resolved in past 90 days. CSM flagged churn risk on Aug 12. Renewal conversation started 6 weeks ago. Two executive sponsor calls logged (Aug 19, Sep 3). NPS score dropped from 42 to 28 in Q3.
+    </div>
+    <div class="context-note" id="ctx-email">
+      <div class="context-note-label">Email thread — NovaTech pricing discussion</div>
+      VP of Engineering at NovaTech requested formal pricing comparison Jul 15. Rep shared competitive analysis with sales director Jul 22. Internal alignment call Aug 1 confirmed retention is top priority. Director authorized matching competitive pricing if needed.
+    </div>
+  </div>
+</div>
+
+<div class="routing-section">
+  <div class="routing-title">Submit for approval routing</div>
+  <div class="routing-sub">Choose how this deal gets routed to approvers.</div>
+  <div class="routing-actions" id="routing-actions">
+    <button class="btn btn-auto" id="btn-auto" onclick="runBasic()">Route with basic automation</button>
+    <button class="btn btn-ai" id="btn-ai" onclick="runAI()">Route with AI</button>
+    <button class="btn btn-reset" id="btn-reset" onclick="resetAll()">Reset</button>
+  </div>
+
+  <!-- Basic automation result -->
+  <div class="result-basic" id="result-basic">
+    <div class="rb-title">Rule triggered: Discount exceeds 20%</div>
+    <div class="rb-body">
+      The deal discount of 22% exceeds the 20% threshold. This deal requires sequential review by deal desk and pricing manager before the quote can be released.
+    </div>
+    <div class="rb-chain">
+      <div class="rb-node">Deal desk</div><div class="rb-arrow">→</div>
+      <div class="rb-node">Pricing manager</div><div class="rb-arrow">→</div>
+      <div class="rb-node" style="opacity:.5">Quote released</div>
+    </div>
+    <div class="rb-note">6 structured fields evaluated. 1 rule fired. Rep notes, CRM history, and email context were not read.</div>
+  </div>
+
+  <!-- AI step-by-step analysis -->
+  <div class="ai-analysis" id="ai-analysis">
+
+    <div class="ai-step" id="step-1">
+      <div class="ai-step-indicator"><div class="ai-step-dot"></div><div class="ai-step-line"></div></div>
+      <div class="ai-step-content">
+        <div class="ai-step-label">Reading structured fields</div>
+        <div class="ai-step-detail">Evaluating deal size ($44,928), discount (22%), product type, customer tier, deal type, and contract terms.</div>
+        <div class="ai-step-highlight" style="display:none" id="step-1-finding">22% discount flagged — checking context before routing</div>
+      </div>
+    </div>
+
+    <div class="ai-step" id="step-2">
+      <div class="ai-step-indicator"><div class="ai-step-dot"></div><div class="ai-step-line"></div></div>
+      <div class="ai-step-content">
+        <div class="ai-step-label">Analyzing rep notes</div>
+        <div class="ai-step-detail">Reading J. Martinez's deal notes for context on pricing, customer relationship, and competitive dynamics.</div>
+        <div class="ai-step-highlight" style="display:none" id="step-2-finding">CompetitorX pricing at $35K — discount matches documented competitive pressure</div>
+      </div>
+    </div>
+
+    <div class="ai-step" id="step-3">
+      <div class="ai-step-indicator"><div class="ai-step-dot"></div><div class="ai-step-line"></div></div>
+      <div class="ai-step-content">
+        <div class="ai-step-label">Scanning CRM activity history</div>
+        <div class="ai-step-detail">Reviewing support tickets, CSM flags, executive engagement, and NPS trend data for this account.</div>
+        <div class="ai-step-highlight" style="display:none" id="step-3-finding">Churn risk flagged Aug 12 · NPS dropped 42→28 · 12 support tickets in 90 days</div>
+      </div>
+    </div>
+
+    <div class="ai-step" id="step-4">
+      <div class="ai-step-indicator"><div class="ai-step-dot"></div><div class="ai-step-line"></div></div>
+      <div class="ai-step-content">
+        <div class="ai-step-label">Reading email thread</div>
+        <div class="ai-step-detail">Reviewing internal correspondence regarding NovaTech pricing discussion and leadership alignment.</div>
+        <div class="ai-step-highlight" style="display:none" id="step-4-finding">Sales director pre-authorized competitive matching on Aug 1</div>
+      </div>
+    </div>
+
+    <div class="ai-step" id="step-5">
+      <div class="ai-step-indicator"><div class="ai-step-dot"></div></div>
+      <div class="ai-step-content">
+        <div class="ai-step-label">Synthesizing routing decision</div>
+        <div class="ai-step-detail">Weighing structured attributes against unstructured context to classify the deal and determine optimal approval path.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- AI final result -->
+  <div class="ai-result" id="ai-result">
+    <div class="ar-classification">AI routing classification</div>
+    <div class="ar-title" id="ar-title">Competitive retention — expedite</div>
+    <div class="ar-time" id="ar-time">Same-day approval</div>
+    <div class="ar-body" id="ar-body"></div>
+    <div class="ar-chain" id="ar-chain"></div>
+    <div class="ar-note" id="ar-note"></div>
+  </div>
+
+
+</div>
+
+<script>
+const STEP_DELAY = 1200;
+let animTimeout = [];
+
+function highlightContext(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = 'rgba(0,180,160,0.4)';
+  el.style.background = 'rgba(0,180,160,0.08)';
+}
+function unhighlightContext(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = '';
+  el.style.background = '';
+}
+
+function runBasic() {
+  resetAll();
+  document.getElementById('result-basic').classList.add('show');
+  document.getElementById('btn-reset').classList.add('show');
+  document.getElementById('status-badge').textContent = 'Routed — basic automation';
+  document.getElementById('status-badge').className = 'badge badge-routed';
+  document.getElementById('btn-auto').disabled = true;
+  document.getElementById('btn-ai').disabled = true;
+}
+
+async function runAI() {
+  document.getElementById('btn-auto').disabled = true;
+  document.getElementById('btn-ai').disabled = true;
+  document.getElementById('result-basic').classList.remove('show');
+  document.getElementById('ai-analysis').classList.add('show');
+  document.getElementById('status-badge').textContent = 'AI analyzing...';
+  document.getElementById('status-badge').className = 'badge badge-pending';
+
+  const steps = [
+    { id: 'step-1', ctx: null, finding: 'step-1-finding' },
+    { id: 'step-2', ctx: 'ctx-rep', finding: 'step-2-finding' },
+    { id: 'step-3', ctx: 'ctx-crm', finding: 'step-3-finding' },
+    { id: 'step-4', ctx: 'ctx-email', finding: 'step-4-finding' },
+    { id: 'step-5', ctx: null, finding: null },
+  ];
+
+  let aiResult = null;
+  const aiPromise = fetchAIResult();
+
+  for (let i = 0; i < steps.length; i++) {
+    await delay(i === 0 ? 300 : STEP_DELAY);
+    const s = steps[i];
+    const el = document.getElementById(s.id);
+    el.classList.add('visible');
+    if (s.ctx) highlightContext(s.ctx);
+
+    if (i > 0) {
+      const prev = steps[i-1];
+      document.getElementById(prev.id).classList.add('complete');
+      if (prev.ctx) unhighlightContext(prev.ctx);
+    }
+
+    if (s.finding) {
+      await delay(600);
+      document.getElementById(s.finding).style.display = 'inline-block';
+    }
+  }
+
+  aiResult = await aiPromise;
+
+  await delay(400);
+  document.getElementById('step-5').classList.add('complete');
+
+  await delay(600);
+
+  const resultEl = document.getElementById('ai-result');
+  document.getElementById('ar-title').textContent = aiResult.classification;
+  document.getElementById('ar-time').textContent = aiResult.estimated_time;
+  document.getElementById('ar-body').textContent = aiResult.reasoning;
+
+  const chainHTML = aiResult.approvers.map(a =>
+    `<div class="ar-node">${a}</div>`
+  ).join('<div class="ar-arrow">→</div>') +
+  '<div class="ar-arrow">→</div><div class="ar-node" style="opacity:.5">Quote released</div>';
+  document.getElementById('ar-chain').innerHTML = chainHTML;
+  document.getElementById('ar-note').textContent = aiResult.context_factors;
+
+  resultEl.classList.add('visible');
+  document.getElementById('btn-reset').classList.add('show');
+  document.getElementById('status-badge').textContent = 'Routed — AI';
+  document.getElementById('status-badge').className = 'badge badge-approved';
+}
+
+async function fetchAIResult() {
+  const systemPrompt = `You are an AI deal routing agent. You evaluate deals using BOTH structured attributes AND unstructured context to determine the optimal approval path.
+
+Respond with ONLY a JSON object, no markdown, no backticks:
+{
+  "classification": "Short classification, 2-5 words",
+  "reasoning": "2-3 sentences explaining your routing decision, citing specific evidence from the unstructured context (competitor pricing, churn signals, pre-authorization)",
+  "approvers": ["Array of approver names"],
+  "estimated_time": "Time estimate, e.g. Same-day approval",
+  "context_factors": "One sentence summarizing the unstructured signals that basic automation would have missed"
+}`;
+
+  const userMsg = `Route this deal:
+
+STRUCTURED: Deal $44,928, 22% discount, Platform (48 seats annual), Standard tier, Renewal, Standard terms.
+
+UNSTRUCTURED:
+- Rep notes: Customer evaluating CompetitorX since July. Competitor pricing $35K/year for equivalent seats. Account expanded 40% over 3 years. Reference customer in two case studies.
+- CRM: 12 support tickets in 90 days. CSM flagged churn risk Aug 12. NPS dropped 42→28 in Q3. Two exec sponsor calls logged.
+- Email: NovaTech VP requested pricing comparison Jul 15. Sales director authorized competitive matching Aug 1.`;
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 600,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userMsg }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content.map(b => b.text || "").join("");
+    return JSON.parse(text.replace(/```json|```/g, "").trim());
+  } catch (e) {
+    return {
+      classification: "Competitive retention — expedite",
+      reasoning: "The 22% discount is justified by documented competitive pressure — CompetitorX offers equivalent seats at $35K, well below our list price. Combined with the CSM's churn risk flag, a sharp NPS decline (42→28), and the sales director's pre-authorization to match competitive pricing, this deal should bypass pricing manager review and route directly to deal desk for expedited approval.",
+      approvers: ["Deal desk (expedited)"],
+      estimated_time: "Same-day approval",
+      context_factors: "Competitor pricing documentation, CSM churn flag, NPS decline, reference customer status, and director pre-authorization — none of which are visible in the structured deal fields."
+    };
+  }
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function resetAll() {
+  animTimeout.forEach(t => clearTimeout(t));
+  document.getElementById('result-basic').classList.remove('show');
+  document.getElementById('ai-analysis').classList.remove('show');
+  document.getElementById('ai-result').classList.remove('visible');
+  document.querySelectorAll('.ai-step').forEach(el => {
+    el.classList.remove('visible', 'complete');
+  });
+  document.querySelectorAll('.ai-step-highlight').forEach(el => { el.style.display = 'none'; });
+  document.querySelectorAll('.context-note').forEach(el => {
+    el.style.borderColor = '';
+    el.style.background = '';
+  });
+  document.getElementById('btn-reset').classList.remove('show');
+  document.getElementById('status-badge').textContent = 'Pending routing';
+  document.getElementById('status-badge').className = 'badge badge-pending';
+  document.getElementById('btn-auto').disabled = false;
+  document.getElementById('btn-ai').disabled = false;
+}
+</script>
+
+</body>
+</html>
