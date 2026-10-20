@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Powered AR Collections — Sam Kishore</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#F5F6F8;--surface:#fff;--text:#0A1628;--muted:#4A5568;--border:#E2E6EC;--accent:#00B4A0;--accent-bg:rgba(0,180,160,0.08);--accent-border:rgba(0,180,160,0.25);--coral:#d85a30;--coral-bg:#fef0eb;--teal:#0f6e56;--teal-bg:#e1f5ee;--purple:#534ab7;--purple-bg:#eeedfe;--amber:#b97215;--amber-bg:#fef3c7;--red:#a32d2d;--red-bg:#fcebeb;--green:#3b6d11;--green-bg:#eaf3de;--code-bg:#0A1628;--code-text:#cdd6f4;--code-comment:#6c7086;--code-string:#a6e3a1;--code-keyword:#cba6f7}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+.top-nav{background:rgba(10,22,40,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px;position:fixed;top:0;left:0;right:0;z-index:100}
+.progress-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0.5rem 2rem;position:fixed;top:64px;left:0;right:0;z-index:99;display:flex;gap:0.25rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.progress-bar button{background:none;border:none;cursor:pointer;padding:0.5rem 0.75rem;border-radius:6px;font-size:11px;font-family:'Inter',system-ui,sans-serif;color:var(--muted);white-space:nowrap;transition:background 0.15s}
+.progress-bar button:hover{background:var(--bg)}
+.progress-bar button.active{background:rgba(0,180,160,0.08);color:#00B4A0;font-weight:500}
+.progress-bar button .label{display:block;font-size:10px;letter-spacing:0.03em;margin-bottom:1px}
+
+.container{max-width:860px;margin:0 auto;padding:calc(64px + 48px + 2rem) 2rem 2rem}
+.slide{display:none}.slide.active{display:block}
+
+h1{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:0.75rem}
+h2{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:-0.01em;margin-bottom:0.75rem}
+h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:0.5rem}
+h4{font-size:1rem;font-weight:600;margin-bottom:0.4rem}
+p{margin-bottom:1rem}
+.subtitle{color:var(--muted);font-size:0.95rem;margin-bottom:2rem;max-width:640px}
+
+.tag{display:inline-block;font-size:11px;font-weight:500;letter-spacing:0.03em;text-transform:uppercase;padding:3px 10px;border-radius:4px;margin-bottom:0.5rem}
+
+.overview-grid{display:flex;flex-direction:column;gap:0.75rem;margin-top:1.5rem}
+.overview-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;cursor:pointer;transition:border-color 0.15s}
+.overview-card:hover{border-color:var(--accent)}
+.overview-card .oc-label{font-size:11px;color:var(--muted);margin-bottom:0.25rem}
+.overview-card h4{margin-bottom:0.15rem}
+.overview-card p{font-size:13px;color:var(--muted);margin:0}
+
+.slide-nav{display:flex;justify-content:space-between;align-items:center;margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.slide-nav button{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0.5rem 1.25rem;font-size:13px;font-family:'Inter',system-ui,sans-serif;cursor:pointer;color:var(--text);transition:border-color 0.15s}
+.slide-nav button:hover{border-color:var(--accent)}
+.slide-nav button:disabled{opacity:0.3;cursor:default}
+.slide-nav .counter{font-size:12px;color:var(--muted)}
+
+@media(max-width:700px){
+  .container{padding:1.25rem}
+  .progress-bar{padding:0.5rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<nav style="position:fixed;top:0;width:100%;z-index:100;padding:0 2rem;display:flex;justify-content:space-between;align-items:center;height:64px;background:rgba(10,22,40,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06)">
+  <a href="index.html" style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:700;color:#fff;text-decoration:none">Sam Kishore</a>
+  <ul style="list-style:none;display:flex;gap:2rem">
+    <li><a href="index.html" style="text-decoration:none;color:rgba(255,255,255,0.7);font-size:0.875rem;font-weight:500">Home</a></li>
+    <li><a href="index.html#projects" style="text-decoration:none;color:rgba(255,255,255,0.7);font-size:0.875rem;font-weight:500">Projects</a></li>
+    <li><a href="index.html#contact" style="text-decoration:none;color:rgba(255,255,255,0.7);font-size:0.875rem;font-weight:500">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="progress-bar" id="progressBar">
+  <button onclick="goTo(0)" class="active"><span class="label">Intro</span>Overview</button>
+  <button onclick="goTo(1)"><span class="label">Part 1</span>What Collections Is</button>
+  <button onclick="goTo(2)"><span class="label">Part 2</span>Day-to-Day</button>
+  <button onclick="goTo(3)"><span class="label">Part 3</span>What Good Looks Like</button>
+  <button onclick="goTo(4)"><span class="label">Part 4</span>Where It Breaks</button>
+  <button onclick="goTo(5)"><span class="label">Part 5</span>Knowledge Problem</button>
+  <button onclick="goTo(6)"><span class="label">Part 6</span>Scale &amp; Volume</button>
+  <button onclick="goTo(7)"><span class="label">Part 7</span>Why AI</button>
+  <button onclick="goTo(8)"><span class="label">Part 8</span>AI Readiness</button>
+  <button onclick="goTo(9)"><span class="label">Part 9</span>Solution</button>
+  <button onclick="goTo(10)"><span class="label">Part 10</span>Prototype</button>
+  <button onclick="goTo(11)"><span class="label">Part 11</span>Testing</button>
+  <button onclick="goTo(12)"><span class="label">Part 12</span>Change Mgmt</button>
+  <button onclick="goTo(13)"><span class="label">Part 13</span>Go-Live</button>
+</div>
+
+<div class="container">
+
+<!-- ==================== SLIDE 0: OVERVIEW ==================== -->
+<div class="slide active" id="slide-0">
+<p style="font-family:'IBM Plex Mono',monospace;font-size:0.75rem;font-weight:600;color:#00B4A0;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.5rem">Enterprise AI Transformation — Case Study</p>
+<h1>AI-Powered AR Collections Lifecycle</h1>
+
+<div class="overview-grid">
+  <div class="overview-card" onclick="goTo(1)">
+    <div class="oc-label">Part 1</div>
+    <h4>What Collections Is</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(2)">
+    <div class="oc-label">Part 2</div>
+    <h4>The Day-to-Day Workflow</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(3)">
+    <div class="oc-label">Part 3</div>
+    <h4>What Good Looks Like</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(4)">
+    <div class="oc-label">Part 4</div>
+    <h4>Where It Breaks Down</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(5)">
+    <div class="oc-label">Part 5</div>
+    <h4>The Knowledge Problem</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(6)">
+    <div class="oc-label">Part 6</div>
+    <h4>Scale and Volume</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(7)">
+    <div class="oc-label">Part 7</div>
+    <h4>Why AI</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(8)">
+    <div class="oc-label">Part 8</div>
+    <h4>AI Readiness</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(9)">
+    <div class="oc-label">Part 9</div>
+    <h4>Solution Architecture</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(10)">
+    <div class="oc-label">Part 10</div>
+    <h4>Prototype</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(11)">
+    <div class="oc-label">Part 11</div>
+    <h4>Testing Philosophy</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(12)">
+    <div class="oc-label">Part 12</div>
+    <h4>Change Management</h4>
+  </div>
+  <div class="overview-card" onclick="goTo(13)">
+    <div class="oc-label">Part 13</div>
+    <h4>Go-Live &amp; Post-Deployment</h4>
+  </div>
+</div>
+</div>
+
+<!-- ==================== SLIDE 1: WHAT COLLECTIONS IS ==================== -->
+<div class="slide" id="slide-1">
+
+<!-- The Flow: Sale → Invoice → AR → Collections -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:1.25rem;text-align:center">How money flows from sale to collection</div>
+
+  <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.25rem">
+    <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:0.75rem 1rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.2rem">🤝</div>
+      <div style="font-size:0.78rem;font-weight:600;color:var(--accent)">Sale closes</div>
+    </div>
+    <div style="font-size:1rem;color:rgba(255,255,255,0.2)">→</div>
+    <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:0.75rem 1rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.2rem">📄</div>
+      <div style="font-size:0.78rem;font-weight:600;color:var(--accent)">Invoice sent</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:0.1rem">Net 30 terms</div>
+    </div>
+    <div style="font-size:1rem;color:rgba(255,255,255,0.2)">→</div>
+    <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:0.75rem 1rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.2rem">📊</div>
+      <div style="font-size:0.78rem;font-weight:600;color:var(--accent)">AR tracks it</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:0.1rem">The scoreboard</div>
+    </div>
+    <div style="font-size:1rem;color:rgba(255,255,255,0.2)">→</div>
+    <div style="background:rgba(185,114,21,0.12);border:1px solid rgba(185,114,21,0.25);border-radius:8px;padding:0.75rem 1rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.2rem">⏰</div>
+      <div style="font-size:0.78rem;font-weight:600;color:var(--amber)">Buyer doesn't pay</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:0.1rem">Past due date</div>
+    </div>
+    <div style="font-size:1rem;color:rgba(255,255,255,0.2)">→</div>
+    <div style="background:rgba(216,90,48,0.12);border:1px solid rgba(216,90,48,0.25);border-radius:8px;padding:0.75rem 1rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.2rem">📞</div>
+      <div style="font-size:0.78rem;font-weight:600;color:var(--coral)">Collections activates</div>
+    </div>
+  </div>
+</div>
+
+<!-- Why buyers pay late -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:0.5rem;text-align:center">Why buyers pay late</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.3rem">🔒</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Approval bottlenecks</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.3rem">📧</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Routing errors</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.3rem">💰</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Cash flow pressure</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.3rem">🗓️</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Fiscal close cycles</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.3rem">⚖️</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Delivery disputes</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.3rem">📉</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Financial distress</div>
+    </div>
+  </div>
+</div>
+
+<!-- What collections actually does -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:0.5rem;text-align:center">What the collections team actually does</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem">
+    <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">🔍</div>
+      <div style="font-size:0.85rem;font-weight:600;color:var(--accent)">Investigate</div>
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:0.15rem">Why hasn't payment arrived?</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">💬</div>
+      <div style="font-size:0.85rem;font-weight:600;color:var(--accent)">Communicate</div>
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:0.15rem">Reach the right contacts</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">🤝</div>
+      <div style="font-size:0.85rem;font-weight:600;color:var(--accent)">Negotiate</div>
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:0.15rem">Find resolution paths</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">📋</div>
+      <div style="font-size:0.85rem;font-weight:600;color:var(--accent)">Triage</div>
+      <div style="font-size:0.7rem;color:rgba(255,255,255,0.35);margin-top:0.15rem">Which accounts need attention first?</div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<!-- ==================== SLIDE 2: DAY-TO-DAY WORKFLOW ==================== -->
+<div class="slide" id="slide-2">
+
+<!-- The Aging Report -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:1.25rem;text-align:center">The Aging Report</div>
+
+  <div style="display:flex;gap:0.4rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.25rem">
+    <div style="background:rgba(0,180,160,0.15);border:1px solid rgba(0,180,160,0.3);border-radius:8px;padding:0.75rem;text-align:center;flex:1;min-width:100px">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">✅</div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--accent)">Current</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:0.1rem">Not yet due</div>
+    </div>
+    <div style="font-size:0.9rem;color:rgba(255,255,255,0.15);align-self:center">→</div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.18);border-radius:8px;padding:0.75rem;text-align:center;flex:1;min-width:100px">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">🟡</div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--accent)">1–30</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:0.1rem">Recently overdue</div>
+    </div>
+    <div style="font-size:0.9rem;color:rgba(255,255,255,0.15);align-self:center">→</div>
+    <div style="background:rgba(185,114,21,0.12);border:1px solid rgba(185,114,21,0.25);border-radius:8px;padding:0.75rem;text-align:center;flex:1;min-width:100px">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">🟠</div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--amber)">31–60</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:0.1rem">Moderately overdue</div>
+    </div>
+    <div style="font-size:0.9rem;color:rgba(255,255,255,0.15);align-self:center">→</div>
+    <div style="background:rgba(216,90,48,0.12);border:1px solid rgba(216,90,48,0.25);border-radius:8px;padding:0.75rem;text-align:center;flex:1;min-width:100px">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">🔴</div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--coral)">61–90</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:0.1rem">Significantly overdue</div>
+    </div>
+    <div style="font-size:0.9rem;color:rgba(255,255,255,0.15);align-self:center">→</div>
+    <div style="background:rgba(163,45,45,0.15);border:1px solid rgba(163,45,45,0.3);border-radius:8px;padding:0.75rem;text-align:center;flex:1;min-width:100px">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">🚨</div>
+      <div style="font-size:0.8rem;font-weight:600;color:var(--red)">90+</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.3);margin-top:0.1rem">High risk</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- The Calling & Outreach Process -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:1.25rem;text-align:center">The Calling & Outreach Process</div>
+
+  <!-- Analyst stat -->
+  <div style="display:flex;align-items:center;justify-content:center;gap:2rem;margin-bottom:1.25rem;flex-wrap:wrap">
+    <div style="text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:#fff">150–300</div>
+      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4)">accounts per analyst</div>
+    </div>
+    <div style="font-size:1.5rem;color:rgba(255,255,255,0.15)">·</div>
+    <div style="text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:#fff">Weekly</div>
+      <div style="font-size:0.75rem;color:rgba(255,255,255,0.4)">or monthly cycles</div>
+    </div>
+  </div>
+
+  <!-- The cycle flow -->
+  <div style="display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.25rem">
+    <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:0.6rem 0.75rem;text-align:center">
+      <div style="font-size:1.1rem;margin-bottom:0.15rem">📊</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Pull report</div>
+    </div>
+    <div style="font-size:0.9rem;color:rgba(255,255,255,0.15)">→</div>
+    <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:0.6rem 0.75rem;text-align:center">
+      <div style="font-size:1.1rem;margin-bottom:0.15rem">🔢</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Sort by $ or age</div>
+    </div>
+    <div style="font-size:0.9rem;color:rgba(255,255,255,0.15)">→</div>
+    <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:0.6rem 0.75rem;text-align:center">
+      <div style="font-size:1.1rem;margin-bottom:0.15rem">📞</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Call / email</div>
+    </div>
+    <div style="font-size:0.9rem;color:rgba(255,255,255,0.15)">→</div>
+    <div style="background:rgba(185,114,21,0.12);border:1px solid rgba(185,114,21,0.25);border-radius:8px;padding:0.6rem 0.75rem;text-align:center">
+      <div style="font-size:1.1rem;margin-bottom:0.15rem">📝</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Log notes</div>
+    </div>
+    <div style="font-size:0.9rem;color:rgba(255,255,255,0.15)">→</div>
+    <div style="background:rgba(185,114,21,0.12);border:1px solid rgba(185,114,21,0.25);border-radius:8px;padding:0.6rem 0.75rem;text-align:center">
+      <div style="font-size:1.1rem;margin-bottom:0.15rem">🔁</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Follow up</div>
+    </div>
+  </div>
+
+  <!-- Where notes end up -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">💻</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--coral)">ERP notes</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">📑</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--coral)">Spreadsheets</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">📓</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--coral)">Personal notebooks</div>
+    </div>
+  </div>
+</div>
+
+<!-- Why invoices are actually overdue -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:#fff;margin-bottom:1.25rem;text-align:center">Most overdue invoices aren't adversarial</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.3rem">📧</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Wrong contact</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.3rem">📋</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Need PO copy</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.3rem">🗓️</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Fiscal close slowdown</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.3rem">⚖️</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Delivery dispute</div>
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+<!-- ==================== SLIDE 3: WHAT GOOD LOOKS LIKE ==================== -->
+<div class="slide" id="slide-3">
+
+<!-- Pattern Recognition -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">🔍</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--accent)">Pattern Recognition</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">🗓️</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--accent)">Seasonal patterns</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">📈</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--accent)">Behavioral drift</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">📋</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--accent)">Process quirks</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">🔄</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--accent)">Revenue correlation</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;margin-top:0.75rem;text-align:center">
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.35)">Built over <span style="font-weight:600;color:rgba(255,255,255,0.55)">months and years</span> of working the same accounts</div>
+  </div>
+</div>
+
+<!-- Risk Scoring -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">📊</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--amber)">Risk Scoring</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.75rem">
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">💰</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Amount owed</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">⏳</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Invoice age</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">📅</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Payment history</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">📞</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Responsiveness</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">📉</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Industry signals</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">🤝</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Relationship flags</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;text-align:center">
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.35)">Usually <span style="font-weight:600;color:rgba(255,255,255,0.55)">intuitive, not formalized</span> — informal, subjective, inconsistent across team members</div>
+  </div>
+</div>
+
+<!-- Early Intervention -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">⏱️</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--accent)">Early Intervention</div>
+  </div>
+
+  <!-- Timeline visual -->
+  <div style="position:relative;margin-bottom:1.25rem">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:0.35rem">
+      <div style="background:rgba(0,180,160,0.12);border:1px solid rgba(0,180,160,0.25);border-radius:8px;padding:0.75rem;text-align:center;flex:1">
+        <div style="font-size:1.1rem;margin-bottom:0.2rem">📧</div>
+        <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Day 25</div>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.3)">Payment reminder</div>
+      </div>
+      <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.18);border-radius:8px;padding:0.75rem;text-align:center;flex:1">
+        <div style="font-size:1.1rem;margin-bottom:0.2rem">📞</div>
+        <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Day 35</div>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.3)">Early call</div>
+      </div>
+      <div style="background:rgba(185,114,21,0.12);border:1px solid rgba(185,114,21,0.25);border-radius:8px;padding:0.75rem;text-align:center;flex:1">
+        <div style="font-size:1.1rem;margin-bottom:0.2rem">🚩</div>
+        <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Day 45</div>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.3)">Flag to sales</div>
+      </div>
+      <div style="background:rgba(216,90,48,0.12);border:1px solid rgba(216,90,48,0.25);border-radius:8px;padding:0.75rem;text-align:center;flex:1">
+        <div style="font-size:1.1rem;margin-bottom:0.2rem">⚠️</div>
+        <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Day 60</div>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.3)">Escalate</div>
+      </div>
+      <div style="background:rgba(163,45,45,0.15);border:1px solid rgba(163,45,45,0.3);border-radius:8px;padding:0.75rem;text-align:center;flex:1">
+        <div style="font-size:1.1rem;margin-bottom:0.2rem">🚨</div>
+        <div style="font-size:0.72rem;font-weight:600;color:var(--red)">90+</div>
+        <div style="font-size:0.65rem;color:rgba(255,255,255,0.3)">Options narrow</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Options narrowing -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--accent)">Early</div>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.2rem">Many resolution options</div>
+    </div>
+    <div style="background:rgba(163,45,45,0.08);border:1px solid rgba(163,45,45,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--red)">90+ days</div>
+      <div style="font-size:0.72rem;color:rgba(255,255,255,0.35);margin-top:0.2rem">Payment plan · Write-off · Legal</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ==================== SLIDE 4: WHERE IT BREAKS DOWN ==================== -->
+<div class="slide" id="slide-4">
+
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">⚠️</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--coral)">Where It Breaks Down</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.5rem">
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">🔄</div>
+      <div style="font-size:0.75rem;font-weight:600;color:var(--coral)">Reactive</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.25);margin-top:0.1rem">Chasing 60+ days</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">🎯</div>
+      <div style="font-size:0.75rem;font-weight:600;color:var(--coral)">Inconsistent</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.25);margin-top:0.1rem">Sort by $? Age? Gut?</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">🗂️</div>
+      <div style="font-size:0.75rem;font-weight:600;color:var(--coral)">Fragmented</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.25);margin-top:0.1rem">ERP + email + CRM</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">⏱️</div>
+      <div style="font-size:0.75rem;font-weight:600;color:var(--coral)">Time-crushed</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.25);margin-top:0.1rem">20 deep / 200 skimmed</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">📊</div>
+      <div style="font-size:0.75rem;font-weight:600;color:var(--coral)">No visibility</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.25);margin-top:0.1rem">Aging buckets only</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;margin-top:0.75rem;text-align:center">
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.35)">Not <span style="font-weight:600;color:rgba(255,255,255,0.55)">technology problems</span> — structural limits of the manual workflow</div>
+  </div>
+</div>
+
+</div>
+
+<!-- ==================== SLIDE 5: THE KNOWLEDGE PROBLEM ==================== -->
+<div class="slide" id="slide-5">
+
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">🧠</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--amber)">The Knowledge Problem</div>
+  </div>
+
+  <!-- What a veteran knows -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.75rem">
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">🔁</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Who's chronically late but always pays</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">📞</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Which contacts to call vs. skip</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">📋</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Which accounts need a PO copy first</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.25rem">📧</div>
+      <div style="font-size:0.75rem;font-weight:500;color:var(--amber)">Which ones pay off a simple email</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;text-align:center;margin-bottom:1rem">
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.35)">Built over <span style="font-weight:600;color:rgba(255,255,255,0.55)">2–3 years</span> of working the same portfolio</div>
+  </div>
+
+  <!-- The departure problem -->
+  <div style="display:flex;align-items:stretch;gap:0.5rem">
+    <div style="flex:1;background:rgba(185,114,21,0.1);border:1px solid rgba(185,114,21,0.2);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">👤</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;font-weight:700;color:var(--amber)">Veteran Leaves</div>
+      <div style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:0.2rem">Rich mental model of every account</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:1.2rem;color:rgba(255,255,255,0.2)">→</div>
+    <div style="flex:1;background:rgba(163,45,45,0.1);border:1px solid rgba(163,45,45,0.2);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">🆕</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;font-weight:700;color:var(--red)">New Analyst</div>
+      <div style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:0.2rem">Has the aging report and nothing else</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;margin-top:0.75rem;text-align:center">
+    <div style="font-size:0.72rem;color:rgba(255,255,255,0.35)"><span style="font-weight:600;color:rgba(255,255,255,0.55)">The workflow itself doesn't produce durable, transferable knowledge</span></div>
+  </div>
+</div>
+
+</div>
+
+<!-- ==================== SLIDE 6: SCALE AND VOLUME ==================== -->
+<div class="slide" id="slide-6">
+
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">📈</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--purple)">Scale and Volume</div>
+  </div>
+
+  <!-- Three scale tiers as big visual cards -->
+  <div style="display:flex;gap:0.5rem">
+    <div style="flex:1;background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.18);border-radius:8px;padding:1.25rem 0.75rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:var(--accent)">50</div>
+      <div style="font-size:0.7rem;font-weight:600;color:var(--accent);margin-top:0.15rem">Works</div>
+      <div style="font-size:0.6rem;color:rgba(255,255,255,0.25);margin-top:0.3rem">Know every account</div>
+    </div>
+    <div style="flex:1;background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.18);border-radius:8px;padding:1.25rem 0.75rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:var(--amber)">500</div>
+      <div style="font-size:0.7rem;font-weight:600;color:var(--amber);margin-top:0.15rem">Fractures</div>
+      <div style="font-size:0.6rem;color:rgba(255,255,255,0.25);margin-top:0.3rem">Gaps widen</div>
+    </div>
+    <div style="flex:1;background:rgba(163,45,45,0.1);border:1px solid rgba(163,45,45,0.2);border-radius:8px;padding:1.25rem 0.75rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;font-weight:800;color:var(--red)">2,000+</div>
+      <div style="font-size:0.7rem;font-weight:600;color:var(--red);margin-top:0.15rem">Breaks</div>
+      <div style="font-size:0.6rem;color:rgba(255,255,255,0.25);margin-top:0.3rem">Coverage trade-offs</div>
+    </div>
+  </div>
+
+  <!-- What breaks at scale -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-top:0.75rem">
+    <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;text-align:center">
+      <div style="font-size:1.1rem;margin-bottom:0.15rem">🧠</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.4)">Memory limit</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;text-align:center">
+      <div style="font-size:1.1rem;margin-bottom:0.15rem">🎯</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.4)">Rough prioritization</div>
+    </div>
+    <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;text-align:center">
+      <div style="font-size:1.1rem;margin-bottom:0.15rem">👻</div>
+      <div style="font-size:0.65rem;color:rgba(255,255,255,0.4)">Unattended accounts</div>
+    </div>
+  </div>
+
+</div>
+
+</div>
+
+<!-- ==================== SLIDE 7: WHY AI ==================== -->
+<div class="slide" id="slide-7">
+
+<!-- Where Basic Automation Is Sufficient -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;justify-content:center">
+    <div style="font-size:1.3rem">⚙️</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--accent)">Where Basic Automation Is Sufficient</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.5rem">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📧</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Payment Reminders</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🚨</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Threshold Escalation</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📋</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Report Generation</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📥</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Queue Assignment</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔔</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Follow-up Enforcement</div>
+    </div>
+  </div>
+</div>
+
+<!-- Where Basic Automation Breaks Down -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;justify-content:center">
+    <div style="font-size:1.3rem">🧠</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--coral)">Where Automation Breaks Down — AI Required</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📉</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Trend Detection</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">💬</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Communication Signals</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔗</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Cross-Domain Correlation</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">⚖️</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Judgment Prioritization</div>
+    </div>
+  </div>
+</div>
+
+<!-- Why Parallelization -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">⚡</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--purple)">Why Parallelization</div>
+  </div>
+
+  <!-- The math problem -->
+  <div style="display:flex;align-items:stretch;gap:0.35rem;margin-bottom:0.75rem">
+    <div style="flex:1;background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--purple)">15–20 min</div>
+      <div style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:0.15rem">Deep analysis per account</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:1rem;color:rgba(255,255,255,0.2)">×</div>
+    <div style="flex:1;background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--purple)">250</div>
+      <div style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:0.15rem">Accounts per analyst</div>
+    </div>
+    <div style="display:flex;align-items:center;font-size:1rem;color:rgba(255,255,255,0.2)">=</div>
+    <div style="flex:1;background:rgba(163,45,45,0.1);border:1px solid rgba(163,45,45,0.2);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.3rem;font-weight:800;color:var(--red)">60+ hrs</div>
+      <div style="font-size:0.68rem;color:rgba(255,255,255,0.3);margin-top:0.15rem">More than a full work week</div>
+    </div>
+  </div>
+
+  <!-- Sequential vs Parallel visual -->
+  <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0.75rem;align-items:center;margin-bottom:0.75rem">
+    <!-- Sequential (human) -->
+    <div style="background:rgba(163,45,45,0.08);border:1px solid rgba(163,45,45,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:0.65rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem">Sequential</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:0.25rem;margin-bottom:0.4rem">
+        <div style="background:rgba(163,45,45,0.2);border-radius:4px;padding:0.2rem 0.4rem;font-size:0.6rem;color:var(--red)">Acct 1</div>
+        <div style="color:rgba(255,255,255,0.15);font-size:0.6rem">→</div>
+        <div style="background:rgba(163,45,45,0.2);border-radius:4px;padding:0.2rem 0.4rem;font-size:0.6rem;color:var(--red)">Acct 2</div>
+        <div style="color:rgba(255,255,255,0.15);font-size:0.6rem">→</div>
+        <div style="background:rgba(163,45,45,0.2);border-radius:4px;padding:0.2rem 0.4rem;font-size:0.6rem;color:var(--red)">Acct 3</div>
+        <div style="color:rgba(255,255,255,0.15);font-size:0.6rem">→ …</div>
+      </div>
+    </div>
+
+    <div style="font-size:1.2rem;color:var(--accent)">→</div>
+
+    <!-- Parallel (AI) -->
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:0.65rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem">Parallel</div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0.2rem">
+        <div style="background:rgba(0,180,160,0.2);border-radius:4px;padding:0.2rem 0.15rem;font-size:0.55rem;color:var(--accent)">Acct 1</div>
+        <div style="background:rgba(0,180,160,0.2);border-radius:4px;padding:0.2rem 0.15rem;font-size:0.55rem;color:var(--accent)">Acct 2</div>
+        <div style="background:rgba(0,180,160,0.2);border-radius:4px;padding:0.2rem 0.15rem;font-size:0.55rem;color:var(--accent)">Acct 3</div>
+        <div style="background:rgba(0,180,160,0.2);border-radius:4px;padding:0.2rem 0.15rem;font-size:0.55rem;color:var(--accent)">Acct 4</div>
+        <div style="background:rgba(0,180,160,0.2);border-radius:4px;padding:0.2rem 0.15rem;font-size:0.55rem;color:var(--accent)">Acct 5</div>
+        <div style="background:rgba(0,180,160,0.15);border-radius:4px;padding:0.2rem 0.15rem;font-size:0.55rem;color:rgba(0,180,160,0.6)">Acct 6</div>
+        <div style="background:rgba(0,180,160,0.15);border-radius:4px;padding:0.2rem 0.15rem;font-size:0.55rem;color:rgba(0,180,160,0.6)">Acct 7</div>
+        <div style="background:rgba(0,180,160,0.15);border-radius:4px;padding:0.2rem 0.15rem;font-size:0.55rem;color:rgba(0,180,160,0.6)">Acct 8</div>
+        <div style="background:rgba(0,180,160,0.1);border-radius:4px;padding:0.2rem 0.15rem;font-size:0.55rem;color:rgba(0,180,160,0.4)">…</div>
+        <div style="background:rgba(0,180,160,0.1);border-radius:4px;padding:0.2rem 0.15rem;font-size:0.55rem;color:rgba(0,180,160,0.4)">250</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:rgba(163,45,45,0.06);border:1px solid rgba(163,45,45,0.12);border-radius:6px;padding:0.65rem;text-align:center;margin-bottom:0.5rem">
+    <div style="font-size:0.72rem;font-weight:600;color:var(--red)">One at a time, 15–20 min each</div>
+  </div>
+
+  <div style="background:rgba(0,180,160,0.06);border:1px solid rgba(0,180,160,0.12);border-radius:6px;padding:0.65rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Every account gets deep analysis, every cycle, all at once</div>
+  </div>
+</div>
+
+</div>
+
+<!-- ==================== SLIDE 8: AI READINESS — OPS FRAMEWORK ==================== -->
+<div class="slide" id="slide-8">
+
+<!-- O — One Source of Truth -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--accent);background:rgba(0,180,160,0.12);border-radius:6px;padding:0.15rem 0.5rem">O</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--accent)">One Source of Truth</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🗄️</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Single Data Source</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🛡️</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Data Ownership</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔌</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Data Accessibility</div>
+    </div>
+  </div>
+</div>
+
+<!-- P — Process Alignment -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--amber);background:rgba(185,114,21,0.12);border-radius:6px;padding:0.15rem 0.5rem">P</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--amber)">Process Alignment</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🗺️</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Process Mapping</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">✅</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Business Sign-Off</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🚧</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Exception Paths</div>
+    </div>
+  </div>
+</div>
+
+<!-- S — Stage Gates -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--purple);background:rgba(83,74,183,0.12);border-radius:6px;padding:0.15rem 0.5rem">S</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--purple)">Stage Gates — Human-in-the-Loop</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.18);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.65rem;font-weight:800;color:var(--accent);background:rgba(0,180,160,0.15);border-radius:4px;padding:0.1rem 0.4rem;display:inline-block;margin-bottom:0.4rem">Phase 1</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Analyze & Recommend</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.18);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.65rem;font-weight:800;color:var(--amber);background:rgba(185,114,21,0.15);border-radius:4px;padding:0.1rem 0.4rem;display:inline-block;margin-bottom:0.4rem">Phase 2</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Supervised Automation</div>
+    </div>
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.18);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.65rem;font-weight:800;color:var(--purple);background:rgba(83,74,183,0.15);border-radius:4px;padding:0.1rem 0.4rem;display:inline-block;margin-bottom:0.4rem">Phase 3</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">Expanded + Persistent Gates</div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ==================== SLIDE 9: SOLUTION ARCHITECTURE ==================== -->
+<div class="slide" id="slide-9">
+
+<!-- Layer 1 — Collections Process Flow -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.75rem;font-weight:800;color:var(--accent);background:rgba(0,180,160,0.12);border-radius:4px;padding:0.15rem 0.5rem">Layer 1</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--accent)">Collections Process Flow</div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:0.3rem;align-items:center">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem 0.65rem;text-align:center">
+      <div style="font-size:0.9rem">📊</div>
+      <div style="font-size:0.62rem;color:var(--accent);font-weight:500">Aging Report</div>
+    </div>
+    <div style="color:rgba(255,255,255,0.2);font-size:0.8rem">→</div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem 0.65rem;text-align:center">
+      <div style="font-size:0.9rem">📥</div>
+      <div style="font-size:0.62rem;color:var(--accent);font-weight:500">Triage</div>
+    </div>
+    <div style="color:rgba(255,255,255,0.2);font-size:0.8rem">→</div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem 0.65rem;text-align:center">
+      <div style="font-size:0.9rem">🔍</div>
+      <div style="font-size:0.62rem;color:var(--accent);font-weight:500">Review</div>
+    </div>
+    <div style="color:rgba(255,255,255,0.2);font-size:0.8rem">→</div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem 0.65rem;text-align:center">
+      <div style="font-size:0.9rem">📞</div>
+      <div style="font-size:0.62rem;color:var(--accent);font-weight:500">Outreach</div>
+    </div>
+    <div style="color:rgba(255,255,255,0.2);font-size:0.8rem">→</div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem 0.65rem;text-align:center">
+      <div style="font-size:0.9rem">📝</div>
+      <div style="font-size:0.62rem;color:var(--accent);font-weight:500">Log</div>
+    </div>
+    <div style="color:rgba(255,255,255,0.2);font-size:0.8rem">→</div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem 0.65rem;text-align:center">
+      <div style="font-size:0.9rem">🚨</div>
+      <div style="font-size:0.62rem;color:var(--accent);font-weight:500">Escalate</div>
+    </div>
+    <div style="color:rgba(255,255,255,0.2);font-size:0.8rem">→</div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem 0.65rem;text-align:center">
+      <div style="font-size:0.9rem">🔄</div>
+      <div style="font-size:0.62rem;color:var(--accent);font-weight:500">Repeat</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Layer 2 — Agent Architecture -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.75rem;font-weight:800;color:var(--amber);background:rgba(185,114,21,0.12);border-radius:4px;padding:0.15rem 0.5rem">Layer 2</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--amber)">Agent Architecture</div>
+  </div>
+
+  <!-- Intake -->
+  <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.6rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">📥 Data Intake</div>
+  </div>
+
+  <div style="text-align:center;color:rgba(185,114,21,0.4);font-size:0.9rem;line-height:1">↓</div>
+
+  <!-- 4 Parallel Agents -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.35rem">
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.65rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.2rem">📈</div>
+      <div style="font-size:0.62rem;font-weight:600;color:var(--amber)">Payment Agent</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.65rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.2rem">💬</div>
+      <div style="font-size:0.62rem;font-weight:600;color:var(--amber)">Comms Agent</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.65rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.2rem">🌐</div>
+      <div style="font-size:0.62rem;font-weight:600;color:var(--amber)">Risk Agent</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.65rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.2rem">📋</div>
+      <div style="font-size:0.62rem;font-weight:600;color:var(--amber)">Profile Agent</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:rgba(83,74,183,0.4);font-size:0.9rem;line-height:1">↓</div>
+
+  <!-- Synthesis -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.35rem">
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.6rem;text-align:center">
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">🔬 Synthesizer</div>
+    </div>
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.6rem;text-align:center">
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">📊 Aggregator</div>
+    </div>
+  </div>
+
+  <div style="text-align:center;color:rgba(0,180,160,0.4);font-size:0.9rem;line-height:1">↓</div>
+
+  <!-- Human Gate -->
+  <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.18);border-radius:8px;padding:0.6rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">👤 Human Review Gate</div>
+  </div>
+</div>
+
+<!-- Layer 3 — Data Flow Architecture -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.75rem;font-weight:800;color:var(--purple);background:rgba(83,74,183,0.12);border-radius:4px;padding:0.15rem 0.5rem">Layer 3</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--purple)">Data Flow</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:0.4rem;align-items:center">
+    <!-- Sources column -->
+    <div style="display:flex;flex-direction:column;gap:0.3rem">
+      <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem;text-align:center">
+        <div style="font-size:0.9rem">🗄️</div>
+        <div style="font-size:0.62rem;font-weight:600;color:var(--accent)">ERP</div>
+      </div>
+      <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem;text-align:center">
+        <div style="font-size:0.9rem">👥</div>
+        <div style="font-size:0.62rem;font-weight:600;color:var(--accent)">CRM</div>
+      </div>
+      <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem;text-align:center">
+        <div style="font-size:0.9rem">📧</div>
+        <div style="font-size:0.62rem;font-weight:600;color:var(--accent)">Comms</div>
+      </div>
+      <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.5rem;text-align:center">
+        <div style="font-size:0.9rem">🌐</div>
+        <div style="font-size:0.62rem;font-weight:600;color:var(--accent)">External</div>
+      </div>
+    </div>
+
+    <!-- Arrow -->
+    <div style="color:rgba(185,114,21,0.5);font-size:1.1rem">→</div>
+
+    <!-- Agent Engine -->
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.18);border-radius:8px;padding:1rem 0.5rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.3rem">🤖</div>
+      <div style="font-size:0.72rem;font-weight:700;color:var(--amber)">Agent Engine</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25);margin-top:0.2rem">Analyze · Score · Prioritize</div>
+    </div>
+
+    <!-- Arrow -->
+    <div style="color:rgba(83,74,183,0.5);font-size:1.1rem">→</div>
+
+    <!-- Outputs column -->
+    <div style="display:flex;flex-direction:column;gap:0.3rem">
+      <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:6px;padding:0.5rem;text-align:center">
+        <div style="font-size:0.9rem">📊</div>
+        <div style="font-size:0.62rem;font-weight:600;color:var(--purple)">Dashboard</div>
+      </div>
+      <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:6px;padding:0.5rem;text-align:center">
+        <div style="font-size:0.9rem">📋</div>
+        <div style="font-size:0.62rem;font-weight:600;color:var(--purple)">Work Queues</div>
+      </div>
+      <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:6px;padding:0.5rem;text-align:center">
+        <div style="font-size:0.9rem">🔒</div>
+        <div style="font-size:0.62rem;font-weight:600;color:var(--purple)">Audit Log</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ==================== SLIDE 10: PROTOTYPE ==================== -->
+<div class="slide" id="slide-10">
+
+<style>
+.proto-run-btn{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;font-weight:700;padding:0.6rem 2rem;border:2px solid var(--accent);background:rgba(0,180,160,0.1);color:var(--accent);border-radius:8px;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em}
+.proto-run-btn:hover{background:rgba(0,180,160,0.2)}
+.proto-run-btn:disabled{opacity:0.4;cursor:not-allowed}
+.proto-run-btn.p-running{border-color:#b97215;color:#b97215;background:rgba(185,114,21,0.1)}
+.proto-pipeline{display:flex;align-items:center;justify-content:center;gap:0.3rem;margin-bottom:1rem;opacity:0;transition:opacity 0.3s}
+.proto-pipeline.p-visible{opacity:1}
+.proto-pipe-step{font-size:0.55rem;font-weight:700;padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);transition:all 0.4s}
+.proto-pipe-step.p-active{animation:protoPulse 1.2s infinite}
+.proto-pipe-step.p-done{opacity:0.5}
+.proto-pipe-step.pp-intake.p-active,.proto-pipe-step.pp-intake.p-done{background:rgba(0,180,160,0.15);border-color:rgba(0,180,160,0.3);color:var(--accent)}
+.proto-pipe-step.pp-agents.p-active,.proto-pipe-step.pp-agents.p-done{background:rgba(185,114,21,0.15);border-color:rgba(185,114,21,0.3);color:#b97215}
+.proto-pipe-step.pp-synth.p-active,.proto-pipe-step.pp-synth.p-done{background:rgba(83,74,183,0.15);border-color:rgba(83,74,183,0.3);color:#534ab7}
+.proto-pipe-step.pp-gate.p-active,.proto-pipe-step.pp-gate.p-done{background:rgba(0,180,160,0.15);border-color:rgba(0,180,160,0.3);color:var(--accent)}
+@keyframes protoPulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.proto-acct-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem}
+.proto-acct{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:0.7rem;opacity:0;transform:translateY(6px);transition:all 0.4s}
+.proto-acct.p-visible{opacity:1;transform:translateY(0)}
+.proto-agent-slots{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0.25rem;margin-bottom:0.4rem}
+.proto-agent-slot{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:5px;padding:0.35rem 0.15rem;text-align:center;min-height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all 0.4s}
+.proto-agent-slot .pa-icon{font-size:0.75rem;margin-bottom:0.1rem;opacity:0.25;transition:opacity 0.3s}
+.proto-agent-slot .pa-label{font-size:0.45rem;font-weight:600;color:rgba(255,255,255,0.35);transition:color 0.3s}
+.proto-agent-slot.p-running{border-color:rgba(185,114,21,0.3);background:rgba(185,114,21,0.05)}
+.proto-agent-slot.p-running .pa-icon{opacity:1;animation:protoSpin 1s infinite}
+.proto-agent-slot.p-running .pa-label{color:#b97215}
+.proto-agent-slot.p-done{border-color:rgba(0,180,160,0.2);background:rgba(0,180,160,0.04)}
+.proto-agent-slot.p-done .pa-icon{opacity:0.8}
+.proto-agent-slot.p-done .pa-label{color:var(--accent)}
+.proto-signal{font-size:0.38rem;font-weight:600;padding:0.06rem 0.2rem;border-radius:2px;margin-top:0.15rem;opacity:0;transition:opacity 0.3s}
+.proto-agent-slot.p-done .proto-signal{opacity:1}
+.proto-signal.ps-pos{background:rgba(0,180,160,0.15);color:var(--accent)}
+.proto-signal.ps-warn{background:rgba(185,114,21,0.15);color:#b97215}
+.proto-signal.ps-neg{background:rgba(163,45,45,0.15);color:#a32d2d}
+@keyframes protoSpin{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+.proto-synth{display:flex;align-items:center;gap:0.3rem;opacity:0;transition:opacity 0.4s}
+.proto-synth.p-visible{opacity:1}
+.proto-synth-badge{font-size:0.5rem;font-weight:700;padding:0.12rem 0.4rem;border-radius:10px;flex-shrink:0}
+.psb-current{background:rgba(0,180,160,0.15);color:var(--accent)}
+.psb-friction{background:rgba(185,114,21,0.15);color:#b97215}
+.psb-deteriorating{background:rgba(216,90,48,0.15);color:#d85a30}
+.psb-distress{background:rgba(163,45,45,0.15);color:#a32d2d}
+.proto-synth-conf{font-family:'IBM Plex Mono',monospace;font-size:0.5rem;color:rgba(255,255,255,0.35)}
+.proto-synth-action{font-size:0.5rem;color:rgba(255,255,255,0.35);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.proto-completion{margin-top:0.75rem;background:rgba(0,180,160,0.04);border:1px solid rgba(0,180,160,0.12);border-radius:8px;padding:1rem;text-align:center;opacity:0;transform:translateY(8px);transition:all 0.5s}
+.proto-completion.p-visible{opacity:1;transform:translateY(0)}
+.proto-timer{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--accent);opacity:0;transition:opacity 0.3s}
+.proto-timer.p-visible{opacity:1}
+@media(max-width:700px){.proto-acct-grid{grid-template-columns:1fr}.proto-agent-slots{grid-template-columns:1fr 1fr}}
+</style>
+
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+    <div style="display:flex;align-items:center;gap:0.5rem">
+      <div style="font-size:1.1rem">🤖</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;font-weight:700;color:var(--accent)">Agent Orchestration Demo</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.75rem">
+    </div>
+  </div>
+
+  <!-- Run Button -->
+  <div style="text-align:center;margin-bottom:1rem">
+    <button class="proto-run-btn" id="protoRunBtn" onclick="protoStartRun()">▶ &nbsp;Run Analysis</button>
+  </div>
+
+  <!-- Pipeline -->
+  <div class="proto-pipeline" id="protoPipeline">
+    <div class="proto-pipe-step pp-intake" id="protoPipeIntake">📥 Intake</div>
+    <div style="color:rgba(255,255,255,0.1);font-size:0.55rem">→</div>
+    <div class="proto-pipe-step pp-agents" id="protoPipeAgents">📈💬🌐📋 Parallel Agents</div>
+    <div style="color:rgba(255,255,255,0.1);font-size:0.55rem">→</div>
+    <div class="proto-pipe-step pp-synth" id="protoPipeSynth">🔬 Synthesis</div>
+    <div style="color:rgba(255,255,255,0.1);font-size:0.55rem">→</div>
+    <div class="proto-pipe-step pp-gate" id="protoPipeGate">👤 Review</div>
+  </div>
+
+  <!-- Account Grid -->
+  <div class="proto-acct-grid" id="protoAcctGrid"></div>
+
+  <!-- Completion -->
+  <div class="proto-completion" id="protoCompletion">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;font-weight:700;color:var(--accent);margin-bottom:0.5rem">✅ Analysis Complete — Ready for Human Review</div>
+    <div style="display:flex;justify-content:center;gap:1.25rem;margin-bottom:0.5rem">
+      <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:#a32d2d">1</div><div style="font-size:0.5rem;color:rgba(255,255,255,0.35)">Distress</div></div>
+      <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:#d85a30">2</div><div style="font-size:0.5rem;color:rgba(255,255,255,0.35)">Deteriorating</div></div>
+      <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:#b97215">3</div><div style="font-size:0.5rem;color:rgba(255,255,255,0.35)">Friction</div></div>
+      <div><div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--accent)">2</div><div style="font-size:0.5rem;color:rgba(255,255,255,0.35)">Current</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const protoAccounts = [
+  { name:"Meridian Healthcare", amt:"$487K", risk:"distress", riskLabel:"Distress", conf:94,
+    signals:[{t:"Pre-default",c:"neg"},{t:"Non-responsive",c:"neg"},{t:"Sector ↓",c:"neg"},{t:"Credit cut",c:"neg"}],
+    action:"Escalate immediately" },
+  { name:"Vertex Manufacturing", amt:"$216K", risk:"deteriorating", riskLabel:"Deteriorating", conf:87,
+    signals:[{t:"DSO creeping",c:"warn"},{t:"Cash mention",c:"warn"},{t:"PMI down",c:"warn"},{t:"Good history",c:"pos"}],
+    action:"Proactive call — modified terms" },
+  { name:"Summit Digital", amt:"$89K", risk:"deteriorating", riskLabel:"Deteriorating", conf:79,
+    signals:[{t:"Trend break",c:"warn"},{t:"New contact",c:"warn"},{t:"Recent funding",c:"pos"},{t:"Growing",c:"pos"}],
+    action:"Intro new AP contact" },
+  { name:"Coastal Logistics", amt:"$156K", risk:"friction", riskLabel:"Friction", conf:82,
+    signals:[{t:"Normal range",c:"pos"},{t:"Quick replies",c:"pos"},{t:"Recovering",c:"pos"},{t:"4yr reliable",c:"pos"}],
+    action:"No action needed" },
+  { name:"Brightline Education", amt:"$313K", risk:"friction", riskLabel:"Friction", conf:88,
+    signals:[{t:"Seasonal",c:"pos"},{t:"Date set",c:"pos"},{t:"Funded",c:"pos"},{t:"6yr top acct",c:"pos"}],
+    action:"Confirm Oct 15 commitment" },
+  { name:"Atlas Property", amt:"$179K", risk:"friction", riskLabel:"Friction", conf:75,
+    signals:[{t:"Slippage",c:"warn"},{t:"Cash timing",c:"warn"},{t:"Rate pressure",c:"warn"},{t:"New customer",c:"pos"}],
+    action:"Monitor — mixed signals" },
+  { name:"Greenfield Organics", amt:"$42K", risk:"current", riskLabel:"Current", conf:96,
+    signals:[{t:"On-time",c:"pos"},{t:"Growing",c:"pos"},{t:"Demand ↑",c:"pos"},{t:"Reliable",c:"pos"}],
+    action:"Explore expansion" },
+  { name:"Pacific Coast Motors", amt:"$523K", risk:"current", riskLabel:"Current", conf:93,
+    signals:[{t:"Clockwork",c:"pos"},{t:"Structured",c:"pos"},{t:"Strong",c:"pos"},{t:"8yr strategic",c:"pos"}],
+    action:"Prep for QBR" }
+];
+const protoAgentNames = [{icon:"📈",label:"Payment"},{icon:"💬",label:"Comms"},{icon:"🌐",label:"Risk"},{icon:"📋",label:"Profile"}];
+const signalClass = {pos:"ps-pos",warn:"ps-warn",neg:"ps-neg"};
+
+const grid = document.getElementById('protoAcctGrid');
+protoAccounts.forEach((acct, i) => {
+  const card = document.createElement('div');
+  card.className = 'proto-acct';
+  card.id = 'proto-acct-'+i;
+  card.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.68rem;font-weight:700;color:#e8eaed">${acct.name}</div>
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;color:rgba(255,255,255,0.35)">${acct.amt}</div>
+    </div>
+    <div class="proto-agent-slots">
+      ${protoAgentNames.map((a,j) => `
+        <div class="proto-agent-slot" id="proto-agent-${i}-${j}">
+          <div class="pa-icon">${a.icon}</div>
+          <div class="pa-label">${a.label}</div>
+          <div class="proto-signal ${signalClass[acct.signals[j].c]}">${acct.signals[j].t}</div>
+        </div>`).join('')}
+    </div>
+    <div class="proto-synth" id="proto-synth-${i}">
+      <span class="proto-synth-badge psb-${acct.risk}">${acct.riskLabel}</span>
+      <span class="proto-synth-conf">${acct.conf}%</span>
+      <span class="proto-synth-action">${acct.action}</span>
+    </div>`;
+  grid.appendChild(card);
+});
+
+function protoDelay(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+window.protoStartRun = async function(){
+  const btn = document.getElementById('protoRunBtn');
+  btn.disabled = true;
+  btn.classList.add('p-running');
+  btn.textContent = '⟳  Running...';
+  document.getElementById('protoPipeline').classList.add('p-visible');
+
+  // Phase 1: Intake
+  document.getElementById('protoPipeIntake').classList.add('p-active');
+  for(let i=0;i<8;i++){ await protoDelay(100); document.getElementById('proto-acct-'+i).classList.add('p-visible'); }
+  await protoDelay(350);
+  document.getElementById('protoPipeIntake').classList.remove('p-active');
+  document.getElementById('protoPipeIntake').classList.add('p-done');
+
+  // Phase 2: Agents — ALL run simultaneously
+  document.getElementById('protoPipeAgents').classList.add('p-active');
+  for(let j=0;j<4;j++) for(let i=0;i<8;i++){ await protoDelay(25); document.getElementById('proto-agent-'+i+'-'+j).classList.add('p-running'); }
+
+  const order = [6,7,3,4,5,2,1,0];
+  for(let idx=0;idx<order.length;idx++){
+    const i=order[idx];
+    await protoDelay(500+Math.random()*350);
+    for(let j=0;j<4;j++){
+      await protoDelay(70+Math.random()*50);
+      const s=document.getElementById('proto-agent-'+i+'-'+j);
+      s.classList.remove('p-running'); s.classList.add('p-done');
+    }
+  }
+  await protoDelay(250);
+  document.getElementById('protoPipeAgents').classList.remove('p-active');
+  document.getElementById('protoPipeAgents').classList.add('p-done');
+
+  // Phase 3: Synthesis
+  document.getElementById('protoPipeSynth').classList.add('p-active');
+  for(let idx=0;idx<order.length;idx++){ await protoDelay(180); document.getElementById('proto-synth-'+order[idx]).classList.add('p-visible'); }
+  await protoDelay(350);
+  document.getElementById('protoPipeSynth').classList.remove('p-active');
+  document.getElementById('protoPipeSynth').classList.add('p-done');
+
+  // Phase 4: Gate
+  document.getElementById('protoPipeGate').classList.add('p-active');
+  await protoDelay(500);
+  document.getElementById('protoPipeGate').classList.remove('p-active');
+  document.getElementById('protoPipeGate').classList.add('p-done');
+
+  await protoDelay(250);
+  document.getElementById('protoCompletion').classList.add('p-visible');
+  btn.textContent = '✓  Complete';
+  btn.classList.remove('p-running');
+  await protoDelay(1800);
+  btn.disabled = false;
+  btn.textContent = '▶  Run Again';
+  btn.onclick = function(){ protoReset(); protoStartRun(); };
+};
+
+function protoReset(){
+  document.querySelectorAll('.proto-acct').forEach(c => c.classList.remove('p-visible'));
+  document.querySelectorAll('.proto-agent-slot').forEach(s => { s.classList.remove('p-running','p-done'); });
+  document.querySelectorAll('.proto-synth').forEach(s => s.classList.remove('p-visible'));
+  document.querySelectorAll('.proto-pipe-step').forEach(s => { s.classList.remove('p-active','p-done'); });
+  document.getElementById('protoCompletion').classList.remove('p-visible');
+}
+})();
+</script>
+
+</div>
+
+<!-- ==================== SLIDE 11: TESTING PHILOSOPHY ==================== -->
+<div class="slide" id="slide-11">
+
+<!-- Deterministic vs Probabilistic -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">🧪</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--accent)">Testing Philosophy</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.75rem">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.18);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">✅</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;font-weight:700;color:var(--accent)">Deterministic</div>
+      <div style="font-size:0.62rem;color:rgba(255,255,255,0.25);margin-top:0.35rem">Input → one correct output</div>
+      <div style="font-size:0.62rem;color:rgba(255,255,255,0.25)">Binary pass / fail</div>
+      <div style="font-size:0.62rem;color:rgba(255,255,255,0.25)">Testing ends at launch</div>
+    </div>
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.18);border-radius:8px;padding:1rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🎯</div>
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;font-weight:700;color:var(--purple)">Probabilistic</div>
+      <div style="font-size:0.62rem;color:rgba(255,255,255,0.25);margin-top:0.35rem">Input → range of reasonable outputs</div>
+      <div style="font-size:0.62rem;color:rgba(255,255,255,0.25)">Validated against expert judgment</div>
+      <div style="font-size:0.62rem;color:rgba(255,255,255,0.25)">Testing is ongoing forever</div>
+    </div>
+  </div>
+</div>
+
+<!-- Expert Champion Panel -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">👥</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--amber)">Expert Champion Panel</div>
+  </div>
+
+  <!-- Vertical flow with arrows -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:0">
+    <div style="width:100%;background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.15rem">📝</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Assess Independently</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Rate risk & recommend actions before seeing AI output</div>
+    </div>
+    <div style="text-align:center;color:rgba(185,114,21,0.4);font-size:0.9rem;line-height:1">↓</div>
+    <div style="width:100%;background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.15rem">📊</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Become the Benchmark</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">AI evaluated against panel consensus, not a single answer</div>
+    </div>
+    <div style="text-align:center;color:rgba(185,114,21,0.4);font-size:0.9rem;line-height:1">↓</div>
+    <div style="width:100%;background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.15rem">🔍</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Review Divergences</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Is AI reasoning defensible or flawed?</div>
+    </div>
+    <div style="text-align:center;color:rgba(185,114,21,0.4);font-size:0.9rem;line-height:1">↓</div>
+    <div style="width:100%;background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.15rem">🔧</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Calibrate & Advocate</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Improve system, then champion the rollout</div>
+    </div>
+  </div>
+</div>
+
+<!-- Four Testing Dimensions -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">🔬</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--purple)">Four Testing Dimensions</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📊</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">Expert Benchmarks</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">AI within expert range</div>
+    </div>
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔄</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">Consistency</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Same data → stable conclusions</div>
+    </div>
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🎚️</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">Sensitivity</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Score moves right direction</div>
+    </div>
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔁</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">Feedback Loops</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Override rate = key metric</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;margin-top:0.75rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.55)">Testing never ends — continuous validation is the nature of AI</div>
+  </div>
+</div>
+
+</div>
+
+<!-- ==================== SLIDE 12: CHANGE MANAGEMENT — SHIFT FRAMEWORK ==================== -->
+<div class="slide" id="slide-12">
+
+<!-- SHIFT header bar -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1rem 1.5rem;margin:1rem 0;display:flex;align-items:center;justify-content:center;gap:0.35rem">
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;color:var(--accent);background:rgba(0,180,160,0.12);border-radius:4px;padding:0.1rem 0.4rem">S</div>
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;color:var(--coral);background:rgba(216,90,48,0.12);border-radius:4px;padding:0.1rem 0.4rem">H</div>
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;color:var(--amber);background:rgba(185,114,21,0.12);border-radius:4px;padding:0.1rem 0.4rem">I</div>
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;color:var(--purple);background:rgba(83,74,183,0.12);border-radius:4px;padding:0.1rem 0.4rem">F</div>
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;font-weight:800;color:var(--teal);background:rgba(15,110,86,0.12);border-radius:4px;padding:0.1rem 0.4rem">T</div>
+  <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.85rem;font-weight:700;color:rgba(255,255,255,0.5);margin-left:0.5rem">Change Management Framework</div>
+</div>
+
+<!-- S — Story -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--accent);background:rgba(0,180,160,0.12);border-radius:6px;padding:0.15rem 0.5rem">S</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--accent)">Story</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📖</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Their Reality First</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Not the technology</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔄</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">200+ Accounts</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Deep on only 20–30</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🤝</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">No Blame</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Structural limits</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(0,180,160,0.06);border:1px solid rgba(0,180,160,0.12);border-radius:6px;padding:0.65rem;margin-top:0.75rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Describe their experience accurately — they stop defending and start listening</div>
+  </div>
+</div>
+
+<!-- H — Human Impact -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--coral);background:rgba(216,90,48,0.12);border-radius:6px;padding:0.15rem 0.5rem">H</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--coral)">Human Impact</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">😰</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">150 Accounts Unseen</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Hidden $200K write-offs</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🚪</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Knowledge Loss</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">3 months gone per exit</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">⏳</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Low-Value Triage</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">First hour, every cycle</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(216,90,48,0.06);border:1px solid rgba(216,90,48,0.12);border-radius:6px;padding:0.65rem;margin-top:0.75rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">People change because the current state is painful — make them feel it</div>
+  </div>
+</div>
+
+<!-- I — Incentive -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--amber);background:rgba(185,114,21,0.12);border-radius:6px;padding:0.15rem 0.5rem">I</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--amber)">Incentive</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.5rem">
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">👤</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Analyst</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Pre-analyzed portfolio every cycle</div>
+    </div>
+    <div style="background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📊</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Manager</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Real-time risk visibility</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(0,180,160,0.06);border:1px solid rgba(0,180,160,0.12);border-radius:8px;padding:0.85rem;text-align:center">
+    <div style="font-size:1.5rem;margin-bottom:0.25rem">🛡️</div>
+    <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">The Unspoken Fear</div>
+    <div style="font-size:0.62rem;color:rgba(255,255,255,0.3)">AI does the analysis — you make the decisions — it gives you superpowers, not a pink slip</div>
+  </div>
+</div>
+
+<!-- F — Feedback Loop -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--purple);background:rgba(83,74,183,0.12);border-radius:6px;padding:0.15rem 0.5rem">F</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--purple)">Feedback Loop</div>
+  </div>
+
+  <!-- Horizontal flow -->
+  <div style="display:flex;align-items:center;gap:0.3rem">
+    <div style="flex:1;background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.15rem">📝</div>
+      <div style="font-size:0.68rem;font-weight:600;color:var(--purple)">Capture</div>
+      <div style="font-size:0.52rem;color:rgba(255,255,255,0.25)">Every override logged</div>
+    </div>
+    <div style="color:rgba(83,74,183,0.4);font-size:0.9rem;flex-shrink:0">→</div>
+    <div style="flex:1;background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.15rem">🔍</div>
+      <div style="font-size:0.68rem;font-weight:600;color:var(--purple)">Analyze</div>
+      <div style="font-size:0.52rem;color:rgba(255,255,255,0.25)">Find systematic gaps</div>
+    </div>
+    <div style="color:rgba(83,74,183,0.4);font-size:0.9rem;flex-shrink:0">→</div>
+    <div style="flex:1;background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.75rem;text-align:center">
+      <div style="font-size:1.3rem;margin-bottom:0.15rem">📢</div>
+      <div style="font-size:0.68rem;font-weight:600;color:var(--purple)">Communicate</div>
+      <div style="font-size:0.52rem;color:rgba(255,255,255,0.25)">Show what changed</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(83,74,183,0.06);border:1px solid rgba(83,74,183,0.12);border-radius:6px;padding:0.65rem;margin-top:0.75rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">"We are teaching the system how to think about our portfolio"</div>
+  </div>
+</div>
+
+<!-- T — Training -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:1.1rem;font-weight:800;color:var(--teal);background:rgba(15,110,86,0.12);border-radius:6px;padding:0.15rem 0.5rem">T</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--teal)">Training — Role-Specific</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.75rem">
+    <div style="background:rgba(15,110,86,0.08);border:1px solid rgba(15,110,86,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">👤</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--teal)">Analysts</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Read · interpret · override</div>
+    </div>
+    <div style="background:rgba(15,110,86,0.08);border:1px solid rgba(15,110,86,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📊</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--teal)">Managers</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Risk view · allocation · drift</div>
+    </div>
+    <div style="background:rgba(15,110,86,0.08);border:1px solid rgba(15,110,86,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🏢</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--teal)">Leadership</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">KPIs · board comms · ROI</div>
+    </div>
+  </div>
+
+  <!-- Phased rollout -->
+  <div style="display:flex;align-items:center;gap:0.3rem">
+    <div style="flex:1;background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:6px;padding:0.65rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.7rem;font-weight:800;color:var(--accent)">Phase 1</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Read & validate</div>
+    </div>
+    <div style="color:rgba(255,255,255,0.12);font-size:0.8rem;flex-shrink:0">→</div>
+    <div style="flex:1;background:rgba(185,114,21,0.08);border:1px solid rgba(185,114,21,0.15);border-radius:6px;padding:0.65rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.7rem;font-weight:800;color:var(--amber)">Phase 2</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Boundaries & results</div>
+    </div>
+    <div style="color:rgba(255,255,255,0.12);font-size:0.8rem;flex-shrink:0">→</div>
+    <div style="flex:1;background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:6px;padding:0.65rem;text-align:center">
+      <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.7rem;font-weight:800;color:var(--purple)">Phase 3</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Optimize & expand</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;margin-top:0.75rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.55)">Each phase delivers value before the next expands scope</div>
+  </div>
+</div>
+
+</div>
+
+<!-- ==================== SLIDE 13: GO-LIVE & POST-DEPLOYMENT ==================== -->
+<div class="slide" id="slide-13">
+
+<!-- Dedicated Project Support -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">🚀</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--accent)">Dedicated Support — First 2–4 Weeks</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">⚡</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Rapid Triage</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Errors, integration, outputs</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔬</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Defect vs. Calibration</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Bug or misalignment?</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔧</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Hot Fixes</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">No formal release needed</div>
+    </div>
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📝</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Knowledge Capture</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Every issue documented</div>
+    </div>
+  </div>
+</div>
+
+<!-- Two-Track Support -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">🔀</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--amber)">Two-Track Support Model</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.75rem">
+    <div style="background:rgba(0,180,160,0.08);border:1px solid rgba(0,180,160,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔧</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--accent)">Technical Issues</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Standard IT triage</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🧠</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Model Performance</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">AI / data science escalation</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(185,114,21,0.06);border:1px solid rgba(185,114,21,0.12);border-radius:6px;padding:0.65rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:var(--amber)">Define escalation paths before go-live, not after a problem surfaces</div>
+  </div>
+</div>
+
+<!-- Model Monitoring — Why AI Drifts -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">📡</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--purple)">Why AI Drifts</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.75rem">
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🏭</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">Portfolio Mix Shifts</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">New industries unseen in testing</div>
+    </div>
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📉</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">Macro Changes</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Recession, rates, downturns</div>
+    </div>
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🎯</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">New Segments</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Different payment behaviors</div>
+    </div>
+    <div style="background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🗓️</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--purple)">Seasonal Patterns</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Emerge only in production</div>
+    </div>
+  </div>
+
+  <!-- Monitoring signals as horizontal flow -->
+  <div style="display:flex;align-items:center;gap:0.25rem">
+    <div style="flex:1;background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:6px;padding:0.55rem;text-align:center">
+      <div style="font-size:0.9rem;margin-bottom:0.1rem">📊</div>
+      <div style="font-size:0.58rem;font-weight:600;color:var(--purple)">Override Rate</div>
+    </div>
+    <div style="flex:1;background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:6px;padding:0.55rem;text-align:center">
+      <div style="font-size:0.9rem;margin-bottom:0.1rem">📈</div>
+      <div style="font-size:0.58rem;font-weight:600;color:var(--purple)">Distribution</div>
+    </div>
+    <div style="flex:1;background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:6px;padding:0.55rem;text-align:center">
+      <div style="font-size:0.9rem;margin-bottom:0.1rem">🔍</div>
+      <div style="font-size:0.58rem;font-weight:600;color:var(--purple)">Confidence</div>
+    </div>
+    <div style="flex:1;background:rgba(83,74,183,0.08);border:1px solid rgba(83,74,183,0.15);border-radius:6px;padding:0.55rem;text-align:center">
+      <div style="font-size:0.9rem;margin-bottom:0.1rem">👥</div>
+      <div style="font-size:0.58rem;font-weight:600;color:var(--purple)">Panel Reviews</div>
+    </div>
+  </div>
+</div>
+
+<!-- Recalibration Triggers -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">🔄</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--coral)">Recalibration Triggers</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.75rem">
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">⚠️</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Override &gt;20%</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">For 2+ cycles</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔀</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Portfolio Shift</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Major composition change</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🌍</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Macro Event</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Payment behavior shifts</div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🎯</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">Systematic Misclass</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Panel flags pattern</div>
+    </div>
+    <div style="background:rgba(216,90,48,0.08);border:1px solid rgba(216,90,48,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">📥</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--coral)">New Data Source</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Re-validate with new signals</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(255,255,255,0.04);border-radius:6px;padding:0.65rem;margin-top:0.75rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:rgba(255,255,255,0.55)">Same validation process as original testing — benchmarks, consistency, panel review</div>
+  </div>
+</div>
+
+<!-- Go-Live Communications -->
+<div style="background:var(--code-bg);border-radius:10px;padding:1.5rem;margin:1rem 0">
+  <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:1.25rem;justify-content:center">
+    <div style="font-size:1.3rem">📢</div>
+    <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.95rem;font-weight:700;color:var(--teal)">Go-Live Communications</div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem">
+    <div style="background:rgba(15,110,86,0.08);border:1px solid rgba(15,110,86,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">✅</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--teal)">What's Changing</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Prioritized view is live</div>
+    </div>
+    <div style="background:rgba(15,110,86,0.08);border:1px solid rgba(15,110,86,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🛡️</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--teal)">What's Not</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Human review still required</div>
+    </div>
+    <div style="background:rgba(15,110,86,0.08);border:1px solid rgba(15,110,86,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🐛</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--teal)">Report Issues</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Named contacts, distinct paths</div>
+    </div>
+    <div style="background:rgba(15,110,86,0.08);border:1px solid rgba(15,110,86,0.15);border-radius:8px;padding:0.85rem;text-align:center">
+      <div style="font-size:1.5rem;margin-bottom:0.25rem">🔄</div>
+      <div style="font-size:0.72rem;font-weight:600;color:var(--teal)">Feedback Loop</div>
+      <div style="font-size:0.58rem;color:rgba(255,255,255,0.25)">Your input improves it</div>
+    </div>
+  </div>
+
+  <div style="background:rgba(15,110,86,0.06);border:1px solid rgba(15,110,86,0.12);border-radius:6px;padding:0.65rem;margin-top:0.75rem;text-align:center">
+    <div style="font-size:0.72rem;font-weight:600;color:var(--teal)">Go-live is the beginning of an ongoing operational relationship</div>
+  </div>
+</div>
+
+</div>
+
+</div><!-- /container -->
+
+<div class="container">
+  <div class="slide-nav">
+    <button id="prevBtn" onclick="prev()" disabled>&larr; Previous</button>
+    <span class="counter" id="counter">1 / 14</span>
+    <button id="nextBtn" onclick="next()">Next &rarr;</button>
+  </div>
+</div>
+
+<script>
+let current = 0;
+const total = 14;
+
+function goTo(i) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.getElementById('slide-' + i).classList.add('active');
+  document.querySelectorAll('.progress-bar button').forEach((b, idx) => {
+    b.classList.toggle('active', idx === i);
+  });
+  current = i;
+  document.getElementById('prevBtn').disabled = (i === 0);
+  document.getElementById('nextBtn').disabled = (i === total - 1);
+  document.getElementById('counter').textContent = (i + 1) + ' / ' + total;
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function next() { if (current < total - 1) goTo(current + 1); }
+function prev() { if (current > 0) goTo(current - 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') next();
+  if (e.key === 'ArrowLeft') prev();
+});
+</script>
+
+</body>
+</html>
